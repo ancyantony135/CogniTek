@@ -39,8 +39,8 @@ Cognitek utilizes a decoupled architecture to balance heavy AI processing with a
 | :--- | :--- | :--- |
 | **Hansel Sabu** | Team Lead | Backend, AI Integration, & Database |
 | **Elvin Alias** | Frontend Lead | Dashboard UI & Task Components |
-| **Benil** | Data Manager | Scheduling Logic & KTU Scraping |
-| **Nikhil** | Feature Lead | Study Mode & Flashcard UI |
+| **Benil Cherian** | Data Manager | Scheduling Logic & KTU Scraping |
+| **Nikhil CN** | Feature Lead | Study Mode & Flashcard UI |
 
 ---
 
@@ -64,3 +64,46 @@ Cognitek utilizes a decoupled architecture to balance heavy AI processing with a
 - **Phase 1 (Done)**: Core AI pipeline and basic dashboard.
 - **Phase 2 (Current)**: Data validation, scheduling logic, and UI refinement.
 - **Phase 3**: KTU scraping integration and Chatbot deployment.
+
+
+## 🛠️ Setup & Collaboration Guide
+
+Follow these steps to get the project running on your local machine.
+
+### **1. Getting the Code**
+1. Open **VS Code**.
+2. Open the terminal (**Ctrl + `**) and run:
+   ```bash
+   git clone [https://github.com/Hansel-Sabu/CogniTek.git](https://github.com/Hansel-Sabu/CogniTek.git)
+
+
+
+
+# Developer Action Plan Choices (Kickoff Tasks)
+
+### 📊 Benil: Data & Logic Lead
+Primary File: cognitive_server/main.py
+
+KTU Scraper: Create a new script ktu_scraper.py using BeautifulSoup or requests to fetch notification headers from the KTU website.
+
+Conflict Logic: In main.py, write a function to compare a new task's due_date against existing entries in cognitek.db to alert the user of overlaps.
+
+Schema Update: Modify the Task class in the backend to include a status (String) field for tracking completed tasks.
+
+### 🎨 Elvin Alias: Frontend Lead
+Primary Folder: cognitek_web/src/
+
+Glassmorphism UI: Update App.css to implement a modern, semi-transparent "Glass" effect for the dashboard cards.
+
+Priority Components: Refactor the task list in App.jsx so that cards dynamically change color or glow based on the task.priority value (High/Medium/Low).
+
+Countdown Timer: Implement a JavaScript function to display a "Time Remaining" countdown on each task card.
+
+### 🧠 Nikhil: Feature Lead
+Primary Folder: cognitek_web/src/
+
+Study Mode Component: Create a new StudyMode.jsx file. Use React state to toggle between the "Task Dashboard" and a "Flashcard Study" view.
+
+Flashcard Flip: Add a CSS transition to the flashcard cards so they "flip" over to reveal the answer when clicked.
+
+Subject Filter: Add a search bar or dropdown to the Flashcard section to filter cards by topic.
