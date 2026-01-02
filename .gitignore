@@ -1,0 +1,17 @@
+# Python / Backend
+venv/
+__pycache__/
+*.pyc
+api_key.txt
+database/cognitek.db
+uploads/
+
+# React / Frontend
+node_modules/
+dist/
+.env
+.DS_Store
+
+# Logs
+*.log
+*.whl
