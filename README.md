@@ -37,7 +37,7 @@ Cognitek utilizes a decoupled architecture to balance heavy AI processing with a
 
 | Member | Role | Primary Responsibility |
 | :--- | :--- | :--- |
-| **Hansel Sabu** | Architect | Backend, AI Integration, & Database |
+| **Hansel Sabu** | Team Lead | Backend, AI Integration, & Database |
 | **Elvin Alias** | Frontend Lead | Dashboard UI & Task Components |
 | **Benil** | Data Manager | Scheduling Logic & KTU Scraping |
 | **Nikhil** | Feature Lead | Study Mode & Flashcard UI |
