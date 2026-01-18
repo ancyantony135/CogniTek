@@ -1,47 +1,42 @@
-Project Structure
+# 🚀 COGNITEK: Personilized AI Assistant for Students
+ ## Electrical and Computer Engineering
 
+Cognitek is a personalized, hands-free AI assistant designed to help students manage their academic life. It captures spoken instructions via a wearable device, processes them using **Whisper (STT)** and **Gemini 1.5 Flash (NLU)**, and automatically schedules tasks and creates study materials.
 
+---
+
+## 🏗️ Project Structure
+The repository is organized into three specialized modules to allow the team to work in parallel:
+
+```text
 COGNITEK_SERVER/
-├── Backend/            # FastAPI, AI Models (Whisper/Gemini)
-│   ├── venv/           # Virtual Environment (Git Ignored)
-│   ├── main.py         # Primary API Server
-│   ├── api_key.txt     # Your Gemini Key (Git Ignored)
+├── Backend/                # FastAPI Server & AI Logic (Whisper, Gemini)
+│   ├── automationmodule.md # Benil's Scraper workspace
+│   ├── main.py             # Primary API Gateway
 │   └── requirements.txt
-├── Frontend/           # React + Vite (Elvin's Workspace)
-└── Database/           # SQLite Storage
-    └── database/
-        └── cognitek.db # Shared persistent storage
+├── Frontend/           # React Dashboard (Elvin's Workspace)
+│   └── cognitek_web/   # Frontend Integration Guide inside
+    └── FRONTEND_INTEGRATION.md
+└── Database/           # Centralized Storage
+    └── database/       # Shared SQLite (cognitek.db)
+```
 
 
-🛠️ Backend Setup (Team Guide)
-        
-   1. Environment Activation
-      We are using Python 3.14. To ensure high-speed processing on the RTX 3060, follow these steps:PowerShell
-         cd Backend
-         python -m venv venv
-         .\venv\Scripts\activate
-   2. Hardware-Optimized Installation
-      Since we are using GPU acceleration, the standard pip install won't work for PyTorch. Run:PowerShell
-         pip install -r requirements.txt
-   3. API Key Configuration
-      For security, 
-         API keys are not pushed to GitHub.
-         Create a file named api_key.txt in the /Backend folder.
-         Paste your Google AI Studio key inside.
-         Ensure api_key.txt is listed in your .gitignore.
-🛰️ API Documentation (For Frontend Integration)
-   The backend exposes several endpoints. You can view the full interactive documentation at http://127.0.0.1:8000/docs while the server is running.
+## ⚡ Current Technical Status
+### Hardware: Backend is optimized for NVIDIA CUDA using an RTX 3060 Laptop GPU.
 
-   Method  Endpoint                Description
-   POST    /api/process-audio       Accepts a .wav file, transcribes it, and saves a task.
-   GET     /api/tasks               Returns all scheduled tasks for the dashboard.
-   POST    /api/chat                Direct text interaction with the Cognitek AI.
-   DELETE  /api/tasks/{id}          Removes a task from the database. 
+### Environment: Running on Python 3.14 (Nightly builds for CUDA compatibility).
+
+### AI Engine: Whisper: Local GPU-accelerated transcription.
+
+### Gemini: Context-aware task extraction and chat.
+
+### Handshake: CORS is enabled for local frontend development on port 5173.
 
 
-
-Running the Project
-   PowerShell
-   # Inside /Backend with (venv) active
-   uvicorn main:app --reload
-      The server will start on http://127.0.0.1:8000. RTX 3060 will automatically handle the audio processing.
+## 🤝 Team Handover & Roadmap
+### Member                Focus Area                    Resource
+Hans:                 Lead Architect / Backend      Managing GPU Server & AI logic.
+Elvin:                Frontend (React)              See FRONTEND_INTEGRATION.md for API calls.
+Benil:                Automation (Scraping)         See Automation module.md in Database folder.
+Nikhil:               IoT (Wearable Band)           Handshake logic for ESP32 audio streaming.
