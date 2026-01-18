@@ -1,0 +1,9 @@
+# "PASTE_YOUR_GEMINI_API_KEY_HERE"
+
+Go to the Google AI Studio, get your own free API key, and create your own local api_key.txt file.
+
+Why?
+
+Free-tier API keys have limits (like how many requests you can make per minute). 
+If all four of us shared one key, 
+We would hit that limit four times faster, causing the app to crash for everyone.

@@ -13,14 +13,10 @@ import torch
 from datetime import datetime
 from typing import Optional
 
-# --- CONFIGURATION ---
-# Ensure your api_key.txt is in the same folder as main.py
 with open("api_key.txt", "r") as f:
     GEMINI_API_KEY = f.read().strip()
 
-# --- DATABASE SETUP ---
-# ".." tells it to look in the parallel Database folder if you moved it
-# If you kept it inside Backend, use "sqlite:///./database/cognitek.db"
+
 DATABASE_URL = "sqlite:///./database/cognitek.db"
 os.makedirs("database", exist_ok=True)
 
