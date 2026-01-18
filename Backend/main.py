@@ -16,15 +16,16 @@ from typing import Optional
 with open("api_key.txt", "r") as f:
     GEMINI_API_KEY = f.read().strip()
 
+#Locates database
 
-DATABASE_URL = "sqlite:///./database/cognitek.db"
+DATABASE_URL = "sqlite:///../Database/database/cognitek.db"
 os.makedirs("database", exist_ok=True)
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# --- DB MODELS ---
+# DB MODELS 
 class TaskDB(Base):
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True, index=True)
@@ -44,7 +45,7 @@ class FlashcardDB(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# --- PYDANTIC MODELS (For Frontend Inputs) ---
+# PYDANTIC MODELS (For Frontend Inputs)
 class TaskUpdate(BaseModel):
     is_completed: bool
 
@@ -56,12 +57,12 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allows Elvin's React app (localhost:5173) to connect
+    allow_origins=["*"], # Allows React app (localhost:5173) to connect
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- LOAD AI MODELS ---
+#LOAD AI MODELS 
 print("------------------------------------------------")
 print("🚀 COGNITEK ARCHITECT SERVER STARTING...")
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -77,7 +78,7 @@ text_model = genai.GenerativeModel('gemini-1.5-flash')
 print("✅ Server Ready.")
 print("------------------------------------------------")
 
-# --- UTILS ---
+# UTILS
 def get_db():
     db = SessionLocal()
     try:
@@ -85,7 +86,7 @@ def get_db():
     finally:
         db.close()
 
-# --- API ENDPOINTS ---
+# API ENDPOINTS
 
 # 1. AUDIO PROCESSING (The "Ears")
 @app.post("/api/process-audio")
@@ -156,7 +157,7 @@ async def process_audio(file: UploadFile = File(...)):
         print(f"❌ Error: {e}")
         return {"status": "error", "message": str(e)}
 
-# 2. TASK MANAGEMENT (For Elvin)
+# 2. TASK MANAGEMENT (For FrontEnd)
 @app.get("/api/tasks")
 def get_tasks():
     db = SessionLocal()
@@ -190,7 +191,7 @@ def delete_task(task_id: int):
     db.close()
     return {"status": "deleted", "id": task_id}
 
-# 3. CHATBOT INTELLIGENCE (For Nikhil)
+# 3. CHATBOT INTELLIGENCE (For Feature Lead)
 @app.post("/api/chat")
 def chat_with_ai(request: ChatRequest):
     # 1. Fetch Context from DB (The "Brain")
@@ -215,7 +216,7 @@ def chat_with_ai(request: ChatRequest):
     response = text_model.generate_content(prompt)
     return {"response": response.text}
 
-# 4. FLASHCARDS (For Nikhil)
+# 4. FLASHCARDS (For Feature Lead)
 @app.get("/api/flashcards")
 def get_flashcards():
     db = SessionLocal()
