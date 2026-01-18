@@ -35,8 +35,15 @@ COGNITEK_SERVER/
 
 
 ## 🤝 Team Handover & Roadmap
-### Member                Focus Area                    Resource
-Hans:                 Lead Architect / Backend      Managing GPU Server & AI logic.
-Elvin:                Frontend (React)              See FRONTEND_INTEGRATION.md for API calls.
-Benil:                Automation (Scraping)         See Automation module.md in Database folder.
-Nikhil:               IoT (Wearable Band)           Handshake logic for ESP32 audio streaming.
+
+### Member            Focus Area                    Resource
+#### Hans:                 
+Lead Architect / Backend      Managing GPU Server & AI logic.
+#### Elvin:                
+Frontend (React)              See FRONTEND_INTEGRATION.md for API calls.
+#### Benil:                
+Automation (Scraping)         See Automation module.md in Database folder.
+#### Nikhil:               
+IoT (Wearable Band)           Handshake logic for ESP32 audio streaming.
+
+
