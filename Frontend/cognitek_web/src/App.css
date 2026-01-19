@@ -1,58 +1,101 @@
-:root {
-  --primary: #6366f1;
-  --bg: #f8fafc;
-  --card: #ffffff;
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
 }
 
-body { background: var(--bg); color: #1e293b; margin: 0; }
-.container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-header { text-align: center; margin-bottom: 40px; }
+body {
+  margin: 0;
+  background: #f4f6fb;
+}
 
-.input-section { 
-  text-align: center; 
-  background: var(--card); 
-  padding: 30px; 
-  border-radius: 20px; 
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  margin-bottom: 40px;
+.app {
+  padding: 30px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.record-section {
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .record-btn {
   padding: 15px 30px;
   font-size: 18px;
-  font-weight: bold;
   border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s;
-  background: var(--primary);
+  border-radius: 30px;
+  background: #4f46e5;
   color: white;
+  cursor: pointer;
 }
 
 .record-btn.recording {
-  background: #ef4444;
-  animation: pulse 1.5s infinite;
+  background: crimson;
 }
 
-.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.status {
+  margin-top: 10px;
+  font-weight: bold;
+}
 
-.task-card, .flashcard-set {
-  background: var(--card);
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.card {
+  background: white;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 15px;
   margin-bottom: 15px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.subject-tag { background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-.priority-badge.high { color: #ef4444; font-size: 12px; font-weight: bold; }
-.card-footer { display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-top: 15px; border-top: 1px solid #f1f5f9; pt: 10px; }
+.card-top {
+  display: flex;
+  justify-content: space-between;
+}
 
-.mini-card { border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 10px; font-size: 14px; }
+.subject {
+  font-weight: bold;
+}
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+.priority {
+  padding: 5px 10px;
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+}
+
+.priority.High {
+  background: red;
+}
+
+.priority.Medium {
+  background: orange;
+}
+
+.priority.Low {
+  background: green;
+}
+
+.complete-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+}
+
+.flashcard {
+  background: #eef2ff;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
 }
