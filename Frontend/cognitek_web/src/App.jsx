@@ -1,25 +1,27 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import "./App.css";
+
+const API = "http://127.0.0.1:8000/api";
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [flashcards, setFlashcards] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("Ready");
-  
-  // Recording State
+  const [loading, setLoading] = useState(false);
+
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
+  // ---------------- FETCH DATA ----------------
   const fetchData = async () => {
     try {
-      const taskRes = await axios.get('http://127.0.0.1:8000/tasks'); 
+      const taskRes = await axios.get(`${API}/tasks`);
+      const cardRes = await axios.get(`${API}/flashcards`);
       setTasks(taskRes.data);
-      const cardRes = await axios.get('http://127.0.0.1:8000/flashcards');
       setFlashcards(cardRes.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -27,108 +29,121 @@ function App() {
     fetchData();
   }, []);
 
-  // Updated Upload Logic to handle both Files and Recorded Blobs
-  const uploadFile = async (file) => {
+  // ---------------- AUDIO UPLOAD ----------------
+  const uploadAudio = async (file) => {
     setLoading(true);
-    setStatus("AI is thinking...");
+    setStatus("🧠 Cognitek is thinking...");
+
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      await axios.post('http://127.0.0.1:8000/process-audio', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      await axios.post(`${API}/process-audio`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      setStatus("Success! Saved to Database.");
-      fetchData(); 
-    } catch (error) {
-      setStatus("Error processing audio.");
+      setStatus("✅ Task successfully added!");
+      fetchData();
+    } catch (err) {
+      setStatus("❌ Error processing audio");
     } finally {
       setLoading(false);
     }
   };
 
+  // ---------------- RECORDING ----------------
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       let chunks = [];
+
       recorder.ondataavailable = (e) => chunks.push(e.data);
+
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/wav' });
-        const file = new File([blob], "recorded_audio.wav");
-        uploadFile(file);
+        const blob = new Blob(chunks, { type: "audio/wav" });
+        const file = new File([blob], "recording.wav");
+        uploadAudio(file);
       };
+
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
-      setStatus("Listening...");
-    } catch (err) {
-      setStatus("Microphone access denied.");
+      setStatus("🎤 Listening...");
+    } catch {
+      setStatus("❌ Microphone permission denied");
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-    }
+    mediaRecorder.stop();
+    setIsRecording(false);
+  };
+
+  // ---------------- TASK COMPLETE ----------------
+  const completeTask = async (id) => {
+    await axios.patch(`${API}/tasks/${id}`, { is_completed: true });
+    fetchData();
   };
 
   return (
-    <div className="container">
-      <header>
+    <div className="app">
+      <header className="header">
         <h1>🎓 Cognitek</h1>
-        <p>Personalized AI Assistant for Students</p>
+        <p>Your Personalized AI Student Assistant</p>
       </header>
-      
-      <div className="input-section">
-        <button 
-          className={`record-btn ${isRecording ? 'recording' : ''}`} 
+
+      <div className="record-section">
+        <button
+          className={`record-btn ${isRecording ? "recording" : ""}`}
           onClick={isRecording ? stopRecording : startRecording}
           disabled={loading}
         >
-          {isRecording ? "🛑 Stop Recording" : "🎤 Tap to Speak"}
+          {isRecording ? "🛑 Stop Recording" : "🎤 Speak"}
         </button>
-        <p className="status-text">{status}</p>
+        <p className="status">{status}</p>
       </div>
 
-      <div className="dashboard-grid">
-        <section className="column">
-          <h2>📅 Upcoming Tasks</h2>
-          <div className="list">
-            {tasks.map((task) => (
-              <div key={task.id} className="task-card">
-                <div className="card-header">
-                  <span className="subject-tag">{task.subject}</span>
-                  <span className={`priority-badge ${task.priority.toLowerCase()}`}>
-                    {task.priority}
-                  </span>
-                </div>
-                <h3>{task.title}</h3>
-                <div className="card-footer">
-                  <span>📅 {task.due_date}</span>
-                  <span>🕒 {task.created_at.split(' ')[1]}</span>
-                </div>
+      <div className="grid">
+        {/* TASKS */}
+        <section>
+          <h2>📅 Tasks</h2>
+          {tasks.length === 0 && <p>No tasks yet</p>}
+          {tasks.map((task) => (
+            <div className="card" key={task.id}>
+              <div className="card-top">
+                <span className="subject">{task.subject}</span>
+                <span className={`priority ${task.priority}`}>
+                  {task.priority}
+                </span>
               </div>
-            ))}
-          </div>
+              <h3>{task.title}</h3>
+              <p>📆 {task.due_date}</p>
+              {!task.is_completed && (
+                <button
+                  className="complete-btn"
+                  onClick={() => completeTask(task.id)}
+                >
+                  ✔ Mark Complete
+                </button>
+              )}
+            </div>
+          ))}
         </section>
 
-        <section className="column">
-          <h2>🧠 Study Deck</h2>
-          <div className="list">
-            {flashcards.map((set) => (
-              <div key={set.id} className="flashcard-set">
-                <h4>Topic: {set.topic}</h4>
-                {set.content.map((card, i) => (
-                  <div key={i} className="mini-card">
-                    <p><strong>Q:</strong> {card.front}</p>
-                    <p><strong>A:</strong> {card.back}</p>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+        {/* FLASHCARDS */}
+        <section>
+          <h2>🧠 Flashcards</h2>
+          {flashcards.map((set) => (
+            <div className="card" key={set.id}>
+              <h3>{set.topic}</h3>
+              {set.content.map((card, i) => (
+                <div key={i} className="flashcard">
+                  <p><b>Q:</b> {card.front}</p>
+                  <p><b>A:</b> {card.back}</p>
+                </div>
+              ))}
+            </div>
+          ))}
         </section>
       </div>
     </div>
