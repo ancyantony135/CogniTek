@@ -27,7 +27,7 @@ export default function AuthPage() {
 
     return (
         <div
-            className="fixed inset-0 grid place-items-center bg-[var(--bg-dark)] font-sans text-slate-200 overflow-hidden"
+            className="min-h-screen w-full flex items-center justify-center py-10 px-4 bg-[var(--bg-dark)] font-sans text-slate-200 overflow-y-auto relative"
             onMouseMove={handleMouseMove}
             ref={containerRef}
         >
@@ -47,8 +47,8 @@ export default function AuthPage() {
                 }}
             />
 
-            {/* Glass Card Container (No 3D) */}
-            <div className="relative w-[440px] tech-glass-card p-10 flex flex-col items-center justify-center rounded-2xl transition-all duration-300">
+            {/* Glass Card Container (Responsive) */}
+            <div className="relative w-full max-w-[440px] mx-4 tech-glass-card p-6 sm:p-10 flex flex-col items-center justify-center rounded-2xl transition-all duration-300">
                 {view === "login" && (
                     <LoginForm onFlip={(target) => setView(target)} />
                 )}

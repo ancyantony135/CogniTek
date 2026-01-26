@@ -13,8 +13,16 @@ import torch
 from datetime import datetime
 from typing import Optional
 
-with open("api_key.txt", "r") as f:
-    GEMINI_API_KEY = f.read().strip()
+# Handle API Key (Env Var for Cloud, File for Local)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    try:
+        with open("api_key.txt", "r") as f:
+            GEMINI_API_KEY = f.read().strip()
+    except FileNotFoundError:
+        print("❌ Error: GEMINI_API_KEY not found. Set it in Env Vars or api_key.txt")
+        # In production, you might want to exit or handle this gracefully
 
 #Locates database
 
@@ -57,7 +65,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], # Allows React app (localhost:5173) to connect
+    allow_origins=["*"], # Allows mobile and local network access
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
