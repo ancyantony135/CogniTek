@@ -1,68 +1,194 @@
+@import "tailwindcss";
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  --primary: #7B2CBF;
+  /* Vibrant Violet */
+  --primary-glow: #9d4edd;
+  /* Lighter Violet for glows */
+  --bg-dark: #050505;
+  /* Midnight Black */
+  --bg-gradient: #1A0B2E;
+  /* Deep Indigo/Violet */
+  --glass: rgba(15, 15, 20, 0.45);
+  --glass-border: rgba(123, 44, 191, 0.3);
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  @apply bg-slate-950 text-slate-200 font-sans;
+  background-color: var(--bg-dark);
+  background-image: radial-gradient(circle at 50% 50%, var(--bg-gradient) 0%, var(--bg-dark) 70%);
   min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Animations */
+@keyframes float {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  50% {
+    transform: translate(10px, -15px) scale(1.05);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
 }
 
-button {
-  border-radius: 8px;
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(123, 44, 191, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(123, 44, 191, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(123, 44, 191, 0);
+  }
+}
+
+@keyframes border-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes scroll-text {
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes circuit-move {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 100px 100px;
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+.animate-scroll {
+  animation: scroll-text 15s linear infinite;
+}
+
+.bg-circuit {
+  background-image: linear-gradient(rgba(123, 44, 191, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123, 44, 191, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: circuit-move 60s linear infinite;
+}
+
+/* Technical UI Glass Card */
+.tech-glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border-image: linear-gradient(to bottom, transparent, var(--primary), transparent) 1;
+  /* Fallback for border-image compatibility issues on rounded corners, using box-shadow or simplified border instead */
+  border: 1px solid rgba(123, 44, 191, 0.2);
+  border-top: 1px solid rgba(123, 44, 191, 0.5);
+  border-bottom: 1px solid rgba(123, 44, 191, 0.5);
+
+  box-shadow: 0 0 80px -20px rgba(26, 11, 46, 0.8);
+  /* Soft violet glow */
+  border-radius: 2px;
+  /* Slight tech feel */
+  position: relative;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Luminous Border Mockup using pseudo-element if needed, but border properties above work well */
+
+.input-ghost {
+  @apply w-full px-4 py-3 bg-transparent border border-white/10 text-slate-200 outline-none transition-all duration-300;
+  border-radius: 4px;
+}
+
+.input-ghost:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(123, 44, 191, 0.2);
+  background: rgba(123, 44, 191, 0.05);
+}
+
+.btn-tech {
+  @apply w-full py-3 font-semibold text-white uppercase tracking-wider transition-all duration-300 relative overflow-hidden;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-glow) 100%);
+  border-radius: 9999px;
+  /* Pill shape */
+  box-shadow: 0 4px 15px rgba(123, 44, 191, 0.4);
+}
+
+.btn-tech:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(123, 44, 191, 0.6);
+  filter: brightness(1.1);
+}
+
+.text-gradient-silver {
+  background: linear-gradient(to bottom, #ffffff, #a0a0a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+/* 3D Flip Animation Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.rotate-y-0 {
+  transform: rotateY(0deg);
+}
+
+.will-change-transform {
+  will-change: transform;
 }

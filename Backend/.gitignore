@@ -19,5 +19,4 @@ dist/
 *.whl
 venv/
 node_modules/
-api_key.txt
 database/cognitek.

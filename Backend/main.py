@@ -18,7 +18,7 @@ with open("api_key.txt", "r") as f:
 
 #Locates database
 
-DATABASE_URL = "sqlite:///../Database/database/cognitek.db"
+DATABASE_URL = "sqlite:///./database/cognitek.db"
 os.makedirs("database", exist_ok=True)
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -75,7 +75,7 @@ audio_model = whisper.load_model("small", device=device)
 # Load Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 # Note: Use 'gemini-1.5-flash' or 'gemini-pro' if 2.5 is not yet available in your region
-text_model = genai.GenerativeModel('gemini-1.5-flash') 
+text_model = genai.GenerativeModel('gemini-2.5-flash') 
 print("✅ Server Ready.")
 print("------------------------------------------------")
 
@@ -107,15 +107,19 @@ async def process_audio(file: UploadFile = File(...)):
     prompt = f"""
     Analyze this student audio: "{transcribed_text}"
     
-    If it's a task/reminder, return JSON type "task".
-    If it's a concept/lecture, return JSON type "flashcards".
+    Extract ALL actionable tasks and ALL study concepts found.
     
-    FORMAT FOR TASK:
-    {{ "type": "task", "title": "...", "subject": "...", "due_date": "...", "priority": "High/Medium/Low" }}
+    FORMAT:
+    {{
+        "tasks": [
+            {{ "title": "...", "subject": "...", "due_date": "...", "priority": "High/Medium/Low" }}
+        ],
+        "flashcards": [
+            {{ "topic": "...", "cards": [{{ "front": "...", "back": "..." }}] }}
+        ]
+    }}
     
-    FORMAT FOR FLASHCARDS:
-    {{ "type": "flashcards", "topic": "...", "cards": [{{"front": "...", "back": "..."}}] }}
-    
+    If nothing found for a category, return an empty list [].
     Return ONLY raw JSON.
     """
     
@@ -125,34 +129,36 @@ async def process_audio(file: UploadFile = File(...)):
         data = json.loads(clean_json)
         
         db = SessionLocal()
-        saved_id = None
+        saved_ids = {"tasks": [], "flashcards": []}
         
-        if data["type"] == "task":
-            new_entry = TaskDB(
-                title=data.get("title"),
-                subject=data.get("subject"),
-                due_date=data.get("due_date"),
-                priority=data.get("priority")
+        # Process Tasks
+        for task in data.get("tasks", []):
+            new_task = TaskDB(
+                title=task.get("title"),
+                subject=task.get("subject"),
+                due_date=task.get("due_date"),
+                priority=task.get("priority")
             )
-            db.add(new_entry)
+            db.add(new_task)
             db.commit()
-            db.refresh(new_entry)
-            saved_id = new_entry.id
-            print(f"💾 Task Saved: {new_entry.title}")
-            
-        elif data["type"] == "flashcards":
-            new_entry = FlashcardDB(
-                topic=data.get("topic"),
-                content=data.get("cards")
+            db.refresh(new_task)
+            saved_ids["tasks"].append(new_task.id)
+            print(f"💾 Task Saved: {new_task.title}")
+
+        # Process Flashcards
+        for deck in data.get("flashcards", []):
+            new_deck = FlashcardDB(
+                topic=deck.get("topic"),
+                content=deck.get("cards")
             )
-            db.add(new_entry)
+            db.add(new_deck)
             db.commit()
-            db.refresh(new_entry)
-            saved_id = new_entry.id
-            print(f"💾 Flashcards Saved: {new_entry.topic}")
+            db.refresh(new_deck)
+            saved_ids["flashcards"].append(new_deck.id)
+            print(f"💾 Flashcards Saved: {new_deck.topic}")
 
         db.close()
-        return {"status": "success", "text": transcribed_text, "type": data["type"], "id": saved_id}
+        return {"status": "success", "text": transcribed_text, "data": data}
 
     except Exception as e:
         print(f"❌ Error: {e}")

@@ -1,21 +1,63 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AutoRecordProvider } from "./context/AutoRecordContext";
+import AppLayout from "./layouts/AppLayout";
+
+// Pages
+import AuthPage from "./pages/AuthPage";
+import Home from "./pages/Home";
+import Study from "./pages/Study";
+import Schedule from "./pages/Schedule";
+import Profile from "./pages/Profile";
+import Record from "./pages/Record";
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Login Page */}
-        <Route path="/" element={<Login />} />
+    <AuthProvider>
+      <AutoRecordProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Unified Auth Page for Login, Register, Recovery */}
+            <Route path="/" element={<AuthPage />} />
+            <Route path="/register" element={<AuthPage />} />
+            <Route path="/forgot-password" element={<AuthPage />} />
 
-        {/* Register Page */}
-        <Route path="/register" element={<Register />} />
+            {/* Protected App Routes */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Home />} />
+              <Route path="/study" element={<Study />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
 
-        {/* Dashboard (After Login) */}
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+            {/* Record Page (No Bottom Bar) */}
+            <Route
+              path="/record"
+              element={
+                <ProtectedRoute>
+                  <Record />
+                </ProtectedRoute>
+              }
+            />
+
+          </Routes>
+        </BrowserRouter>
+      </AutoRecordProvider>
+    </AuthProvider>
   );
 }
