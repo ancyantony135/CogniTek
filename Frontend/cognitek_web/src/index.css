@@ -1,22 +1,42 @@
 @import "tailwindcss";
 
 :root {
+  /* Default (Dark Mode) Variables */
   --primary: #7B2CBF;
-  /* Vibrant Violet */
   --primary-glow: #9d4edd;
-  /* Lighter Violet for glows */
-  --bg-dark: #050505;
-  /* Midnight Black */
+  --bg-primary: #050505;
   --bg-gradient: #1A0B2E;
-  /* Deep Indigo/Violet */
-  --glass: rgba(15, 15, 20, 0.45);
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --glass: rgba(15, 15, 20, 0.65);
   --glass-border: rgba(123, 44, 191, 0.3);
+  --card-bg: rgba(15, 15, 20, 0.45);
+}
+
+/* Light Mode Overrides */
+.light {
+  --primary: #6d28d9;
+  /* Slightly darker violet for better visibility on white */
+  --primary-glow: #8b5cf6;
+  --bg-primary: #f8fafc;
+  /* Slate-50 */
+  --bg-gradient: #eef2ff;
+  /* Indigo-50 */
+  --text-primary: #1e293b;
+  /* Slate-800 */
+  --text-secondary: #64748b;
+  /* Slate-500 */
+  --glass: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(109, 40, 217, 0.2);
+  --card-bg: rgba(255, 255, 255, 0.65);
 }
 
 body {
-  @apply bg-slate-950 text-slate-200 font-sans;
-  background-color: var(--bg-dark);
-  background-image: radial-gradient(circle at 50% 50%, var(--bg-gradient) 0%, var(--bg-dark) 70%);
+  @apply font-sans transition-colors duration-300;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  /* Global gradient background */
+  background-image: radial-gradient(circle at 50% 50%, var(--bg-gradient) 0%, var(--bg-primary) 70%);
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;

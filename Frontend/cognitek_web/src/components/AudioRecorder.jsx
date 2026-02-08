@@ -1,13 +1,24 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Mic, Loader2, CheckCircle2 } from "lucide-react";
 import api from "../api/api";
+import { useWakeLock } from "../hooks/useWakeLock";
 
-export default function AudioRecorder() {
+export default function AudioRecorder({ onUploadSuccess }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState("Ready to listen");
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const { requestWakeLock, releaseWakeLock } = useWakeLock();
+
+  useEffect(() => {
+    if (isRecording) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+  }, [isRecording, requestWakeLock, releaseWakeLock]);
 
   const startRecording = async () => {
     setStatus("Listening...");
@@ -28,6 +39,7 @@ export default function AudioRecorder() {
       mediaRecorderRef.current.start();
     } catch (error) {
       console.error("Error accessing microphone:", error);
+      alert("Microphone Error: " + error.message + "\nEnsure you are using HTTPS or Localhost.");
       setStatus("Microphone error");
       setIsRecording(false);
     }
@@ -43,55 +55,63 @@ export default function AudioRecorder() {
   };
 
   const handleAudioUpload = async () => {
-    const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+    const audioChunks = audioChunksRef.current;
+    // FIX 2: Set type to 'audio/webm' which is the standard browser output
+    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
     const formData = new FormData();
-    formData.append("file", audioBlob, "recording.wav");
+    formData.append("file", audioBlob, "recording.webm");
 
     try {
-      const response = await api.post("/process-audio", formData, {
+      const response = await api.post("/api/process-audio", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       console.log("Processed:", response.data);
-      setStatus("Done! Updating dashboard...");
 
-      // Artificial delay to let user see "Done" state
+      // FIX 1: Remove artificial delay and reload. Trigger a success UI instead.
+      setStatus("Data Synchronized");
+      setIsSuccess(true);
+      setIsProcessing(false);
+
+      // Trigger parent refresh
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+
+      // Reset the UI after 3 seconds without a full page reload
       setTimeout(() => {
+        setIsSuccess(false);
         setStatus("Ready to listen");
-        setIsProcessing(false);
-        // Reload page to refresh data (simple approach for now)
-        window.location.reload();
-      }, 1500);
+      }, 3000);
 
     } catch (error) {
       console.error("Upload failed", error);
-      setStatus("Error processing audio");
+      setStatus("Connection Failed");
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="glass-card p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-      {/* Animated Background Glow */}
-      {isRecording && (
-        <div className="absolute inset-0 bg-indigo-500/10 animate-pulse"></div>
-      )}
+    <div className="tech-glass-card p-8 flex flex-col items-center justify-center text-center relative overflow-hidden rounded-2xl w-full max-w-sm mx-auto">
+      {/* Animated Background Glows */}
+      {isRecording && <div className="absolute inset-0 bg-red-500/10 animate-pulse"></div>}
+      {isSuccess && <div className="absolute inset-0 bg-green-500/20 animate-in fade-in duration-500"></div>}
 
       <div className="relative z-10">
         <button
           onClick={isRecording ? stopRecording : startRecording}
-          disabled={isProcessing}
+          disabled={isProcessing || isSuccess}
           className={`
-            w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl
-            ${isRecording
-              ? "bg-red-500 hover:bg-red-600 scale-110 shadow-red-500/50"
-              : "bg-indigo-600 hover:bg-indigo-700 hover:scale-105 shadow-indigo-500/50"
-            }
-            ${isProcessing ? "opacity-80 cursor-not-allowed" : "cursor-pointer"}
-          `}
+          w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl
+          ${isRecording ? "bg-red-500 scale-110 shadow-red-500/50" : "bg-[var(--primary)] shadow-[var(--primary)]/50"}
+          ${isSuccess ? "bg-green-500 scale-100" : ""}
+          ${isProcessing ? "opacity-80 cursor-not-allowed" : "cursor-pointer"}
+        `}
         >
           {isProcessing ? (
             <Loader2 className="w-10 h-10 text-white animate-spin" />
+          ) : isSuccess ? (
+            <CheckCircle2 className="w-10 h-10 text-white animate-bounce" />
           ) : isRecording ? (
             <div className="w-8 h-8 bg-white rounded-lg animate-pulse" />
           ) : (
@@ -99,10 +119,10 @@ export default function AudioRecorder() {
           )}
         </button>
 
-        <h2 className="mt-6 text-2xl font-bold text-slate-800">
-          {isRecording ? "Listening..." : "Tap to Speak"}
+        <h2 className="mt-6 text-2xl font-bold text-[var(--text-primary)]">
+          {isSuccess ? "Sync Complete" : isRecording ? "Listening..." : "Tap to Speak"}
         </h2>
-        <p className={`mt-2 text-sm font-medium transition-colors duration-300 ${isRecording ? "text-indigo-600" : "text-slate-500"}`}>
+        <p className={`mt-2 text-sm font-medium transition-colors ${isRecording ? "text-red-400" : isSuccess ? "text-green-400" : "text-[var(--text-secondary)]"}`}>
           {status}
         </p>
       </div>

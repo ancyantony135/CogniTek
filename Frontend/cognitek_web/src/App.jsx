@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AutoRecordProvider } from "./context/AutoRecordContext";
 import AppLayout from "./layouts/AppLayout";
+import InstallPrompt from "./components/InstallPrompt";
 
 // Pages
 import AuthPage from "./pages/AuthPage";
@@ -25,6 +26,7 @@ export default function App() {
     <AuthProvider>
       <AutoRecordProvider>
         <BrowserRouter>
+          <InstallPrompt />
           <Routes>
             {/* Unified Auth Page for Login, Register, Recovery */}
             <Route path="/" element={<AuthPage />} />

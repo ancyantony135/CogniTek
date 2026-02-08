@@ -1,9 +1,16 @@
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import AudioRecorder from "../components/AudioRecorder";
 import TaskBoard from "../components/TaskBoard";
 import FlashcardDeck from "../components/FlashcardDeck";
 
 export default function Dashboard() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="min-h-screen pb-12">
       <div className="max-w-7xl mx-auto relative">
@@ -11,7 +18,7 @@ export default function Dashboard() {
 
         {/* Hero Section */}
         <div className="mx-4 mb-8">
-          <AudioRecorder />
+          <AudioRecorder onUploadSuccess={handleRefresh} />
         </div>
 
         {/* Content Grid */}
@@ -21,7 +28,7 @@ export default function Dashboard() {
               <span className="w-2 h-8 rounded-full bg-indigo-500"></span>
               Upcoming Tasks
             </h2>
-            <TaskBoard />
+            <TaskBoard key={`tasks-${refreshKey}`} />
           </div>
 
           <div className="space-y-4">
@@ -29,7 +36,7 @@ export default function Dashboard() {
               <span className="w-2 h-8 rounded-full bg-pink-500"></span>
               Study Deck
             </h2>
-            <FlashcardDeck />
+            <FlashcardDeck key={`deck-${refreshKey}`} />
           </div>
         </div>
       </div>

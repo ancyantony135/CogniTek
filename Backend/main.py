@@ -13,7 +13,7 @@ import torch
 from datetime import datetime
 from typing import Optional
 
-# Handle API Key (Env Var for Cloud, File for Local)
+# 1. API KEY & GEMINI INITIALIZATION (GLOBAL SCOPE)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 if not GEMINI_API_KEY:
@@ -22,10 +22,12 @@ if not GEMINI_API_KEY:
             GEMINI_API_KEY = f.read().strip()
     except FileNotFoundError:
         print("❌ Error: GEMINI_API_KEY not found. Set it in Env Vars or api_key.txt")
-        # In production, you might want to exit or handle this gracefully
 
-#Locates database
+# Configure Gemini globally
+genai.configure(api_key=GEMINI_API_KEY)
+text_model = genai.GenerativeModel('gemini-2.5-flash') # This is the "Brain"
 
+# 2. DATABASE CONFIGURATION
 DATABASE_URL = "sqlite:///./database/cognitek.db"
 os.makedirs("database", exist_ok=True)
 
@@ -33,7 +35,6 @@ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# DB MODELS 
 class TaskDB(Base):
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True, index=True)
@@ -53,123 +54,124 @@ class FlashcardDB(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# PYDANTIC MODELS (For Frontend Inputs)
+# 3. MODELS & APP SETUP
 class TaskUpdate(BaseModel):
     is_completed: bool
 
 class ChatRequest(BaseModel):
     message: str
 
-# --- APP SETUP ---
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allows mobile and local network access
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-#LOAD AI MODELS 
+# 4. HARDWARE VALIDATION & WHISPER LOAD
 print("------------------------------------------------")
 print("🚀 COGNITEK ARCHITECT SERVER STARTING...")
+
+FFMPEG_PATH = shutil.which("ffmpeg")
+if not FFMPEG_PATH:
+    print("❌ CRITICAL: FFmpeg is NOT installed or not in PATH.")
+else:
+    print(f"✅ FFmpeg detected at: {FFMPEG_PATH}")
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"✅ GPU Mode: {device.upper()}")
 
-# Load Whisper
-audio_model = whisper.load_model("small", device=device)
+try:
+    print("⏳ Loading Whisper (Perception) model...")
+    audio_model = whisper.load_model("small", device=device)
+    print("✅ Whisper Loaded. Ready for Perception.")
+except Exception as e:
+    print(f"❌ MODEL LOAD FAILURE: {str(e)}")
+    audio_model = None 
 
-# Load Gemini
-genai.configure(api_key=GEMINI_API_KEY)
-# Note: Use 'gemini-1.5-flash' or 'gemini-pro' if 2.5 is not yet available in your region
-text_model = genai.GenerativeModel('gemini-2.5-flash') 
 print("✅ Server Ready.")
 print("------------------------------------------------")
 
-# UTILS
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# 5. API ENDPOINTS
 
-# API ENDPOINTS
-
-# 1. AUDIO PROCESSING (The "Ears")
 @app.post("/api/process-audio")
 async def process_audio(file: UploadFile = File(...)):
-    # Save Temp File
     temp_filename = f"uploads/{file.filename}"
     os.makedirs("uploads", exist_ok=True)
     with open(temp_filename, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Transcribe
     print(f"🎤 Processing: {file.filename}...")
+    
+    # Whisper Transcription
     result = audio_model.transcribe(temp_filename)
     transcribed_text = result["text"]
+    print(f"📝 Transcribed: {transcribed_text[:50]}...")
     
-    # Intelligent Analysis
+    # AI Analysis (Uses the global text_model)
     prompt = f"""
     Analyze this student audio: "{transcribed_text}"
-    
     Extract ALL actionable tasks and ALL study concepts found.
-    
     FORMAT:
     {{
-        "tasks": [
-            {{ "title": "...", "subject": "...", "due_date": "...", "priority": "High/Medium/Low" }}
-        ],
-        "flashcards": [
-            {{ "topic": "...", "cards": [{{ "front": "...", "back": "..." }}] }}
-        ]
+        "tasks": [ {{ "title": "...", "subject": "...", "due_date": "...", "priority": "High/Medium/Low" }} ],
+        "flashcards": [ {{ "topic": "...", "cards": [{{ "front": "...", "back": "..." }}] }} ]
     }}
-    
-    If nothing found for a category, return an empty list [].
     Return ONLY raw JSON.
     """
     
     try:
         response = text_model.generate_content(prompt)
+        print(f"🤖 Gemini Raw Response: {response.text}") # LOGGING
+        
+        # Robust JSON Extraction
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        
+        # If Gemini adds conversational text, find the first '{' and last '}'
+        start_idx = clean_json.find("{")
+        end_idx = clean_json.rfind("}")
+        
+        if start_idx != -1 and end_idx != -1:
+            clean_json = clean_json[start_idx : end_idx + 1]
+            
         data = json.loads(clean_json)
-        
+        print(f"✅ Parsed Data: {json.dumps(data, indent=2)}")
+
         db = SessionLocal()
-        saved_ids = {"tasks": [], "flashcards": []}
         
-        # Process Tasks
+        # Save Tasks
+        task_count = 0
         for task in data.get("tasks", []):
             new_task = TaskDB(
-                title=task.get("title"),
-                subject=task.get("subject"),
-                due_date=task.get("due_date"),
+                title=task.get("title"), 
+                subject=task.get("subject"), 
+                due_date=task.get("due_date"), 
                 priority=task.get("priority")
             )
             db.add(new_task)
-            db.commit()
-            db.refresh(new_task)
-            saved_ids["tasks"].append(new_task.id)
-            print(f"💾 Task Saved: {new_task.title}")
-
-        # Process Flashcards
+            task_count += 1
+            
+        # Save Flashcards
+        card_count = 0
         for deck in data.get("flashcards", []):
             new_deck = FlashcardDB(
-                topic=deck.get("topic"),
+                topic=deck.get("topic"), 
                 content=deck.get("cards")
             )
             db.add(new_deck)
-            db.commit()
-            db.refresh(new_deck)
-            saved_ids["flashcards"].append(new_deck.id)
-            print(f"💾 Flashcards Saved: {new_deck.topic}")
-
+            card_count += 1
+        
+        db.commit()
         db.close()
+        
+        print(f"💾 Database Updated: {task_count} tasks, {card_count} flashcard decks added.")
         return {"status": "success", "text": transcribed_text, "data": data}
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ AI Analysis Error: {e}")
         return {"status": "error", "message": str(e)}
 
 # 2. TASK MANAGEMENT (For FrontEnd)
@@ -218,18 +220,22 @@ def chat_with_ai(request: ChatRequest):
     task_list = "\n".join([f"- {t.title} ({t.subject}) due {t.due_date}, Priority: {t.priority}" for t in tasks])
     
     # 3. Ask Gemini
-    prompt = f"""
-    You are Cognitek, an AI student assistant.
-    Here is the student's current incomplete task list:
-    {task_list}
-    
-    Student Question: "{request.message}"
-    
-    Answer the student based on their list. If they ask "What do I have to do?", summarize the high priority items first. Keep it friendly and concise.
-    """
-    
-    response = text_model.generate_content(prompt)
-    return {"response": response.text}
+    try:
+        prompt = f"""
+        You are Cognitek, an AI student assistant.
+        Here is the student's current incomplete task list:
+        {task_list}
+        
+        Student Question: "{request.message}"
+        
+        Answer the student based on their list. If they ask "What do I have to do?", summarize the high priority items first. Keep it friendly and concise.
+        """
+        
+        response = text_model.generate_content(prompt)
+        return {"response": response.text}
+    except Exception as e:
+        print(f"❌ Chat Error: {e}")
+        return {"response": "I'm having trouble thinking right now. Please try again."}
 
 # 4. FLASHCARDS (For Feature Lead)
 @app.get("/api/flashcards")

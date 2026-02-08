@@ -12,7 +12,7 @@ export default function FlashcardDeck() {
     useEffect(() => {
         const fetchFlashcards = async () => {
             try {
-                const res = await api.get("/flashcards");
+                const res = await api.get("/api/flashcards");
                 setDecks(res.data);
             } catch (err) {
                 console.error("Failed to load flashcards", err);
