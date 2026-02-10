@@ -86,7 +86,7 @@ print(f"✅ GPU Mode: {device.upper()}")
 
 try:
     print("⏳ Loading Whisper (Perception) model...")
-    audio_model = whisper.load_model("small", device=device)
+    audio_model = whisper.load_model("base", device=device)
     print("✅ Whisper Loaded. Ready for Perception.")
 except Exception as e:
     print(f"❌ MODEL LOAD FAILURE: {str(e)}")
@@ -96,6 +96,11 @@ print("✅ Server Ready.")
 print("------------------------------------------------")
 
 # 5. API ENDPOINTS
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "Cognitek System Ready"}
+
+
 
 @app.post("/api/process-audio")
 async def process_audio(file: UploadFile = File(...)):
