@@ -1,3 +1,12 @@
+# Sensitive Credentials
+.env
+.env.local
+api_key.txt
+
+# Database
+*.db
+database/
+
 # Python / Backend
 venv/
 __pycache__/
@@ -10,7 +19,8 @@ uploads/
 node_modules/
 dist/
 .env
-.DS_Store
+*.db
+__pycache__/
 
 # Logs
 *.log

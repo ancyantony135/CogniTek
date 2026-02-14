@@ -12,6 +12,7 @@ import json
 import torch
 from datetime import datetime
 from typing import Optional
+from dotenv import load_dotenv
 
 # 1. API KEY & GEMINI INITIALIZATION (GLOBAL SCOPE)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
@@ -28,10 +29,19 @@ genai.configure(api_key=GEMINI_API_KEY)
 text_model = genai.GenerativeModel('gemini-2.5-flash') # This is the "Brain"
 
 # 2. DATABASE CONFIGURATION
-DATABASE_URL = "sqlite:///./database/cognitek.db"
-os.makedirs("database", exist_ok=True)
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# Fallback for safety during local testing
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///./database/cognitek.db"
+
+# Engine setup
+if "postgresql" in DATABASE_URL:
+    engine = create_engine(DATABASE_URL)
+else:
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -86,7 +96,7 @@ print(f"✅ GPU Mode: {device.upper()}")
 
 try:
     print("⏳ Loading Whisper (Perception) model...")
-    audio_model = whisper.load_model("base", device=device)
+    audio_model = whisper.load_model("medium", device=device)
     print("✅ Whisper Loaded. Ready for Perception.")
 except Exception as e:
     print(f"❌ MODEL LOAD FAILURE: {str(e)}")
