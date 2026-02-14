@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
     });
+
     if (error) return { success: false, message: error.message };
     return { success: true };
   };

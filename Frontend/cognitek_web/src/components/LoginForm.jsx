@@ -39,17 +39,23 @@ export default function LoginForm({ onFlip }) {
         if (error) setError("");
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => { // 1. Added async
         e.preventDefault();
+        setError(""); // Clear old errors
+
         if (!validation.username || !validation.password) {
             setError("Please check your inputs.");
             return;
         }
-        const res = login(formData.username, formData.password);
+
+        // 2. Added await here to wait for Supabase to reply
+        const res = await login(formData.username, formData.password);
+
         if (res.success) {
             navigate("/dashboard");
         } else {
-            setError("User not found or incorrect password. Please register if new.");
+            // This will now show the real error from Supabase
+            setError(res.message || "Invalid credentials. Ensure you used your full email.");
         }
     };
 
