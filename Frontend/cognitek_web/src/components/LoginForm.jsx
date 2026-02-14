@@ -84,16 +84,16 @@ export default function LoginForm({ onFlip }) {
                 {/* Username Input */}
                 <div className="relative group">
                     <input
-                        type="text"
-                        name="username"
-                        placeholder="USERNAME"
-                        className={`input-ghost text-sm tracking-wide ${validation.username === false ? 'border-red-500/50' : ''
+                        type="email"
+                        name="email"
+                        placeholder="EMAIL"
+                        className={`input-ghost text-sm tracking-wide ${validation.email === false ? 'border-red-500/50' : ''
                             }`}
-                        value={formData.username}
+                        value={formData.email}
                         onChange={handleChange}
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-300">
-                        {validation.username === true && <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>}
+                        {validation.email === true && <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>}
                     </div>
                 </div>
 
