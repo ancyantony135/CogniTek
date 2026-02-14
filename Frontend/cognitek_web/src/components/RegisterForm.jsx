@@ -5,33 +5,38 @@ import { UserPlus, ArrowRight, AlertCircle } from "lucide-react";
 import Logo from "./Logo";
 
 export default function RegisterForm({ onFlip }) {
-    const [formData, setFormData] = useState({ username: "", password: "" });
+    const [formData, setFormData] = useState({ email: "", password: "" }); // Changed username to email
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const { register } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => { // Added async
         e.preventDefault();
+        setError(""); // Clear previous errors
+
         if (formData.password.length < 6) {
-            setError("Password must be at least 6 characters");
+            setError("Security Protocol: Password must be at least 6 characters");
             return;
         }
         if (formData.password !== confirmPassword) {
-            setError("Passwords do not match");
+            setError("Sync Error: Passwords do not match");
             return;
         }
-        const res = register(formData.username, formData.password);
+
+        // Call the new Supabase-linked register function
+        const res = await register(formData.email, formData.password);
+
         if (res.success) {
             navigate("/dashboard");
         } else {
+            // This now displays real errors from Supabase (e.g., "Email already in use")
             setError(res.message);
         }
     };
 
     return (
         <div className="flex flex-col items-center h-full w-full">
-            {/* Header */}
             <div className="w-full mb-6 text-center relative flex flex-col items-center">
                 <div className="mb-4">
                     <Logo className="w-16 h-16" />
@@ -52,16 +57,15 @@ export default function RegisterForm({ onFlip }) {
 
             <form onSubmit={handleSubmit} className="w-full space-y-5">
                 <div className="space-y-4">
-                    {/* Username */}
+                    {/* Updated to Email for Supabase compatibility */}
                     <input
-                        type="text"
-                        placeholder="USERNAME"
+                        type="email"
+                        placeholder="EMAIL ADDRESS"
                         className="input-ghost text-sm tracking-wide"
                         required
-                        value={formData.username}
-                        onChange={e => setFormData({ ...formData, username: e.target.value })}
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
                     />
-                    {/* Password */}
                     <input
                         type="password"
                         placeholder="PASSWORD"
@@ -70,7 +74,6 @@ export default function RegisterForm({ onFlip }) {
                         value={formData.password}
                         onChange={e => setFormData({ ...formData, password: e.target.value })}
                     />
-                    {/* Confirm Password */}
                     <input
                         type="password"
                         placeholder="CONFIRM PASSWORD"
