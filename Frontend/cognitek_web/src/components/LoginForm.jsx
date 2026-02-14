@@ -5,11 +5,11 @@ import { Eye, EyeOff, AlertCircle, ScanFace, ArrowRight, UserPlus } from "lucide
 import Logo from "./Logo";
 
 export default function LoginForm({ onFlip }) {
-    const [formData, setFormData] = useState({ username: "", password: "" });
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const [showPassword, setShowPassword] = useState(false);
     const [greeting, setGreeting] = useState("Sylens is ready");
     const [error, setError] = useState("");
-    const [validation, setValidation] = useState({ username: null, password: null });
+    const [validation, setValidation] = useState({ email: null, password: null });
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ export default function LoginForm({ onFlip }) {
     }, []);
 
     const validateField = (name, value) => {
-        if (name === "username") return value.length >= 3;
+        if (name === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
         if (name === "password") return value.length >= 6;
         return false;
     };
@@ -43,13 +43,13 @@ export default function LoginForm({ onFlip }) {
         e.preventDefault();
         setError(""); // Clear old errors
 
-        if (!validation.username || !validation.password) {
+        if (!validation.email || !validation.password) {
             setError("Please check your inputs.");
             return;
         }
 
         // 2. Added await here to wait for Supabase to reply
-        const res = await login(formData.username, formData.password);
+        const res = await login(formData.email, formData.password);
 
         if (res.success) {
             navigate("/dashboard");
@@ -81,19 +81,19 @@ export default function LoginForm({ onFlip }) {
             )}
 
             <form onSubmit={handleSubmit} className="w-full space-y-6">
-                {/* Username Input */}
+                {/* Email Input */}
                 <div className="relative group">
                     <input
-                        type="text"
-                        name="username"
-                        placeholder="USERNAME"
-                        className={`input-ghost text-sm tracking-wide ${validation.username === false ? 'border-red-500/50' : ''
+                        type="email"
+                        name="email"
+                        placeholder="EMAIL"
+                        className={`input-ghost text-sm tracking-wide ${validation.email === false ? 'border-red-500/50' : ''
                             }`}
-                        value={formData.username}
+                        value={formData.email}
                         onChange={handleChange}
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-300">
-                        {validation.username === true && <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>}
+                        {validation.email === true && <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>}
                     </div>
                 </div>
 
