@@ -21,6 +21,12 @@ export default function AudioRecorder({ onUploadSuccess }) {
   }, [isRecording, requestWakeLock, releaseWakeLock]);
 
   const startRecording = async () => {
+    if (window.AudioContext || window.webkitAudioContext) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+    }
     setStatus("Listening...");
     setIsRecording(true);
     audioChunksRef.current = [];
@@ -39,8 +45,8 @@ export default function AudioRecorder({ onUploadSuccess }) {
       mediaRecorderRef.current.start();
     } catch (error) {
       console.error("Error accessing microphone:", error);
-      alert("Microphone Error: " + error.message + "\nEnsure you are using HTTPS or Localhost.");
-      setStatus("Microphone error");
+      // Use the status state instead of just an alert
+      setStatus(`Permission Denied: ${error.name}`);
       setIsRecording(false);
     }
   };
@@ -90,6 +96,9 @@ export default function AudioRecorder({ onUploadSuccess }) {
       setIsProcessing(false);
     }
   };
+  <div className="scale-125">
+    <AudioRecorder onUploadSuccess={() => navigate("/dashboard")} />
+  </div>
 
   return (
     <div className="tech-glass-card p-8 flex flex-col items-center justify-center text-center relative overflow-hidden rounded-2xl w-full max-w-sm mx-auto">
