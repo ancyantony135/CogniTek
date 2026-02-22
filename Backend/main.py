@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, JSON
-from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
 import whisper
@@ -38,13 +39,13 @@ if not DATABASE_URL:
 
 # Engine setup
 if "postgresql" in DATABASE_URL:
-    # Port 6543 is for the pooler, which solves the IPv4 issue
+    # This configuration is specific for the Supabase Transaction Pooler (Port 6543)
     engine = create_engine(
         DATABASE_URL,
-        pool_pre_ping=True,
         connect_args={
-            "prepare_threshold": 0 # This is CRITICAL for Supabase poolers
-        }
+            "prepare_threshold": 0  # This fixes the 'pgbouncer' related errors
+        },
+        pool_pre_ping=True
     )
 else:
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
