@@ -38,7 +38,14 @@ if not DATABASE_URL:
 
 # Engine setup
 if "postgresql" in DATABASE_URL:
-    engine = create_engine(DATABASE_URL)
+    # Port 6543 is for the pooler, which solves the IPv4 issue
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,
+        connect_args={
+            "prepare_threshold": 0 # This is CRITICAL for Supabase poolers
+        }
+    )
 else:
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
@@ -48,6 +55,7 @@ Base = declarative_base()
 class TaskDB(Base):
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String)  # Add this to link tasks to Hansel!
     title = Column(String, index=True)
     subject = Column(String)
     due_date = Column(String)
