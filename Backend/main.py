@@ -54,7 +54,7 @@ Base = declarative_base()
 class TaskDB(Base):
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String)  # Add this to link tasks to Hansel!
+    user_id = Column(String, nullable=True)  # Make this nullable=True for now
     title = Column(String, index=True)
     subject = Column(String)
     due_date = Column(String)
