@@ -1,7 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, JSON
-
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
@@ -37,15 +36,14 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./database/cognitek.db"
 
-# Engine setup
 if "postgresql" in DATABASE_URL:
-    # This configuration is specific for the Supabase Transaction Pooler (Port 6543)
     engine = create_engine(
         DATABASE_URL,
+        pool_pre_ping=True,
         connect_args={
-            "prepare_threshold": 0  # This fixes the 'pgbouncer' related errors
-        },
-        pool_pre_ping=True
+            # This is the magic fix for "Does not support PREPARE statements"
+            "options": "-c prepare_threshold=0" 
+        }
     )
 else:
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
