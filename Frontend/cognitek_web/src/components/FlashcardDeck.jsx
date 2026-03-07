@@ -105,26 +105,30 @@ export default function FlashcardDeck() {
 
             {/* Flashcard Area */}
             <div
-                className="group perspective-1000 h-[300px] cursor-pointer"
+                className="group perspective-1000 h-[380px] sm:h-[300px] cursor-pointer"
                 onClick={() => setIsFlipped(!isFlipped)}
             >
                 <div className={`relative w-full h-full transition-transform duration-500 preserve-3d ${isFlipped ? "rotate-y-180" : ""}`}>
                     {/* Front */}
-                    <div className="absolute inset-0 backface-hidden glass-card p-8 flex flex-col items-center justify-center text-center border-b-4 border-slate-800">
-                        <span className="text-xs uppercase tracking-widest text-slate-400 mb-4 font-bold">Question</span>
-                        <p className="text-lg font-medium text-slate-800 leading-relaxed">
-                            {currentCard.front}
-                        </p>
-                        <div className="mt-8 text-xs text-slate-400 font-medium">Click to flip</div>
+                    <div className="absolute inset-0 backface-hidden glass-card p-4 sm:p-8 flex flex-col items-center justify-center text-center border-b-4 border-slate-800">
+                        <span className="text-xs uppercase tracking-widest text-slate-400 mb-3 font-bold shrink-0">Question</span>
+                        <div className="overflow-y-auto flex-1 flex items-center justify-center w-full">
+                          <p className="text-base sm:text-lg font-medium text-slate-800 leading-relaxed">
+                              {currentCard.front}
+                          </p>
+                        </div>
+                        <div className="mt-3 text-xs text-slate-400 font-medium shrink-0">Click to flip</div>
                     </div>
 
                     {/* Back */}
-                    <div className="absolute inset-0 backface-hidden glass-card p-8 flex flex-col items-center justify-center text-center border-b-4 border-pink-500 rotate-y-180 bg-slate-50">
-                        <span className="text-xs uppercase tracking-widest text-slate-400 mb-4 font-bold">Answer</span>
-                        <p className="text-lg font-medium text-slate-800 leading-relaxed">
-                            {currentCard.back}
-                        </p>
-                        <div className="mt-8 text-xs text-pink-400 font-medium">Click to flip back</div>
+                    <div className="absolute inset-0 backface-hidden glass-card p-4 sm:p-8 flex flex-col items-center justify-center text-center border-b-4 border-pink-500 rotate-y-180 bg-slate-50">
+                        <span className="text-xs uppercase tracking-widest text-slate-400 mb-3 font-bold shrink-0">Answer</span>
+                        <div className="overflow-y-auto flex-1 flex items-center justify-center w-full">
+                          <p className="text-base sm:text-lg font-medium text-slate-800 leading-relaxed">
+                              {currentCard.back}
+                          </p>
+                        </div>
+                        <div className="mt-3 text-xs text-pink-400 font-medium shrink-0">Click to flip back</div>
                     </div>
                 </div>
             </div>

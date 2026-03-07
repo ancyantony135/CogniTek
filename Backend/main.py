@@ -62,7 +62,9 @@ class TaskDB(Base):
     title = Column(String, index=True)
     subject = Column(String)
     due_date = Column(String)
+    time = Column(String, nullable=True)        # e.g. "3:00 PM" or "2 hours"
     priority = Column(String)
+    description = Column(Text, nullable=True)   # brief description of what the task involves
     is_completed = Column(Boolean, default=False)
     created_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -83,6 +85,8 @@ def run_migrations():
     migration_statements = [
         "ALTER TABLE flashcards ADD COLUMN IF NOT EXISTS user_id UUID;",
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS user_id UUID;",
+        "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS description TEXT;",
+        "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS time VARCHAR;",
     ]
     with engine.connect() as conn:
         for stmt in migration_statements:
@@ -190,10 +194,19 @@ Analyze the following transcribed student audio and extract structured data.
 === PRIMARY RULE — READ THIS FIRST ===
 Your DEFAULT output for "tasks" is ALWAYS an empty array: [].
 You must upgrade it from [] to generate a task if the following conditions are met:
-  1. The audio mentions an actionable item, assignment, or submission (e.g., "submit the assignment", "complete the project", "I need to upload"). It does NOT need to be explicitly directed at themselves (e.g., "submit the assignment" is valid).
+  1. The audio mentions an actionable item, assignment, or submission (e.g., "submit the assignment", "complete the project", "I need to upload"). It does NOT need to be explicitly directed at themselves.
   2. The content describes something that needs to be DONE — not merely a concept being TAUGHT or EXPLAINED.
-  3. If there is a deadline mentioned, include it. If no deadline is explicitly spoken, set due_date to "Upcoming" or guess based on context. 
+  3. If there is a deadline mentioned, include it. If no deadline is explicitly spoken, set due_date to "Upcoming" or guess based on context.
 If it is an actionable task or assignment, add it! Do not be overly strict about phrasing.
+
+=== TASK FIELDS ===
+For each task, extract ALL of the following fields:
+- "title": Short, action-oriented title (e.g., "Submit Assignment 1")
+- "subject": KTU course code + name (e.g., "CST201: Discrete Computational Structures")
+- "due_date": Specific date/deadline or KTU term (e.g., "Friday", "Series Exam 1", "Upcoming")
+- "time": Specific time of day OR estimated duration (e.g., "3:00 PM", "2 hours", "Before 5 PM"). Use null if not mentioned.
+- "priority": "High", "Medium", or "Low" — infer from urgency/importance
+- "description": 1–2 sentence plain-English summary of what the task involves and any relevant context from the audio. Be specific and helpful.
 
 === FLASHCARD EXTRACTION (Concept-Oriented) ===
 - Extract technical definitions, laws, formulas, theorems, or module-specific concepts from the audio.
@@ -208,7 +221,16 @@ If it is an actionable task or assignment, add it! Do not be overly strict about
 
 === OUTPUT FORMAT (Strict JSON only — no extra text, no markdown, no explanation) ===
 {{
-  "tasks": [],
+  "tasks": [
+    {{
+      "title": "Task title",
+      "subject": "CST201: Example Subject",
+      "due_date": "Friday",
+      "time": "3:00 PM",
+      "priority": "High",
+      "description": "Brief description of what the task involves."
+    }}
+  ],
   "flashcards": [
     {{ "topic": "Module Concept", "cards": [{{ "front": "Question", "back": "Answer" }}] }}
   ]
@@ -243,7 +265,9 @@ If it is an actionable task or assignment, add it! Do not be overly strict about
                 title=task.get("title"),
                 subject=task.get("subject"),
                 due_date=task.get("due_date"),
-                priority=task.get("priority")
+                time=task.get("time"),
+                priority=task.get("priority"),
+                description=task.get("description"),
             )
             db.add(new_task)
             task_count += 1
