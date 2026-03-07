@@ -1,0 +1,2846 @@
+{
+    "meta": {
+        "university": "APJ Abdul Kalam Technological University (KTU)",
+        "branches": {
+            "CSE": "Computer Science and Engineering",
+            "ECE": "Electronics and Communication Engineering",
+            "EEE": "Electrical and Electronics Engineering",
+            "ME": "Mechanical Engineering",
+            "CE": "Civil Engineering",
+            "IT": "Information Technology",
+            "EL": "Electrical and Computer Engineering (2019 Scheme)",
+            "EO": "Electrical and Computer Engineering (2024 Scheme)"
+        }
+    },
+    "common": {
+        "S1": {
+            "core": [
+                {
+                    "code": "MAT101",
+                    "name": "Linear Algebra and Calculus",
+                    "credits": 4
+                },
+                {
+                    "code": "PHT100",
+                    "name": "Engineering Physics A",
+                    "credits": 4
+                },
+                {
+                    "code": "CYT100",
+                    "name": "Engineering Chemistry",
+                    "credits": 4
+                },
+                {
+                    "code": "EST100",
+                    "name": "Engineering Mechanics",
+                    "credits": 4
+                },
+                {
+                    "code": "EST110",
+                    "name": "Engineering Graphics",
+                    "credits": 4
+                },
+                {
+                    "code": "HUT100",
+                    "name": "Life Skills",
+                    "credits": 2
+                }
+            ],
+            "electives": []
+        },
+        "S2": {
+            "core": [
+                {
+                    "code": "MAT102",
+                    "name": "Vector Calculus, Differential Equations and Transforms",
+                    "credits": 4
+                },
+                {
+                    "code": "PHT110",
+                    "name": "Engineering Physics B",
+                    "credits": 4
+                },
+                {
+                    "code": "EST102",
+                    "name": "Problem Solving using Python",
+                    "credits": 4
+                },
+                {
+                    "code": "EST120",
+                    "name": "Basics of Civil & Mechanical Engineering",
+                    "credits": 4
+                },
+                {
+                    "code": "EST130",
+                    "name": "Basics of Electrical and Electronics Engineering",
+                    "credits": 4
+                },
+                {
+                    "code": "HUT110",
+                    "name": "Engineering Ethics",
+                    "credits": 2
+                }
+            ],
+            "electives": []
+        }
+    },
+    "curriculum": {
+        "CSE": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "MAT203",
+                            "name": "Discrete Mathematical Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Sets, Relations, Functions",
+                                "Logic and Proof",
+                                "Graphs",
+                                "Trees",
+                                "Combinatorics"
+                            ]
+                        },
+                        {
+                            "code": "CST201",
+                            "name": "Data Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Arrays, Stacks, Queues",
+                                "Linked Lists",
+                                "Trees and Graphs",
+                                "Sorting and Searching",
+                                "Hashing"
+                            ]
+                        },
+                        {
+                            "code": "CST203",
+                            "name": "Logic System Design",
+                            "credits": 4,
+                            "modules": [
+                                "Boolean Algebra",
+                                "Combinational Circuits",
+                                "Sequential Circuits",
+                                "FSM",
+                                "PLDs"
+                            ]
+                        },
+                        {
+                            "code": "CST205",
+                            "name": "Object Oriented Programming using Java",
+                            "credits": 4,
+                            "modules": [
+                                "OOP Basics",
+                                "Inheritance & Polymorphism",
+                                "Packages & Interfaces",
+                                "Exception Handling",
+                                "Multithreading"
+                            ]
+                        },
+                        {
+                            "code": "HUT200",
+                            "name": "Life Skills",
+                            "credits": 2,
+                            "modules": []
+                        },
+                        {
+                            "code": "EST200",
+                            "name": "Design and Engineering",
+                            "credits": 2,
+                            "modules": []
+                        },
+                        {
+                            "code": "MCN202",
+                            "name": "Sustainable Engineering",
+                            "credits": 2,
+                            "modules": []
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "MAT206",
+                            "name": "Graph Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Basic Graph Theory",
+                                "Trees",
+                                "Connectivity",
+                                "Planar Graphs",
+                                "Graph Colouring"
+                            ]
+                        },
+                        {
+                            "code": "CST202",
+                            "name": "Computer Organization and Architecture",
+                            "credits": 4,
+                            "modules": [
+                                "Data Representation",
+                                "CPU Design",
+                                "Memory Organization",
+                                "I/O Systems",
+                                "Pipeline"
+                            ]
+                        },
+                        {
+                            "code": "CST204",
+                            "name": "Database Management Systems",
+                            "credits": 4,
+                            "modules": [
+                                "ER Model",
+                                "Relational Algebra",
+                                "SQL",
+                                "Normalization",
+                                "Transaction Management"
+                            ]
+                        },
+                        {
+                            "code": "CST206",
+                            "name": "Operating Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Process Management",
+                                "CPU Scheduling",
+                                "Memory Management",
+                                "File Systems",
+                                "Deadlocks"
+                            ]
+                        },
+                        {
+                            "code": "CST208",
+                            "name": "Probability, Statistics and Linear Algebra",
+                            "credits": 4,
+                            "modules": [
+                                "Probability Theory",
+                                "Random Variables",
+                                "Matrix Algebra",
+                                "Regression",
+                                "Hypothesis Testing"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "CST301",
+                            "name": "Formal Languages and Automata Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Finite Automata",
+                                "Regular Languages",
+                                "CFG and PDAs",
+                                "Turing Machines",
+                                "Decidability"
+                            ]
+                        },
+                        {
+                            "code": "CST303",
+                            "name": "Computer Networks",
+                            "credits": 4,
+                            "modules": [
+                                "Physical Layer",
+                                "Data Link Layer",
+                                "Network Layer",
+                                "Transport Layer",
+                                "Application Layer"
+                            ]
+                        },
+                        {
+                            "code": "CST305",
+                            "name": "System Software",
+                            "credits": 4,
+                            "modules": [
+                                "Assemblers",
+                                "Macros and Macro Processors",
+                                "Loaders and Linkers",
+                                "Compilers",
+                                "Interpreters"
+                            ]
+                        },
+                        {
+                            "code": "CST307",
+                            "name": "Microprocessors and Microcontrollers",
+                            "credits": 4,
+                            "modules": [
+                                "8086 Architecture",
+                                "Instruction Set",
+                                "Assembly Language",
+                                "Interfacing",
+                                "ARM Architecture"
+                            ]
+                        },
+                        {
+                            "code": "CST309",
+                            "name": "Management of Software Systems",
+                            "credits": 3,
+                            "modules": [
+                                "Software Process Models",
+                                "Agile Methods",
+                                "Project Estimation",
+                                "Risk Management",
+                                "Testing"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "CST311",
+                            "name": "Cryptography and System Security",
+                            "credits": 4,
+                            "modules": [
+                                "Classical Ciphers",
+                                "Symmetric Key Cryptography",
+                                "PKI",
+                                "Digital Signatures",
+                                "Network Security"
+                            ]
+                        },
+                        {
+                            "code": "CST313",
+                            "name": "Heuristic Search and Optimization",
+                            "credits": 4,
+                            "modules": [
+                                "State Space Search",
+                                "Genetic Algorithms",
+                                "Simulated Annealing",
+                                "Ant Colony",
+                                "Swarm Intelligence"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "CST302",
+                            "name": "Compiler Design",
+                            "credits": 4,
+                            "modules": [
+                                "Lexical Analysis",
+                                "Syntax Analysis",
+                                "Semantic Analysis",
+                                "Intermediate Code Generation",
+                                "Code Optimization"
+                            ]
+                        },
+                        {
+                            "code": "CST304",
+                            "name": "Computer Graphics and Image Processing",
+                            "credits": 4,
+                            "modules": [
+                                "2D Primitives",
+                                "3D Transformations",
+                                "Illumination Models",
+                                "Image Processing Fundamentals",
+                                "Segmentation"
+                            ]
+                        },
+                        {
+                            "code": "CST306",
+                            "name": "Algorithm Analysis and Design",
+                            "credits": 4,
+                            "modules": [
+                                "Asymptotic Analysis",
+                                "Divide and Conquer",
+                                "Greedy Algorithms",
+                                "Dynamic Programming",
+                                "NP-Completeness"
+                            ]
+                        },
+                        {
+                            "code": "CST308",
+                            "name": "Programming Paradigms",
+                            "credits": 4,
+                            "modules": [
+                                "Functional Programming",
+                                "Logic Programming",
+                                "OOP Advanced",
+                                "Concurrent Programming",
+                                "Scripting"
+                            ]
+                        },
+                        {
+                            "code": "CST310",
+                            "name": "Information Security",
+                            "credits": 3,
+                            "modules": [
+                                "Security Concepts",
+                                "Threats & Attacks",
+                                "Cryptographic Protocols",
+                                "Web Security",
+                                "Cyber Laws"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "CST312",
+                            "name": "Computational Intelligence",
+                            "credits": 4,
+                            "modules": [
+                                "Neural Networks",
+                                "Fuzzy Logic",
+                                "Evolutionary Algorithms",
+                                "Expert Systems",
+                                "Hybrid Systems"
+                            ]
+                        },
+                        {
+                            "code": "CST314",
+                            "name": "Distributed Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Distributed Architecture",
+                                "Consistency Models",
+                                "Consensus Algorithms",
+                                "Fault Tolerance",
+                                "MapReduce"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [
+                        {
+                            "code": "CST401",
+                            "name": "Machine Learning",
+                            "credits": 4,
+                            "modules": [
+                                "Supervised Learning",
+                                "Unsupervised Learning",
+                                "Regression & Classification",
+                                "SVM",
+                                "Model Evaluation"
+                            ]
+                        },
+                        {
+                            "code": "CST403",
+                            "name": "Distributed Computing",
+                            "credits": 4,
+                            "modules": [
+                                "Cloud Computing Basics",
+                                "Virtualization",
+                                "MapReduce",
+                                "Hadoop Ecosystem",
+                                "Microservices"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "CST405",
+                            "name": "Internet of Things",
+                            "credits": 4,
+                            "modules": [
+                                "IoT Architecture",
+                                "Sensors & Actuators",
+                                "Communication Protocols",
+                                "Edge Computing",
+                                "IoT Security"
+                            ]
+                        },
+                        {
+                            "code": "CST407",
+                            "name": "Natural Language Processing",
+                            "credits": 4,
+                            "modules": [
+                                "Text Preprocessing",
+                                "Language Models",
+                                "Parsing",
+                                "Sentiment Analysis",
+                                "Machine Translation"
+                            ]
+                        },
+                        {
+                            "code": "CST409",
+                            "name": "Computer Vision",
+                            "credits": 4,
+                            "modules": [
+                                "Image Formation",
+                                "Feature Detection",
+                                "Object Recognition",
+                                "Deep Learning for Vision",
+                                "Video Analysis"
+                            ]
+                        },
+                        {
+                            "code": "CST411",
+                            "name": "Blockchain Technology",
+                            "credits": 4,
+                            "modules": [
+                                "Distributed Ledger",
+                                "Consensus Mechanisms",
+                                "Smart Contracts",
+                                "Ethereum",
+                                "dApps"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "CST462",
+                            "name": "Deep Learning",
+                            "credits": 4,
+                            "modules": [
+                                "Neural Network Fundamentals",
+                                "CNN",
+                                "RNN & LSTM",
+                                "GANs",
+                                "Transfer Learning"
+                            ]
+                        },
+                        {
+                            "code": "CST464",
+                            "name": "Big Data Analytics",
+                            "credits": 4,
+                            "modules": [
+                                "Hadoop Ecosystem",
+                                "Spark",
+                                "Data Warehousing",
+                                "NoSQL",
+                                "Visualization"
+                            ]
+                        },
+                        {
+                            "code": "CST466",
+                            "name": "Cloud Computing",
+                            "credits": 4,
+                            "modules": [
+                                "Cloud Architectures",
+                                "IaaS/PaaS/SaaS",
+                                "AWS/GCP basics",
+                                "Serverless",
+                                "DevOps"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "2024": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "MAT203",
+                            "name": "Discrete Mathematical Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Sets and Logic",
+                                "Relations and Functions",
+                                "Graph Theory",
+                                "Trees",
+                                "Combinatorics"
+                            ]
+                        },
+                        {
+                            "code": "CST201",
+                            "name": "Data Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Arrays, Stacks, Queues",
+                                "Linked Lists",
+                                "Trees and Graphs",
+                                "Sorting and Searching",
+                                "Hashing"
+                            ]
+                        },
+                        {
+                            "code": "CST203",
+                            "name": "Logic System Design",
+                            "credits": 4,
+                            "modules": [
+                                "Boolean Algebra",
+                                "Combinational Circuits",
+                                "Sequential Circuits",
+                                "FSM",
+                                "PLDs"
+                            ]
+                        },
+                        {
+                            "code": "CST205",
+                            "name": "Object Oriented Programming using Java",
+                            "credits": 4,
+                            "modules": [
+                                "OOP Basics",
+                                "Inheritance & Polymorphism",
+                                "Collections Framework",
+                                "Exception Handling",
+                                "Multithreading"
+                            ]
+                        },
+                        {
+                            "code": "HUT200",
+                            "name": "Life Skills",
+                            "credits": 2,
+                            "modules": []
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "CST202",
+                            "name": "Computer Organization and Architecture",
+                            "credits": 4,
+                            "modules": [
+                                "Data Representation",
+                                "CPU Design",
+                                "Memory Organization",
+                                "I/O Systems",
+                                "Pipeline"
+                            ]
+                        },
+                        {
+                            "code": "CST204",
+                            "name": "Database Management Systems",
+                            "credits": 4,
+                            "modules": [
+                                "ER Model",
+                                "SQL",
+                                "Normalization",
+                                "Transaction Management",
+                                "NoSQL Intro"
+                            ]
+                        },
+                        {
+                            "code": "CST206",
+                            "name": "Operating Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Process Management",
+                                "CPU Scheduling",
+                                "Memory Management",
+                                "File Systems",
+                                "Deadlocks"
+                            ]
+                        },
+                        {
+                            "code": "MAT206",
+                            "name": "Probability and Statistics",
+                            "credits": 4,
+                            "modules": [
+                                "Probability",
+                                "Distributions",
+                                "Statistical Inference",
+                                "Regression",
+                                "Hypothesis Testing"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "CST301",
+                            "name": "Formal Languages and Automata Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Finite Automata",
+                                "Regular Languages",
+                                "CFG and PDA",
+                                "Turing Machines",
+                                "Complexity"
+                            ]
+                        },
+                        {
+                            "code": "CST303",
+                            "name": "Computer Networks",
+                            "credits": 4,
+                            "modules": [
+                                "Physical Layer",
+                                "Data Link Layer",
+                                "Network Layer",
+                                "Transport Layer",
+                                "Application Layer"
+                            ]
+                        },
+                        {
+                            "code": "CST305",
+                            "name": "Algorithm Analysis and Design",
+                            "credits": 4,
+                            "modules": [
+                                "Complexity Analysis",
+                                "Divide & Conquer",
+                                "Greedy",
+                                "Dynamic Programming",
+                                "NP Completeness"
+                            ]
+                        },
+                        {
+                            "code": "CST307",
+                            "name": "Machine Learning",
+                            "credits": 4,
+                            "modules": [
+                                "Supervised Learning",
+                                "Unsupervised Learning",
+                                "Neural Networks",
+                                "SVM",
+                                "Model Evaluation"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "CST311",
+                            "name": "Internet of Things",
+                            "credits": 4,
+                            "modules": [
+                                "IoT Architecture",
+                                "Protocols",
+                                "Cloud Integration",
+                                "Edge AI",
+                                "Security"
+                            ]
+                        },
+                        {
+                            "code": "CST313",
+                            "name": "Cybersecurity",
+                            "credits": 4,
+                            "modules": [
+                                "Threat Models",
+                                "Cryptography",
+                                "Network Security",
+                                "Web Security",
+                                "Ethical Hacking"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "CST302",
+                            "name": "Compiler Design",
+                            "credits": 4,
+                            "modules": [
+                                "Lexical Analysis",
+                                "Parsing",
+                                "Semantic Analysis",
+                                "Code Generation",
+                                "Optimization"
+                            ]
+                        },
+                        {
+                            "code": "CST304",
+                            "name": "Distributed Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Architecture",
+                                "Consistency",
+                                "Consensus",
+                                "Fault Tolerance",
+                                "Cloud Patterns"
+                            ]
+                        },
+                        {
+                            "code": "CST306",
+                            "name": "Deep Learning",
+                            "credits": 4,
+                            "modules": [
+                                "Neural Networks",
+                                "CNN",
+                                "RNN",
+                                "Transformers",
+                                "Generative Models"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "CST312",
+                            "name": "Natural Language Processing",
+                            "credits": 4,
+                            "modules": [
+                                "Text Preprocessing",
+                                "Language Models",
+                                "Sentiment Analysis",
+                                "Chatbots",
+                                "LLMs"
+                            ]
+                        },
+                        {
+                            "code": "CST314",
+                            "name": "Computer Vision",
+                            "credits": 4,
+                            "modules": [
+                                "Image Processing",
+                                "Object Detection",
+                                "Segmentation",
+                                "3D Vision",
+                                "Video Understanding"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "CST401",
+                            "name": "Generative AI and LLMs",
+                            "credits": 4,
+                            "modules": [
+                                "Foundation Models",
+                                "Prompt Engineering",
+                                "Fine-tuning",
+                                "RAG",
+                                "AI Agents"
+                            ]
+                        },
+                        {
+                            "code": "CST403",
+                            "name": "Blockchain Technology",
+                            "credits": 4,
+                            "modules": [
+                                "Cryptographic Foundations",
+                                "Consensus",
+                                "Smart Contracts",
+                                "DeFi",
+                                "Use Cases"
+                            ]
+                        },
+                        {
+                            "code": "CST405",
+                            "name": "Cloud and DevOps",
+                            "credits": 4,
+                            "modules": [
+                                "Containerization",
+                                "Kubernetes",
+                                "CI/CD",
+                                "Infrastructure as Code",
+                                "SRE"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "CST462",
+                            "name": "AI Ethics and Governance",
+                            "credits": 4,
+                            "modules": [
+                                "Bias in AI",
+                                "Explainability",
+                                "Privacy",
+                                "Regulation",
+                                "Responsible AI"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "ECE": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "ECT201",
+                            "name": "Circuits and Networks",
+                            "credits": 4,
+                            "modules": [
+                                "Network Theorems",
+                                "Transient Analysis",
+                                "Resonance",
+                                "Two-Port Networks",
+                                "Filters"
+                            ]
+                        },
+                        {
+                            "code": "ECT203",
+                            "name": "Solid State Devices",
+                            "credits": 4,
+                            "modules": [
+                                "Semiconductor Physics",
+                                "Diodes",
+                                "BJT",
+                                "MOSFET",
+                                "Optoelectronic Devices"
+                            ]
+                        },
+                        {
+                            "code": "ECT205",
+                            "name": "Logic Circuit Design",
+                            "credits": 4,
+                            "modules": [
+                                "Boolean Algebra",
+                                "Combinational Logic",
+                                "Sequential Circuits",
+                                "PLDs",
+                                "FPGA"
+                            ]
+                        },
+                        {
+                            "code": "MAT203",
+                            "name": "Discrete Mathematical Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Sets and Logic",
+                                "Relations",
+                                "Graph Theory",
+                                "Trees",
+                                "Combinatorics"
+                            ]
+                        },
+                        {
+                            "code": "ECT207",
+                            "name": "Introduction to Communication Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Signals and Systems",
+                                "Modulation Techniques",
+                                "Noise",
+                                "Information Theory",
+                                "Channels"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "ECT202",
+                            "name": "Analog Circuits",
+                            "credits": 4,
+                            "modules": [
+                                "Amplifiers",
+                                "Feedback",
+                                "Oscillators",
+                                "Power Amplifiers",
+                                "Operational Amplifiers"
+                            ]
+                        },
+                        {
+                            "code": "ECT204",
+                            "name": "Signals and Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Signal Classification",
+                                "LTI Systems",
+                                "Fourier Analysis",
+                                "Laplace Transform",
+                                "Z-Transform"
+                            ]
+                        },
+                        {
+                            "code": "ECT206",
+                            "name": "Computer Organization",
+                            "credits": 4,
+                            "modules": [
+                                "Data Representation",
+                                "CPU Design",
+                                "Memory",
+                                "I/O",
+                                "Pipeline"
+                            ]
+                        },
+                        {
+                            "code": "ECT208",
+                            "name": "Electromagnetics",
+                            "credits": 4,
+                            "modules": [
+                                "Electrostatics",
+                                "Magnetostatics",
+                                "Maxwell Equations",
+                                "Wave Propagation",
+                                "Transmission Lines"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "ECT301",
+                            "name": "Digital Signal Processing",
+                            "credits": 4,
+                            "modules": [
+                                "DFT and FFT",
+                                "IIR Filter Design",
+                                "FIR Filter Design",
+                                "Multirate Systems",
+                                "DSP Applications"
+                            ]
+                        },
+                        {
+                            "code": "ECT303",
+                            "name": "Linear Integrated Circuits",
+                            "credits": 4,
+                            "modules": [
+                                "Op-Amp Basics",
+                                "Applications",
+                                "Active Filters",
+                                "Waveform Generators",
+                                "Comparators"
+                            ]
+                        },
+                        {
+                            "code": "ECT305",
+                            "name": "Microprocessors and Embedded Systems",
+                            "credits": 4,
+                            "modules": [
+                                "8051/ARM Architecture",
+                                "Instruction Set",
+                                "Interfacing",
+                                "RTOS Basics",
+                                "Embedded C"
+                            ]
+                        },
+                        {
+                            "code": "ECT307",
+                            "name": "VLSI Design",
+                            "credits": 4,
+                            "modules": [
+                                "MOSFET Modeling",
+                                "CMOS Logic",
+                                "Cell Design",
+                                "Timing Analysis",
+                                "FPGA Implementation"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "ECT309",
+                            "name": "Mobile Communication",
+                            "credits": 4,
+                            "modules": [
+                                "Cellular Concepts",
+                                "GSM",
+                                "3G/4G/5G",
+                                "OFDM",
+                                "MIMO"
+                            ]
+                        },
+                        {
+                            "code": "ECT311",
+                            "name": "Medical Electronics",
+                            "credits": 4,
+                            "modules": [
+                                "Biomedical Signals",
+                                "ECG/EEG",
+                                "Medical Instrumentation",
+                                "Imaging",
+                                "Telemedicine"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "ECT302",
+                            "name": "Wireless Communication",
+                            "credits": 4,
+                            "modules": [
+                                "Propagation Models",
+                                "Diversity",
+                                "MIMO",
+                                "OFDM",
+                                "LTE/5G Standards"
+                            ]
+                        },
+                        {
+                            "code": "ECT304",
+                            "name": "Computer Networks",
+                            "credits": 4,
+                            "modules": [
+                                "OSI Model",
+                                "TCP/IP",
+                                "Routing",
+                                "Network Security",
+                                "SDN"
+                            ]
+                        },
+                        {
+                            "code": "ECT306",
+                            "name": "Embedded Processor Architecture and Programming",
+                            "credits": 4,
+                            "modules": [
+                                "ARM Cortex",
+                                "Memory Architecture",
+                                "Peripherals",
+                                "RTOS",
+                                "IoT Applications"
+                            ]
+                        },
+                        {
+                            "code": "ECT308",
+                            "name": "Microwave and Antenna Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Microwave Transmission Lines",
+                                "Waveguides",
+                                "Microwave Devices",
+                                "Antenna Theory",
+                                "Antenna Arrays"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "ECT312",
+                            "name": "Digital Image Processing",
+                            "credits": 4,
+                            "modules": [
+                                "Image Fundamentals",
+                                "Spatial Filtering",
+                                "Frequency Domain",
+                                "Morphological Processing",
+                                "Segmentation"
+                            ]
+                        },
+                        {
+                            "code": "ECT314",
+                            "name": "Speech and Audio Processing",
+                            "credits": 4,
+                            "modules": [
+                                "Speech Production",
+                                "Feature Extraction",
+                                "Speech Coding",
+                                "Speech Recognition",
+                                "Audio Coding"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "ECT401",
+                            "name": "Machine Learning for Signal Processing",
+                            "credits": 4,
+                            "modules": [
+                                "Supervised Learning",
+                                "Deep Learning",
+                                "CNN for Signal Processing",
+                                "RNN",
+                                "Applications"
+                            ]
+                        },
+                        {
+                            "code": "ECT403",
+                            "name": "Optical Communication",
+                            "credits": 4,
+                            "modules": [
+                                "Optical Fibers",
+                                "Sources and Detectors",
+                                "WDM",
+                                "Optical Amplifiers",
+                                "Networks"
+                            ]
+                        },
+                        {
+                            "code": "ECT405",
+                            "name": "Information Theory and Coding",
+                            "credits": 4,
+                            "modules": [
+                                "Entropy",
+                                "Source Coding",
+                                "Channel Capacity",
+                                "Block Codes",
+                                "Turbo Codes"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "ECT462",
+                            "name": "5G Technology",
+                            "credits": 4,
+                            "modules": [
+                                "5G Architecture",
+                                "Massive MIMO",
+                                "Beamforming",
+                                "Network Slicing",
+                                "Use Cases"
+                            ]
+                        },
+                        {
+                            "code": "ECT464",
+                            "name": "Autonomous Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Robotics Basics",
+                                "Sensor Fusion",
+                                "SLAM",
+                                "Path Planning",
+                                "AI in Autonomous Vehicles"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "IT": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "ITE201",
+                            "name": "Data Structures and Algorithms",
+                            "credits": 4,
+                            "modules": [
+                                "Arrays and Linked Lists",
+                                "Stacks and Queues",
+                                "Trees",
+                                "Graphs",
+                                "Sorting Algorithms"
+                            ]
+                        },
+                        {
+                            "code": "ITE203",
+                            "name": "Logic Design",
+                            "credits": 4,
+                            "modules": [
+                                "Boolean Algebra",
+                                "Combinational Logic",
+                                "Sequential Circuits",
+                                "Memory Devices",
+                                "PLDs"
+                            ]
+                        },
+                        {
+                            "code": "ITE205",
+                            "name": "Object Oriented Design and Programming",
+                            "credits": 4,
+                            "modules": [
+                                "OOP Principles",
+                                "Inheritance",
+                                "Polymorphism",
+                                "Design Patterns",
+                                "UML"
+                            ]
+                        },
+                        {
+                            "code": "MAT203",
+                            "name": "Discrete Mathematical Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Logic",
+                                "Relations",
+                                "Graph Theory",
+                                "Trees",
+                                "Combinatorics"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "ITE202",
+                            "name": "Database Management Systems",
+                            "credits": 4,
+                            "modules": [
+                                "ER Modeling",
+                                "Relational Algebra",
+                                "SQL Advanced",
+                                "Normalization",
+                                "Transactions"
+                            ]
+                        },
+                        {
+                            "code": "ITE204",
+                            "name": "Operating Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Processes & Threads",
+                                "Scheduling",
+                                "Memory Management",
+                                "File Systems",
+                                "Security"
+                            ]
+                        },
+                        {
+                            "code": "ITE206",
+                            "name": "Web Technologies",
+                            "credits": 4,
+                            "modules": [
+                                "HTML/CSS",
+                                "JavaScript",
+                                "Server-Side Programming",
+                                "Web Frameworks",
+                                "REST APIs"
+                            ]
+                        },
+                        {
+                            "code": "ITE208",
+                            "name": "Computer Networks",
+                            "credits": 4,
+                            "modules": [
+                                "Network Models",
+                                "Routing",
+                                "TCP/IP",
+                                "Application Layer",
+                                "Network Security"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "ITE301",
+                            "name": "Software Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "SDLC",
+                                "Agile & Scrum",
+                                "Requirements Engineering",
+                                "Testing",
+                                "Project Management"
+                            ]
+                        },
+                        {
+                            "code": "ITE303",
+                            "name": "Information Security",
+                            "credits": 4,
+                            "modules": [
+                                "Cryptography",
+                                "Network Security",
+                                "Web Security",
+                                "Ethical Hacking",
+                                "Cyber Laws"
+                            ]
+                        },
+                        {
+                            "code": "ITE305",
+                            "name": "Algorithm Analysis and Design",
+                            "credits": 4,
+                            "modules": [
+                                "Complexity Classes",
+                                "Divide and Conquer",
+                                "Greedy",
+                                "DP",
+                                "Approximation"
+                            ]
+                        },
+                        {
+                            "code": "ITE307",
+                            "name": "Full Stack Development",
+                            "credits": 4,
+                            "modules": [
+                                "Frontend Frameworks",
+                                "Backend Development",
+                                "API Design",
+                                "Databases",
+                                "Deployment"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "ITE309",
+                            "name": "Cloud Computing",
+                            "credits": 4,
+                            "modules": [
+                                "Cloud Models",
+                                "Virtualization",
+                                "AWS/GCP",
+                                "Containers",
+                                "Serverless"
+                            ]
+                        },
+                        {
+                            "code": "ITE311",
+                            "name": "Data Analytics",
+                            "credits": 4,
+                            "modules": [
+                                "Data Wrangling",
+                                "Statistical Analysis",
+                                "Visualization",
+                                "Predictive Modeling",
+                                "Big Data"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "ITE302",
+                            "name": "Machine Learning",
+                            "credits": 4,
+                            "modules": [
+                                "Regression",
+                                "Classification",
+                                "Clustering",
+                                "Neural Networks",
+                                "Model Evaluation"
+                            ]
+                        },
+                        {
+                            "code": "ITE304",
+                            "name": "Mobile Application Development",
+                            "credits": 4,
+                            "modules": [
+                                "Android Studio",
+                                "React Native",
+                                "UI Components",
+                                "APIs",
+                                "Play Store Deployment"
+                            ]
+                        },
+                        {
+                            "code": "ITE306",
+                            "name": "Distributed Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Architecture",
+                                "Message Queues",
+                                "Microservices",
+                                "Consistency",
+                                "Fault Tolerance"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "ITE312",
+                            "name": "Natural Language Processing",
+                            "credits": 4,
+                            "modules": [
+                                "Text Processing",
+                                "Language Models",
+                                "Named Entity Recognition",
+                                "Chatbots",
+                                "Transformers"
+                            ]
+                        },
+                        {
+                            "code": "ITE314",
+                            "name": "Internet of Things",
+                            "credits": 4,
+                            "modules": [
+                                "IoT Architecture",
+                                "MQTT",
+                                "Edge Computing",
+                                "Smart Systems",
+                                "Security"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "ITE401",
+                            "name": "Deep Learning",
+                            "credits": 4,
+                            "modules": [
+                                "Neural Networks",
+                                "CNN",
+                                "RNN",
+                                "Attention Mechanisms",
+                                "Applications"
+                            ]
+                        },
+                        {
+                            "code": "ITE403",
+                            "name": "DevOps and CI/CD",
+                            "credits": 4,
+                            "modules": [
+                                "Git Workflow",
+                                "Docker",
+                                "Kubernetes",
+                                "Jenkins",
+                                "Monitoring"
+                            ]
+                        },
+                        {
+                            "code": "ITE405",
+                            "name": "Blockchain and Web3",
+                            "credits": 4,
+                            "modules": [
+                                "Blockchain Basics",
+                                "Ethereum",
+                                "Smart Contracts",
+                                "DApps",
+                                "NFTs"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "ITE462",
+                            "name": "Generative AI",
+                            "credits": 4,
+                            "modules": [
+                                "LLMs",
+                                "Image Generation",
+                                "Prompt Engineering",
+                                "Fine-tuning",
+                                "Deployment"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "EL": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "EET201",
+                            "name": "Circuit Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Mesh and Node Analysis",
+                                "Network Theorems",
+                                "Transient Analysis",
+                                "Resonance",
+                                "Two-Port Networks"
+                            ]
+                        },
+                        {
+                            "code": "EET203",
+                            "name": "Electronic Devices and Circuits",
+                            "credits": 4,
+                            "modules": [
+                                "Semiconductor Devices",
+                                "Diodes & BJT",
+                                "MOSFET",
+                                "Amplifiers",
+                                "Biasing"
+                            ]
+                        },
+                        {
+                            "code": "EET205",
+                            "name": "Digital Electronics",
+                            "credits": 4,
+                            "modules": [
+                                "Boolean Algebra",
+                                "Combinational Circuits",
+                                "Sequential Circuits",
+                                "ADC/DAC",
+                                "PLDs"
+                            ]
+                        },
+                        {
+                            "code": "MAT203",
+                            "name": "Discrete Mathematical Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Logic",
+                                "Relations",
+                                "Graph Theory",
+                                "Trees",
+                                "Combinatorics"
+                            ]
+                        },
+                        {
+                            "code": "EET207",
+                            "name": "Programming in C",
+                            "credits": 4,
+                            "modules": [
+                                "Data Types",
+                                "Control Structures",
+                                "Functions",
+                                "Pointers",
+                                "File Handling"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "EET202",
+                            "name": "Electrical Machines",
+                            "credits": 4,
+                            "modules": [
+                                "DC Machines",
+                                "Transformers",
+                                "Induction Motors",
+                                "Synchronous Machines",
+                                "Special Machines"
+                            ]
+                        },
+                        {
+                            "code": "EET204",
+                            "name": "Signals and Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Signal Classification",
+                                "LTI Systems",
+                                "Fourier Transform",
+                                "Laplace Transform",
+                                "Z-Transform"
+                            ]
+                        },
+                        {
+                            "code": "EET206",
+                            "name": "Computer Organization",
+                            "credits": 4,
+                            "modules": [
+                                "CPU Architecture",
+                                "Memory Hierarchy",
+                                "Instruction Set",
+                                "I/O",
+                                "Pipeline"
+                            ]
+                        },
+                        {
+                            "code": "EET208",
+                            "name": "Electromagnetic Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Electrostatics",
+                                "Magnetostatics",
+                                "Maxwell Equations",
+                                "Wave Propagation",
+                                "Transmission Lines"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "EET301",
+                            "name": "Power Systems Analysis",
+                            "credits": 4,
+                            "modules": [
+                                "Power System Modeling",
+                                "Load Flow",
+                                "Fault Analysis",
+                                "Stability",
+                                "Protection"
+                            ]
+                        },
+                        {
+                            "code": "EET303",
+                            "name": "Control Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Transfer Functions",
+                                "Block Diagrams",
+                                "Time Response",
+                                "Stability Analysis",
+                                "PID Controllers"
+                            ]
+                        },
+                        {
+                            "code": "EET305",
+                            "name": "Embedded Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Microcontroller Architecture",
+                                "Peripherals",
+                                "RTOS",
+                                "Embedded C",
+                                "IoT Basics"
+                            ]
+                        },
+                        {
+                            "code": "EET307",
+                            "name": "Digital Signal Processing",
+                            "credits": 4,
+                            "modules": [
+                                "DFT and FFT",
+                                "FIR Filters",
+                                "IIR Filters",
+                                "Multirate DSP",
+                                "Applications"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "EET309",
+                            "name": "Renewable Energy Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Solar PV",
+                                "Wind Energy",
+                                "Hydro Power",
+                                "Energy Storage",
+                                "Grid Integration"
+                            ]
+                        },
+                        {
+                            "code": "EET311",
+                            "name": "Industrial Automation",
+                            "credits": 4,
+                            "modules": [
+                                "PLC Programming",
+                                "SCADA",
+                                "Sensors",
+                                "Actuators",
+                                "HMI"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "EET302",
+                            "name": "Power Electronics",
+                            "credits": 4,
+                            "modules": [
+                                "Power Devices",
+                                "Rectifiers",
+                                "Choppers",
+                                "Inverters",
+                                "AC Voltage Controllers"
+                            ]
+                        },
+                        {
+                            "code": "EET304",
+                            "name": "Microprocessors and Interfacing",
+                            "credits": 4,
+                            "modules": [
+                                "8086 Architecture",
+                                "Instruction Set",
+                                "Interfacing Techniques",
+                                "DMA",
+                                "Interrupts"
+                            ]
+                        },
+                        {
+                            "code": "EET306",
+                            "name": "Computer Networks",
+                            "credits": 4,
+                            "modules": [
+                                "OSI Model",
+                                "TCP/IP",
+                                "Routing Protocols",
+                                "Security",
+                                "Wireless Networks"
+                            ]
+                        },
+                        {
+                            "code": "EET308",
+                            "name": "Electric Drives",
+                            "credits": 4,
+                            "modules": [
+                                "DC Drives",
+                                "AC Drives",
+                                "VFD",
+                                "Speed Control",
+                                "Energy Efficiency"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "EET312",
+                            "name": "Machine Learning for Engineers",
+                            "credits": 4,
+                            "modules": [
+                                "Supervised Learning",
+                                "Neural Networks",
+                                "Applications in Electrical Systems",
+                                "Predictive Maintenance",
+                                "Deep Learning Basics"
+                            ]
+                        },
+                        {
+                            "code": "EET314",
+                            "name": "VLSI Design",
+                            "credits": 4,
+                            "modules": [
+                                "CMOS Design",
+                                "Cell Libraries",
+                                "Timing Analysis",
+                                "Physical Design",
+                                "FPGA"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "EET401",
+                            "name": "Smart Grid Technology",
+                            "credits": 4,
+                            "modules": [
+                                "Smart Grid Architecture",
+                                "AMI",
+                                "Demand Response",
+                                "Cybersecurity",
+                                "EV Integration"
+                            ]
+                        },
+                        {
+                            "code": "EET403",
+                            "name": "Robotics and Automation",
+                            "credits": 4,
+                            "modules": [
+                                "Robot Kinematics",
+                                "Sensors",
+                                "Path Planning",
+                                "Robot Programming",
+                                "Industrial Robots"
+                            ]
+                        },
+                        {
+                            "code": "EET405",
+                            "name": "Internet of Things",
+                            "credits": 4,
+                            "modules": [
+                                "IoT Protocols",
+                                "Embedded Platforms",
+                                "Cloud Integration",
+                                "Edge Computing",
+                                "Security"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "EET462",
+                            "name": "AI in Power Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Load Forecasting",
+                                "Fault Detection",
+                                "Energy Optimization",
+                                "Reinforcement Learning",
+                                "Digital Twins"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "EO": {
+            "2024": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "EXT201",
+                            "name": "Circuit Theory and Simulation",
+                            "credits": 4,
+                            "modules": [
+                                "Network Analysis",
+                                "Transient Analysis",
+                                "Simulation Tools",
+                                "Filters",
+                                "Two-Port Networks"
+                            ]
+                        },
+                        {
+                            "code": "EXT203",
+                            "name": "Electronic Devices and Circuits",
+                            "credits": 4,
+                            "modules": [
+                                "Semiconductor Physics",
+                                "BJT and MOSFET",
+                                "Amplifier Design",
+                                "Feedback",
+                                "Frequency Response"
+                            ]
+                        },
+                        {
+                            "code": "EXT205",
+                            "name": "Digital System Design",
+                            "credits": 4,
+                            "modules": [
+                                "Combinational Logic",
+                                "Sequential Circuits",
+                                "FPGA Design",
+                                "HDL Basics",
+                                "Digital Prototyping"
+                            ]
+                        },
+                        {
+                            "code": "EXT207",
+                            "name": "Python for Engineers",
+                            "credits": 4,
+                            "modules": [
+                                "Programming Basics",
+                                "Data Analysis with Python",
+                                "NumPy and Pandas",
+                                "Matplotlib",
+                                "Engineering Applications"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "EXT202",
+                            "name": "Electrical Machines and Drives",
+                            "credits": 4,
+                            "modules": [
+                                "Transformers",
+                                "DC Machines",
+                                "Induction Motors",
+                                "Synchronous Machines",
+                                "Variable Speed Drives"
+                            ]
+                        },
+                        {
+                            "code": "EXT204",
+                            "name": "Signals, Systems and Transforms",
+                            "credits": 4,
+                            "modules": [
+                                "Continuous & Discrete Signals",
+                                "LTI Systems",
+                                "Fourier Analysis",
+                                "Laplace Transform",
+                                "Z-Transform"
+                            ]
+                        },
+                        {
+                            "code": "EXT206",
+                            "name": "Embedded System Design",
+                            "credits": 4,
+                            "modules": [
+                                "ARM Cortex",
+                                "RTOS",
+                                "Peripheral Interfacing",
+                                "Low Power Design",
+                                "Embedded Linux"
+                            ]
+                        },
+                        {
+                            "code": "EXT208",
+                            "name": "Power Electronics",
+                            "credits": 4,
+                            "modules": [
+                                "Power Switches",
+                                "Converters",
+                                "Inverters",
+                                "PFC",
+                                "Renewable Energy Converters"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "EXT301",
+                            "name": "Control Systems Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Modeling",
+                                "Time Domain Analysis",
+                                "Frequency Domain",
+                                "State Space",
+                                "Digital Control"
+                            ]
+                        },
+                        {
+                            "code": "EXT303",
+                            "name": "Digital Signal Processing",
+                            "credits": 4,
+                            "modules": [
+                                "DFT & FFT",
+                                "FIR & IIR Design",
+                                "Adaptive Filters",
+                                "Spectral Estimation",
+                                "DSP Processor"
+                            ]
+                        },
+                        {
+                            "code": "EXT305",
+                            "name": "Machine Learning for Engineers",
+                            "credits": 4,
+                            "modules": [
+                                "Supervised Learning",
+                                "Deep Learning",
+                                "CNN",
+                                "Applications in ECE",
+                                "Model Deployment"
+                            ]
+                        },
+                        {
+                            "code": "EXT307",
+                            "name": "Communication Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Analog Modulation",
+                                "Digital Modulation",
+                                "Channel Models",
+                                "OFDM",
+                                "5G Overview"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "EXT309",
+                            "name": "Renewable Energy and Smart Grid",
+                            "credits": 4,
+                            "modules": [
+                                "Solar & Wind",
+                                "Energy Storage",
+                                "Grid Integration",
+                                "AMI",
+                                "Microgrids"
+                            ]
+                        },
+                        {
+                            "code": "EXT311",
+                            "name": "IoT and Edge Computing",
+                            "credits": 4,
+                            "modules": [
+                                "IoT Protocols",
+                                "Edge AI",
+                                "MQTT",
+                                "Embedded TensorFlow",
+                                "Cloud Platforms"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "EXT302",
+                            "name": "VLSI and Chip Design",
+                            "credits": 4,
+                            "modules": [
+                                "CMOS Technology",
+                                "HDL Design",
+                                "Synthesis & STA",
+                                "Physical Design",
+                                "Tapeout Flow"
+                            ]
+                        },
+                        {
+                            "code": "EXT304",
+                            "name": "Computer Networks and Security",
+                            "credits": 4,
+                            "modules": [
+                                "Network Architecture",
+                                "TCP/IP",
+                                "Wireless Networks",
+                                "Cryptography",
+                                "Cybersecurity"
+                            ]
+                        },
+                        {
+                            "code": "EXT306",
+                            "name": "Robotics and Autonomous Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Robot Kinematics",
+                                "Sensor Fusion",
+                                "SLAM",
+                                "ROS",
+                                "Autonomous Navigation"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "EXT312",
+                            "name": "Computer Vision",
+                            "credits": 4,
+                            "modules": [
+                                "Image Processing",
+                                "Feature Detection",
+                                "CNN for Vision",
+                                "Object Detection",
+                                "Camera Calibration"
+                            ]
+                        },
+                        {
+                            "code": "EXT314",
+                            "name": "Medical Electronics and Biomedical Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Biomedical Signals",
+                                "ECG/EEG Systems",
+                                "Biosensors",
+                                "Implantable Devices",
+                                "Health Monitoring"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "EXT401",
+                            "name": "AI-Powered Systems Design",
+                            "credits": 4,
+                            "modules": [
+                                "System Modeling with AI",
+                                "Predictive Maintenance",
+                                "Digital Twins",
+                                "Edge Inference",
+                                "MLOps"
+                            ]
+                        },
+                        {
+                            "code": "EXT403",
+                            "name": "Advanced Power Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Smart Grid",
+                                "EV Charging",
+                                "Power Quality",
+                                "FACTS Devices",
+                                "Energy Management"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "EXT462",
+                            "name": "Industry 4.0 and CPS",
+                            "credits": 4,
+                            "modules": [
+                                "Cyber-Physical Systems",
+                                "Industrial IoT",
+                                "Digital Factories",
+                                "Simulation",
+                                "Standards"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "EEE": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "EET201",
+                            "name": "Circuit Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Network Theorems",
+                                "Transient Analysis",
+                                "Resonance",
+                                "Two-Port Networks",
+                                "Filters"
+                            ]
+                        },
+                        {
+                            "code": "EET203",
+                            "name": "Electronic Devices and Circuits",
+                            "credits": 4,
+                            "modules": [
+                                "Semiconductor Devices",
+                                "Diodes",
+                                "BJT",
+                                "MOSFET",
+                                "Amplifiers"
+                            ]
+                        },
+                        {
+                            "code": "EET205",
+                            "name": "Digital Electronics",
+                            "credits": 4,
+                            "modules": [
+                                "Boolean Algebra",
+                                "Combinational Logic",
+                                "Sequential Circuits",
+                                "ADC/DAC",
+                                "PLDs"
+                            ]
+                        },
+                        {
+                            "code": "MAT203",
+                            "name": "Probability, Statistics and Numerical Methods",
+                            "credits": 4,
+                            "modules": [
+                                "Probability",
+                                "Distributions",
+                                "Numerical Methods",
+                                "Regression",
+                                "Statistical Tests"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "EET202",
+                            "name": "Electrical Machines I",
+                            "credits": 4,
+                            "modules": [
+                                "Transformers",
+                                "DC Generators",
+                                "DC Motors",
+                                "Testing",
+                                "Efficiency"
+                            ]
+                        },
+                        {
+                            "code": "EET204",
+                            "name": "Signals and Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Signals",
+                                "LTI Systems",
+                                "Fourier",
+                                "Laplace",
+                                "Z-Transform"
+                            ]
+                        },
+                        {
+                            "code": "EET206",
+                            "name": "Power Systems I",
+                            "credits": 4,
+                            "modules": [
+                                "Generation",
+                                "Transmission",
+                                "Distribution",
+                                "Load Flow",
+                                "Economic Dispatch"
+                            ]
+                        },
+                        {
+                            "code": "EET208",
+                            "name": "Electromagnetic Field Theory",
+                            "credits": 4,
+                            "modules": [
+                                "Electrostatics",
+                                "Magnetostatics",
+                                "Maxwell Equations",
+                                "Waves",
+                                "Transmission Lines"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "EET301",
+                            "name": "Electrical Machines II",
+                            "credits": 4,
+                            "modules": [
+                                "Induction Motors",
+                                "Synchronous Generators",
+                                "Synchronous Motors",
+                                "Special Machines",
+                                "Testing"
+                            ]
+                        },
+                        {
+                            "code": "EET303",
+                            "name": "Power Electronics",
+                            "credits": 4,
+                            "modules": [
+                                "Power Devices",
+                                "Rectifiers",
+                                "Inverters",
+                                "Choppers",
+                                "PFC"
+                            ]
+                        },
+                        {
+                            "code": "EET305",
+                            "name": "Control Systems",
+                            "credits": 4,
+                            "modules": [
+                                "TF Methods",
+                                "Root Locus",
+                                "Bode Plot",
+                                "State Space",
+                                "PID Control"
+                            ]
+                        },
+                        {
+                            "code": "EET307",
+                            "name": "Power Systems II",
+                            "credits": 4,
+                            "modules": [
+                                "Fault Analysis",
+                                "Protection",
+                                "Stability",
+                                "Reactive Power",
+                                "Harmonics"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "EET309",
+                            "name": "Renewable Energy Systems",
+                            "credits": 4,
+                            "modules": [
+                                "Solar",
+                                "Wind",
+                                "Storage",
+                                "Grid Integration",
+                                "Policy"
+                            ]
+                        }
+                    ]
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "EET302",
+                            "name": "Electric Drives",
+                            "credits": 4,
+                            "modules": [
+                                "DC Drives",
+                                "AC Drives",
+                                "VFD",
+                                "Speed Control",
+                                "Braking"
+                            ]
+                        },
+                        {
+                            "code": "EET304",
+                            "name": "Microprocessors and Embedded Systems",
+                            "credits": 4,
+                            "modules": [
+                                "8086/ARM",
+                                "Interfacing",
+                                "RTOS",
+                                "Embedded C",
+                                "Industrial Applications"
+                            ]
+                        },
+                        {
+                            "code": "EET306",
+                            "name": "High Voltage Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Gas Discharge",
+                                "Breakdown",
+                                "Testing",
+                                "Insulation",
+                                "Surge Protection"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "EET312",
+                            "name": "Smart Grid",
+                            "credits": 4,
+                            "modules": [
+                                "AMI",
+                                "Demand Response",
+                                "EV Integration",
+                                "Cybersecurity",
+                                "Microgrids"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "EET401",
+                            "name": "Flexible AC Transmission Systems",
+                            "credits": 4,
+                            "modules": [
+                                "FACTS Devices",
+                                "SVC",
+                                "STATCOM",
+                                "UPFC",
+                                "Applications"
+                            ]
+                        },
+                        {
+                            "code": "EET403",
+                            "name": "Industrial Automation",
+                            "credits": 4,
+                            "modules": [
+                                "PLC",
+                                "SCADA",
+                                "DCS",
+                                "Robotics",
+                                "HMI"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "EET462",
+                            "name": "Energy Auditing and Management",
+                            "credits": 4,
+                            "modules": [
+                                "Energy Audit Procedures",
+                                "Lighting Systems",
+                                "HVAC",
+                                "ISO 50001",
+                                "Energy Conservation"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "ME": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "MET201",
+                            "name": "Engineering Thermodynamics",
+                            "credits": 4,
+                            "modules": [
+                                "Laws of Thermodynamics",
+                                "Properties of Steam",
+                                "Cycles",
+                                "Refrigeration",
+                                "Gas Dynamics"
+                            ]
+                        },
+                        {
+                            "code": "MET203",
+                            "name": "Mechanics of Solids",
+                            "credits": 4,
+                            "modules": [
+                                "Stress & Strain",
+                                "Shear Force & Bending Moment",
+                                "Torsion",
+                                "Columns",
+                                "Deflection"
+                            ]
+                        },
+                        {
+                            "code": "MET205",
+                            "name": "Manufacturing Processes I",
+                            "credits": 4,
+                            "modules": [
+                                "Casting",
+                                "Welding",
+                                "Forming",
+                                "Powder Metallurgy",
+                                "Surface Finishing"
+                            ]
+                        },
+                        {
+                            "code": "MAT203",
+                            "name": "Linear Algebra and Complex Analysis",
+                            "credits": 4,
+                            "modules": [
+                                "Matrix Methods",
+                                "Vector Spaces",
+                                "Complex Analysis",
+                                "Conformal Mapping",
+                                "Residues"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "MET202",
+                            "name": "Fluid Mechanics and Machinery",
+                            "credits": 4,
+                            "modules": [
+                                "Fluid Properties",
+                                "Flow Kinematics",
+                                "Bernoulli's Theorem",
+                                "Turbines",
+                                "Pumps"
+                            ]
+                        },
+                        {
+                            "code": "MET204",
+                            "name": "Theory of Machines",
+                            "credits": 4,
+                            "modules": [
+                                "Mechanisms",
+                                "Velocity & Acceleration",
+                                "Cams",
+                                "Gears",
+                                "Balancing"
+                            ]
+                        },
+                        {
+                            "code": "MET206",
+                            "name": "Manufacturing Processes II",
+                            "credits": 4,
+                            "modules": [
+                                "Machining",
+                                "CNC",
+                                "Jigs & Fixtures",
+                                "Metrology",
+                                "Quality Control"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "MET301",
+                            "name": "Heat and Mass Transfer",
+                            "credits": 4,
+                            "modules": [
+                                "Conduction",
+                                "Convection",
+                                "Radiation",
+                                "Heat Exchangers",
+                                "Mass Transfer"
+                            ]
+                        },
+                        {
+                            "code": "MET303",
+                            "name": "Machine Design",
+                            "credits": 4,
+                            "modules": [
+                                "Design Criteria",
+                                "Shafts",
+                                "Bearings",
+                                "Springs",
+                                "Fasteners"
+                            ]
+                        },
+                        {
+                            "code": "MET305",
+                            "name": "Industrial Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Work Study",
+                                "Production Planning",
+                                "Inventory Control",
+                                "Quality Management",
+                                "Ergonomics"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "MET302",
+                            "name": "Finite Element Methods",
+                            "credits": 4,
+                            "modules": [
+                                "FEM Basics",
+                                "1D Problems",
+                                "2D Problems",
+                                "Structural Analysis",
+                                "Thermal Analysis"
+                            ]
+                        },
+                        {
+                            "code": "MET304",
+                            "name": "Refrigeration and Air Conditioning",
+                            "credits": 4,
+                            "modules": [
+                                "Vapour Compression",
+                                "Psychrometrics",
+                                "Air Conditioning",
+                                "Refrigerants",
+                                "Cold Storage"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "MET306",
+                            "name": "Robotics",
+                            "credits": 4,
+                            "modules": [
+                                "Robot Configuration",
+                                "Kinematics",
+                                "Trajectory Planning",
+                                "Sensors",
+                                "Applications"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "MET401",
+                            "name": "Additive Manufacturing",
+                            "credits": 4,
+                            "modules": [
+                                "3D Printing Technologies",
+                                "Materials",
+                                "Design for AM",
+                                "Post Processing",
+                                "Applications"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "MET462",
+                            "name": "Automotive Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Engine Systems",
+                                "Transmission",
+                                "Chassis",
+                                "Electric Vehicles",
+                                "Emission Control"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "CE": {
+            "2019": {
+                "S3": {
+                    "core": [
+                        {
+                            "code": "CET201",
+                            "name": "Mechanics of Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Equilibrium",
+                                "Beams",
+                                "Trusses",
+                                "Arches",
+                                "Cables"
+                            ]
+                        },
+                        {
+                            "code": "CET203",
+                            "name": "Fluid Mechanics",
+                            "credits": 4,
+                            "modules": [
+                                "Fluid Properties",
+                                "Hydrostatics",
+                                "Kinematics",
+                                "Bernoulli",
+                                "Pipe Flow"
+                            ]
+                        },
+                        {
+                            "code": "CET205",
+                            "name": "Engineering Geology",
+                            "credits": 4,
+                            "modules": [
+                                "Minerals and Rocks",
+                                "Geological Structures",
+                                "Soil Formation",
+                                "Groundwater",
+                                "Site Investigation"
+                            ]
+                        },
+                        {
+                            "code": "MAT203",
+                            "name": "Partial Differential Equations",
+                            "credits": 4,
+                            "modules": [
+                                "PDEs",
+                                "Wave Equation",
+                                "Heat Equation",
+                                "Fourier Series",
+                                "Boundary Value Problems"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S4": {
+                    "core": [
+                        {
+                            "code": "CET202",
+                            "name": "Structural Analysis I",
+                            "credits": 4,
+                            "modules": [
+                                "Determinate Structures",
+                                "Energy Methods",
+                                "Influence Lines",
+                                "Deflections",
+                                "Arches"
+                            ]
+                        },
+                        {
+                            "code": "CET204",
+                            "name": "Geotechnical Engineering I",
+                            "credits": 4,
+                            "modules": [
+                                "Soil Classification",
+                                "Compaction",
+                                "Permeability",
+                                "Seepage",
+                                "Consolidation"
+                            ]
+                        },
+                        {
+                            "code": "CET206",
+                            "name": "Concrete Technology",
+                            "credits": 4,
+                            "modules": [
+                                "Cement",
+                                "Aggregates",
+                                "Mix Design",
+                                "Admixtures",
+                                "Durability"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S5": {
+                    "core": [
+                        {
+                            "code": "CET301",
+                            "name": "Structural Analysis II",
+                            "credits": 4,
+                            "modules": [
+                                "Indeterminate Structures",
+                                "Stiffness Method",
+                                "Moment Distribution",
+                                "Matrix Methods",
+                                "Plastic Analysis"
+                            ]
+                        },
+                        {
+                            "code": "CET303",
+                            "name": "Geotechnical Engineering II",
+                            "credits": 4,
+                            "modules": [
+                                "Bearing Capacity",
+                                "Settlement",
+                                "Slope Stability",
+                                "Retaining Walls",
+                                "Foundations"
+                            ]
+                        },
+                        {
+                            "code": "CET305",
+                            "name": "Transportation Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Highway Engineering",
+                                "Traffic Engineering",
+                                "Railway Engineering",
+                                "Airport Engineering",
+                                "Harbour"
+                            ]
+                        }
+                    ],
+                    "electives": []
+                },
+                "S6": {
+                    "core": [
+                        {
+                            "code": "CET302",
+                            "name": "Design of RCC Structures",
+                            "credits": 4,
+                            "modules": [
+                                "Limit State Design",
+                                "Beams",
+                                "Slabs",
+                                "Columns",
+                                "Footings"
+                            ]
+                        },
+                        {
+                            "code": "CET304",
+                            "name": "Environmental Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Water Treatment",
+                                "Wastewater Treatment",
+                                "Solid Waste",
+                                "Air Pollution",
+                                "Environmental Impact"
+                            ]
+                        }
+                    ],
+                    "electives": [
+                        {
+                            "code": "CET306",
+                            "name": "Remote Sensing and GIS",
+                            "credits": 4,
+                            "modules": [
+                                "Remote Sensing Basics",
+                                "Image Analysis",
+                                "GIS Concepts",
+                                "GPS",
+                                "Applications"
+                            ]
+                        }
+                    ]
+                },
+                "S7": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "CET401",
+                            "name": "Earthquake Engineering",
+                            "credits": 4,
+                            "modules": [
+                                "Seismology",
+                                "Strong Motion",
+                                "Structural Dynamics",
+                                "IS Code",
+                                "Seismic Design"
+                            ]
+                        }
+                    ]
+                },
+                "S8": {
+                    "core": [],
+                    "electives": [
+                        {
+                            "code": "CET462",
+                            "name": "Smart Infrastructure",
+                            "credits": 4,
+                            "modules": [
+                                "Structural Health Monitoring",
+                                "IoT in Infrastructure",
+                                "BIM",
+                                "Smart Cities",
+                                "Digital Twins"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

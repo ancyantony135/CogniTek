@@ -12,13 +12,22 @@ import Schedule from "./pages/Schedule";
 import Profile from "./pages/Profile";
 import Record from "./pages/Record";
 import Sylens from "./pages/Sylens";
+import Onboarding from "./pages/Onboarding";
 
-// Protected Route Component
+// ── Route guard: must be logged in ──────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
+  const { user, profileComplete } = useAuth();
+  if (!user) return <Navigate to="/" replace />;
+  // Redirect to onboarding if profile not yet completed
+  if (!profileComplete) return <Navigate to="/onboarding" replace />;
+  return children;
+};
+
+// ── Onboarding-only gate: logged in but profile not done ─────────────────────
+const OnboardingRoute = ({ children }) => {
+  const { user, profileComplete } = useAuth();
+  if (!user) return <Navigate to="/" replace />;
+  if (profileComplete) return <Navigate to="/dashboard" replace />;
   return children;
 };
 
@@ -29,10 +38,20 @@ export default function App() {
         <BrowserRouter>
           <InstallPrompt />
           <Routes>
-            {/* Unified Auth Page for Login, Register, Recovery */}
+            {/* Auth */}
             <Route path="/" element={<AuthPage />} />
             <Route path="/register" element={<AuthPage />} />
             <Route path="/forgot-password" element={<AuthPage />} />
+
+            {/* Onboarding (blocking — only for users without a profile) */}
+            <Route
+              path="/onboarding"
+              element={
+                <OnboardingRoute>
+                  <Onboarding />
+                </OnboardingRoute>
+              }
+            />
 
             {/* Protected App Routes */}
             <Route
@@ -49,7 +68,7 @@ export default function App() {
               <Route path="/sylens" element={<Sylens />} />
             </Route>
 
-            {/* Record Page (No Bottom Bar) */}
+            {/* Record Page (no Bottom Bar) */}
             <Route
               path="/record"
               element={
@@ -58,7 +77,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
           </Routes>
         </BrowserRouter>
       </AutoRecordProvider>

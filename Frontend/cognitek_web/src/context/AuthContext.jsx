@@ -6,61 +6,121 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [profileComplete, setProfileComplete] = useState(false);
+  const [subjects, setSubjects] = useState([]);
 
+  // ── Fetch profile + subjects from Supabase ─────────────────────────────────
+  const loadProfile = async (userId) => {
+    if (!userId) {
+      setProfile(null);
+      setProfileComplete(false);
+      setSubjects([]);
+      return;
+    }
+    try {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (prof) {
+        setProfile(prof);
+        setProfileComplete(true);
+
+        const { data: subs } = await supabase
+          .from("user_subjects")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: true });
+
+        setSubjects(subs ?? []);
+      } else {
+        setProfile(null);
+        setProfileComplete(false);
+        setSubjects([]);
+      }
+    } catch (err) {
+      console.error("Profile load error:", err);
+      setProfile(null);
+      setProfileComplete(false);
+    }
+  };
+
+  // ── Session lifecycle ───────────────────────────────────────────────────────
   useEffect(() => {
-    // 1. Check for an active session on load
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      await loadProfile(u?.id);
       setLoading(false);
     };
-
     checkUser();
 
-    // 2. Listen for login/logout changes automatically
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (event === "SIGNED_IN") {
+        await loadProfile(u?.id);
+      } else if (event === "SIGNED_OUT") {
+        setProfile(null);
+        setProfileComplete(false);
+        setSubjects([]);
+      }
     });
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    return () => authListener.subscription.unsubscribe();
   }, []);
 
-  const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  // ── Refresh profile (called after onboarding saves) ────────────────────────
+  const refreshProfile = async () => {
+    if (user?.id) await loadProfile(user.id);
+  };
 
+  // ── Auth actions ────────────────────────────────────────────────────────────
+  const login = async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { success: false, message: error.message };
     return { success: true };
   };
 
   const register = async (email, password, name) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { display_name: name }  // stored in user_metadata
-      }
+      options: { data: { display_name: name } },
     });
     if (error) return { success: false, message: error.message };
     return { success: true };
   };
 
-  const getDisplayName = () => {
-    return user?.user_metadata?.display_name
-      || user?.email?.split("@")[0]
-      || "Student";
-  };
+  const getDisplayName = () =>
+    profile?.full_name ||
+    user?.user_metadata?.display_name ||
+    user?.email?.split("@")[0] ||
+    "Student";
 
   const logout = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, getDisplayName }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        profile,
+        profileComplete,
+        subjects,
+        loading,
+        login,
+        register,
+        logout,
+        getDisplayName,
+        refreshProfile,
+      }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

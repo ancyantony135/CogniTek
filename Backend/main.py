@@ -169,7 +169,11 @@ def read_root():
 
 
 @app.post("/api/process-audio")
-async def process_audio(file: UploadFile = File(...), user_id: Optional[str] = Form(None)):
+async def process_audio(
+    file: UploadFile = File(...),
+    user_id: Optional[str] = Form(None),
+    subjects: Optional[str] = Form(None),   # JSON string: [{"code":"CST301","name":"..."},...]
+):
     temp_filename = f"uploads/{file.filename}"
     os.makedirs("uploads", exist_ok=True)
     with open(temp_filename, "wb") as buffer:
@@ -183,6 +187,23 @@ async def process_audio(file: UploadFile = File(...), user_id: Optional[str] = F
     print(f"📝 Transcribed: {transcribed_text[:50]}...")
     
     # AI Analysis (Uses the global text_model)
+    # Build subject constraint block if the user has enrolled subjects
+    subject_constraint = ""
+    if subjects:
+        try:
+            subject_list = json.loads(subjects)
+            if subject_list:
+                allowed = ", ".join(f'"{s["code"]}: {s["name"]}"' for s in subject_list)
+                subject_constraint = f"""
+=== SUBJECT CONSTRAINT (MANDATORY) ===
+You MUST use ONLY the following subjects for the "subject" field in tasks.
+Do NOT create a task for any subject not in this list.
+If no subject in the audio matches this list, set subject to the closest match or omit the task if completely unrelated.
+Allowed subjects: [{allowed}]
+"""
+        except Exception:
+            pass
+
     prompt = f"""
 You are an intelligent academic assistant for a B.Tech student at Kerala Technological University (KTU), India.
 Analyze the following transcribed student audio and extract structured data.
@@ -199,6 +220,7 @@ You must upgrade it from [] to generate a task if the following conditions are m
   3. If there is a deadline mentioned, include it. If no deadline is explicitly spoken, set due_date to "Upcoming" or guess based on context.
 If it is an actionable task or assignment, add it! Do not be overly strict about phrasing.
 
+{subject_constraint}
 === TASK FIELDS ===
 For each task, extract ALL of the following fields:
 - "title": Short, action-oriented title (e.g., "Submit Assignment 1")

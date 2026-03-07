@@ -5,7 +5,7 @@ import { useWakeLock } from "../hooks/useWakeLock";
 import { useAuth } from "../context/AuthContext";
 
 export default function AudioRecorder({ onUploadSuccess }) {
-  const { user } = useAuth();
+  const { user, subjects } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState("Ready to listen");
@@ -70,6 +70,12 @@ export default function AudioRecorder({ onUploadSuccess }) {
     formData.append("file", audioBlob, "recording.webm");
     if (user?.id) {
       formData.append("user_id", user.id);
+    }
+    if (subjects && subjects.length > 0) {
+      // Send as JSON string: [{ course_code, course_name }, ...]
+      formData.append("subjects", JSON.stringify(
+        subjects.map(s => ({ code: s.course_code, name: s.course_name }))
+      ));
     }
 
     try {

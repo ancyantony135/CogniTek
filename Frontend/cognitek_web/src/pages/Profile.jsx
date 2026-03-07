@@ -1,30 +1,13 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase } from "../lib/supabaseClient";
+import ktuData from "../data/ktu_courses.json";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import {
-    User as UserIcon,
-    LogOut,
-    Pencil,
-    Check,
-    X,
-    Database,
-    Activity,
-    BookOpen,
-    Zap,
-    Target,
-    Brain,
-    Code2,
-    Layers,
-    BadgeCheck,
-    ChevronDown,
-    ChevronUp,
-    Bluetooth,
-    Watch,
-    Plus,
-    SlidersHorizontal,
-    FlaskConical,
-    Briefcase,
-    Wifi,
+    User as UserIcon, LogOut, Pencil, Check, X, Database, Activity,
+    BookOpen, Zap, Target, Brain, Code2, Layers, BadgeCheck,
+    ChevronDown, ChevronUp, Bluetooth, Watch, Plus, SlidersHorizontal,
+    FlaskConical, Briefcase, Wifi, BookMarked, Trash2, Loader2, GraduationCap,
 } from "lucide-react";
 
 // ─── Static skill definitions — icons CANNOT be stored in JSON ───────────────
@@ -142,24 +125,96 @@ function HealthDot({ online }) {
     );
 }
 
+// ─── Subject row with syllabus expand ────────────────────────────────────────
+function SubjectRow({ sub, onRemove }) {
+    const [open, setOpen] = useState(false);
+    // Look up modules from static JSON
+    const findModules = () => {
+        const all = ktuData.curriculum;
+        for (const branch of Object.values(all)) {
+            for (const scheme of Object.values(branch)) {
+                for (const sem of Object.values(scheme)) {
+                    const course = [...(sem.core ?? []), ...(sem.electives ?? [])]
+                        .find(c => c.code === sub.course_code);
+                    if (course?.modules?.length) return course.modules;
+                }
+            }
+        }
+        // Also check common semesters
+        for (const sem of Object.values(ktuData.common)) {
+            const course = (sem.core ?? []).find(c => c.code === sub.course_code);
+            if (course?.modules?.length) return course.modules;
+        }
+        return [];
+    };
+    const modules = findModules();
+
+    return (
+        <div className="rounded-xl border border-[var(--glass-border)] overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3 bg-[var(--glass)]">
+                <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[var(--text-primary)] truncate">{sub.course_code}</p>
+                    <p className="text-xs text-[var(--text-secondary)] truncate">{sub.course_name}</p>
+                </div>
+                <div className="flex items-center gap-1 ml-auto shrink-0">
+                    {sub.credits && (
+                        <span className="text-[10px] font-bold text-[var(--text-secondary)] px-1.5 py-0.5 bg-black/6 rounded-full">{sub.credits}cr</span>
+                    )}
+                    {sub.is_elective && (
+                        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full border border-indigo-200">
+                            {sub.is_custom ? "Custom" : "Elective"}
+                        </span>
+                    )}
+                    {modules.length > 0 && (
+                        <button onClick={() => setOpen(o => !o)}
+                            className="p-1.5 rounded-lg hover:bg-black/6 transition-colors text-[var(--text-secondary)]">
+                            {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+                    )}
+                    {(sub.is_elective || sub.is_custom) && onRemove && (
+                        <button onClick={() => onRemove(sub.id)}
+                            className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors text-[var(--text-secondary)]">
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                    )}
+                </div>
+            </div>
+            {open && modules.length > 0 && (
+                <div className="px-4 py-3 border-t border-[var(--glass-border)] bg-white/60">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">
+                        <BookMarked className="w-3 h-3 inline mr-1" />Syllabus Modules
+                    </p>
+                    <ol className="space-y-1">
+                        {modules.map((m, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs text-[var(--text-primary)]">
+                                <span className="font-bold text-[var(--text-secondary)] shrink-0">M{i + 1}.</span>
+                                {m}
+                            </li>
+                        ))}
+                    </ol>
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ─── main component ───────────────────────────────────────────────────────────
 export default function Profile() {
-    const { user, logout } = useAuth();
+    const { user, logout, profile: authProfile, subjects, refreshProfile } = useAuth();
     const API_URL = import.meta.env.VITE_API_URL;
 
-    // ── load persisted profile ──────────────────────────────────────────────────
+    // ── load persisted profile (local settings) ─────────────────────────────────
     const [profile, setProfile] = useState(() => ({
-        name: "Hansel",
-        major: "Electrical and Computer Engineering",
-        college: "Toc H Institute of Science and Technology",
-        studentId: "",
-        semester: "S6",
-        scheme: "2019",
+        name: authProfile?.full_name || "Student",
+        major: authProfile ? ktuData.meta.branches[authProfile.branch] || authProfile.branch : "B.Tech Student",
+        college: authProfile?.college || "Toc H Institute of Science and Technology",
+        studentId: authProfile?.student_id || "",
+        semester: authProfile?.semester ? `S${authProfile.semester}` : "S5",
+        scheme: authProfile?.scheme || "2019",
         lectures: 0,
         flashcards: 0,
         taskCompletion: 90,
-        courses: ["CST 301", "EST 204", "CST 305"],
-        skillValues: DEFAULT_SKILL_VALUES,   // ← plain numbers, safe to serialize
+        skillValues: DEFAULT_SKILL_VALUES,
         placements: [
             { id: 1, label: "Infosys Higher Package Drive", done: false },
             { id: 2, label: "Kaynes Technology Interview", done: false },
@@ -171,6 +226,42 @@ export default function Profile() {
         hardwareSync: false,
         ...loadProfile(),
     }));
+
+    // ── subject management ───────────────────────────────────────────────────────
+    const [localSubjects, setLocalSubjects] = useState(subjects ?? []);
+    const [newSubjectName, setNewSubjectName] = useState("");
+    const [addingSubject, setAddingSubject] = useState(false);
+
+    useEffect(() => { setLocalSubjects(subjects ?? []); }, [subjects]);
+
+    const handleAddSubject = async () => {
+        const name = newSubjectName.trim();
+        if (!name || !user?.id) return;
+        setAddingSubject(true);
+        try {
+            const idx = localSubjects.filter(s => s.is_custom).length + 1;
+            const { data, error } = await supabase.from("user_subjects").insert({
+                user_id: user.id,
+                course_code: `CUSTOM${idx}`,
+                course_name: name,
+                credits: null,
+                is_elective: true,
+                is_custom: true,
+            }).select().single();
+            if (!error && data) {
+                setLocalSubjects(prev => [...prev, data]);
+                setNewSubjectName("");
+                await refreshProfile();
+            }
+        } catch (err) { console.error(err); }
+        finally { setAddingSubject(false); }
+    };
+
+    const handleRemoveSubject = async (id) => {
+        setLocalSubjects(prev => prev.filter(s => s.id !== id));
+        await supabase.from("user_subjects").delete().eq("id", id);
+        await refreshProfile();
+    };
 
 
     // ── server health ──────────────────────────────────────────────────────────
@@ -432,40 +523,43 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    {/* Course tags */}
+                    {/* Subject Manager */}
                     <div>
-                        <label className="text-xs font-semibold text-[var(--text-secondary)] ml-1 mb-2 block uppercase tracking-wide">
-                            Active Courses
-                        </label>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                            {profile.courses.map((c) => (
-                                <span
-                                    key={c}
-                                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/8 text-xs font-semibold text-[var(--text-primary)] border border-[var(--glass-border)]"
-                                >
-                                    {c}
-                                    <button
-                                        onClick={() => removeCourse(c)}
-                                        className="text-[var(--text-secondary)] hover:text-red-500 ml-0.5 transition-colors"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
-                                </span>
+                        <div className="flex items-center gap-2 mb-3">
+                            <GraduationCap className="w-4 h-4 text-[var(--text-secondary)]" />
+                            <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+                                Enrolled Subjects — {authProfile ? `${authProfile.branch} · S${authProfile.semester}` : ""}
+                            </label>
+                        </div>
+                        <div className="space-y-2 mb-4">
+                            {localSubjects.length === 0 && (
+                                <p className="text-xs text-[var(--text-secondary)] text-center py-3">
+                                    No subjects yet. Complete your profile setup.
+                                </p>
+                            )}
+                            {localSubjects.map(sub => (
+                                <SubjectRow
+                                    key={sub.id}
+                                    sub={sub}
+                                    onRemove={handleRemoveSubject}
+                                />
                             ))}
                         </div>
+                        {/* Add custom subject */}
                         <div className="flex gap-2">
                             <input
                                 className="input-ghost flex-1 !py-2 text-xs"
-                                value={newCourse}
-                                onChange={(e) => setNewCourse(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && addCourse()}
-                                placeholder="Add code (e.g. CST 401)"
+                                value={newSubjectName}
+                                onChange={e => setNewSubjectName(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && handleAddSubject()}
+                                placeholder="Add custom / honours subject name"
                             />
                             <button
-                                onClick={addCourse}
-                                className="px-3 py-2 rounded-xl bg-black text-white text-xs font-bold hover:bg-black/80 transition-colors"
+                                onClick={handleAddSubject}
+                                disabled={addingSubject}
+                                className="px-3 py-2 rounded-xl bg-black text-white text-xs font-bold hover:bg-black/80 transition-colors disabled:opacity-60"
                             >
-                                <Plus className="w-3.5 h-3.5" />
+                                {addingSubject ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                             </button>
                         </div>
                     </div>
