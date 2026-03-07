@@ -11,6 +11,7 @@ import Study from "./pages/Study";
 import Schedule from "./pages/Schedule";
 import Profile from "./pages/Profile";
 import Record from "./pages/Record";
+import Sylens from "./pages/Sylens";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="/study" element={<Study />} />
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/sylens" element={<Sylens />} />
             </Route>
 
             {/* Record Page (No Bottom Bar) */}

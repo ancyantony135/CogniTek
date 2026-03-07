@@ -6,7 +6,7 @@ export default function TaskCard({ task, refresh }) {
       <div>
         <h3 className="font-bold">{task.title}</h3>
         <p className="text-sm text-gray-500">{task.subject} • {task.due_date}</p>
-        <span className="text-xs text-blue-600">{task.priority}</span>
+        <span className="text-xs text-slate-500">{task.priority}</span>
       </div>
 
       <button

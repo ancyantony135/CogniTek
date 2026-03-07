@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Brain, ChevronRight, ChevronLeft } from "lucide-react";
+import { Brain, ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
 import api from "../api/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function FlashcardDeck() {
+    const { user } = useAuth();
     const [decks, setDecks] = useState([]);
     const [currentDeckIndex, setCurrentDeckIndex] = useState(0);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -12,8 +14,13 @@ export default function FlashcardDeck() {
     useEffect(() => {
         const fetchFlashcards = async () => {
             try {
-                const res = await api.get("/api/flashcards");
-                setDecks(res.data);
+                const params = user?.id ? { user_id: user.id } : {};
+                const res = await api.get("/api/flashcards", { params });
+                // Filter out empty decks (AI might generate topics with no actual cards)
+                const validDecks = res.data.filter(deck => deck.content && deck.content.length > 0);
+                // Sort newest first: highest id = most recently created
+                const sorted = validDecks.sort((a, b) => b.id - a.id);
+                setDecks(sorted);
             } catch (err) {
                 console.error("Failed to load flashcards", err);
             } finally {
@@ -21,17 +28,38 @@ export default function FlashcardDeck() {
             }
         };
         fetchFlashcards();
-    }, []);
+    }, [user?.id]);
 
+    // --- Card navigation ---
     const nextCard = () => {
         setIsFlipped(false);
         setTimeout(() => {
-            if (currentCardIndex < decks[currentDeckIndex].content.length - 1) {
-                setCurrentCardIndex((prev) => prev + 1);
-            } else {
-                setCurrentCardIndex(0); // Loop back
-            }
+            setCurrentCardIndex((prev) =>
+                prev < decks[currentDeckIndex].content.length - 1 ? prev + 1 : 0
+            );
         }, 200);
+    };
+
+    const prevCard = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentCardIndex((prev) =>
+                prev > 0 ? prev - 1 : decks[currentDeckIndex].content.length - 1
+            );
+        }, 200);
+    };
+
+    // --- Deck navigation ---
+    const nextDeck = () => {
+        setIsFlipped(false);
+        setCurrentCardIndex(0);
+        setCurrentDeckIndex((prev) => (prev < decks.length - 1 ? prev + 1 : 0));
+    };
+
+    const prevDeck = () => {
+        setIsFlipped(false);
+        setCurrentCardIndex(0);
+        setCurrentDeckIndex((prev) => (prev > 0 ? prev - 1 : decks.length - 1));
     };
 
     if (loading) return <div className="p-4 text-center text-slate-500">Loading study materials...</div>;
@@ -48,27 +76,46 @@ export default function FlashcardDeck() {
 
     return (
         <div className="space-y-4">
-            {/* Deck Selector (Simple for now) */}
+            {/* Deck Selector Header */}
             <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-slate-700">{currentDeck.topic}</h3>
-                <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-full">
-                    {currentCardIndex + 1} / {currentDeck.content.length}
+                <div className="flex items-center gap-2 min-w-0">
+                    <BookOpen className="w-4 h-4 text-slate-600 shrink-0" />
+                    <h3 className="font-semibold text-slate-700 truncate">{currentDeck.topic}</h3>
+                </div>
+                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-full shrink-0 ml-2">
+                    Card {currentCardIndex + 1}/{currentDeck.content.length}
                 </span>
             </div>
+
+            {/* Deck Navigation (only shown when there are multiple decks) */}
+            {decks.length > 1 && (
+                <div className="flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2">
+                    <button onClick={prevDeck} className="p-1 rounded-lg hover:bg-slate-200 transition-colors">
+                        <ChevronLeft className="w-4 h-4 text-slate-500" />
+                    </button>
+                    <span className="text-xs text-slate-400 font-medium">
+                        Deck {currentDeckIndex + 1} of {decks.length}
+                        {currentDeckIndex === 0 && <span className="ml-1 text-slate-400">(Latest)</span>}
+                    </span>
+                    <button onClick={nextDeck} className="p-1 rounded-lg hover:bg-slate-200 transition-colors">
+                        <ChevronRight className="w-4 h-4 text-slate-500" />
+                    </button>
+                </div>
+            )}
 
             {/* Flashcard Area */}
             <div
                 className="group perspective-1000 h-[300px] cursor-pointer"
                 onClick={() => setIsFlipped(!isFlipped)}
             >
-                <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""}`}>
+                <div className={`relative w-full h-full transition-transform duration-500 preserve-3d ${isFlipped ? "rotate-y-180" : ""}`}>
                     {/* Front */}
-                    <div className="absolute inset-0 backface-hidden glass-card p-8 flex flex-col items-center justify-center text-center border-b-4 border-indigo-500">
+                    <div className="absolute inset-0 backface-hidden glass-card p-8 flex flex-col items-center justify-center text-center border-b-4 border-slate-800">
                         <span className="text-xs uppercase tracking-widest text-slate-400 mb-4 font-bold">Question</span>
                         <p className="text-lg font-medium text-slate-800 leading-relaxed">
                             {currentCard.front}
                         </p>
-                        <div className="mt-8 text-xs text-indigo-400 font-medium">Click to flip</div>
+                        <div className="mt-8 text-xs text-slate-400 font-medium">Click to flip</div>
                     </div>
 
                     {/* Back */}
@@ -82,8 +129,14 @@ export default function FlashcardDeck() {
                 </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex justify-end mt-4">
+            {/* Card Controls */}
+            <div className="flex justify-between mt-4">
+                <button
+                    onClick={prevCard}
+                    className="btn-secondary flex items-center gap-2 text-sm"
+                >
+                    <ChevronLeft className="w-4 h-4" /> Prev Card
+                </button>
                 <button
                     onClick={nextCard}
                     className="btn-secondary flex items-center gap-2 text-sm"

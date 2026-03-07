@@ -37,13 +37,22 @@ export const AuthProvider = ({ children }) => {
     return { success: true };
   };
 
-  const register = async (email, password) => {
+  const register = async (email, password, name) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: { display_name: name }  // stored in user_metadata
+      }
     });
     if (error) return { success: false, message: error.message };
     return { success: true };
+  };
+
+  const getDisplayName = () => {
+    return user?.user_metadata?.display_name
+      || user?.email?.split("@")[0]
+      || "Student";
   };
 
   const logout = async () => {
@@ -51,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, getDisplayName }}>
       {!loading && children}
     </AuthContext.Provider>
   );

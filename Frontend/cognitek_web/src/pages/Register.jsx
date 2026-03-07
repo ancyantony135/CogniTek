@@ -46,11 +46,11 @@ export default function Register() {
     >
       {/* Background Layer */}
       <div className="absolute inset-0 bg-circuit opacity-30 pointer-events-none"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(26,11,46,0.5)_0%,var(--bg-dark)_80%)] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.06)_0%,transparent_80%)] pointer-events-none"></div>
 
       {/* Interactive Glowing Orb */}
       <div
-        className="pointer-events-none absolute w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-[80px] transition-transform duration-100 ease-out mix-blend-screen"
+        className="pointer-events-none absolute w-[400px] h-[400px] rounded-full bg-black/5 blur-[80px] transition-transform duration-100 ease-out"
         style={{
           transform: `translate(${orbPos.x * 30 - 15}px, ${orbPos.y * 30 - 15}px)`,
           left: '50%',
@@ -69,7 +69,7 @@ export default function Register() {
           <h1 className="text-3xl font-bold tracking-wider mb-2 text-gradient-silver uppercase">
             New Account
           </h1>
-          <p className="text-indigo-300/60 text-xs tracking-[0.2em] uppercase font-mono mt-1">
+          <p className="text-slate-400 text-xs tracking-[0.2em] uppercase font-mono mt-1">
             Join Protocol
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function Register() {
 
         <div className="mt-8 text-center text-xs font-mono text-slate-500">
           <span className="tracking-wide">Existing ID? </span>
-          <Link to="/" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors ml-2 uppercase">Authenticate</Link>
+          <Link to="/" className="text-slate-700 font-bold hover:text-slate-900 transition-colors ml-2 uppercase">Authenticate</Link>
         </div>
       </div>
     </div>

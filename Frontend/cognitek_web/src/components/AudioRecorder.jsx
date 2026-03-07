@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, Loader2, CheckCircle2 } from "lucide-react";
 import api from "../api/api";
 import { useWakeLock } from "../hooks/useWakeLock";
+import { useAuth } from "../context/AuthContext";
 
 export default function AudioRecorder({ onUploadSuccess }) {
+  const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState("Ready to listen");
@@ -66,6 +68,9 @@ export default function AudioRecorder({ onUploadSuccess }) {
     const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
     const formData = new FormData();
     formData.append("file", audioBlob, "recording.webm");
+    if (user?.id) {
+      formData.append("user_id", user.id);
+    }
 
     try {
       const response = await api.post("/api/process-audio", formData, {
@@ -96,9 +101,6 @@ export default function AudioRecorder({ onUploadSuccess }) {
       setIsProcessing(false);
     }
   };
-  <div className="scale-125">
-    <AudioRecorder onUploadSuccess={() => navigate("/dashboard")} />
-  </div>
 
   return (
     <div className="tech-glass-card p-8 flex flex-col items-center justify-center text-center relative overflow-hidden rounded-2xl w-full max-w-sm mx-auto">

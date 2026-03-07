@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import api from "../api/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function TaskBoard() {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [user?.id]);
 
   const fetchTasks = async () => {
     try {
-      const res = await api.get("/api/tasks");
+      const params = user?.id ? { user_id: user.id } : {};
+      const res = await api.get("/api/tasks", { params });
       // Filter out completed tasks for the "Upcoming" view, or show all?
       // Let's show active tasks first
       const sorted = res.data.sort((a, b) => (a.is_completed === b.is_completed ? 0 : a.is_completed ? 1 : -1));
@@ -55,7 +58,7 @@ export default function TaskBoard() {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full 
-                    ${task.priority === 'High' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                    ${task.priority === 'High' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
                 {task.priority || "Normal"}
               </span>
               <span className="text-xs text-[var(--text-secondary)] font-medium px-2 py-0.5 bg-[var(--glass)] border border-[var(--glass-border)] rounded-full">

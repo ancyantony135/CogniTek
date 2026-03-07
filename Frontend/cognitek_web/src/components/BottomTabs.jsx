@@ -1,4 +1,4 @@
-import { Home, BookOpen, Calendar, User, Mic } from "lucide-react";
+import { Home, BookOpen, Sparkles, User, Mic } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function BottomTabs() {
@@ -9,7 +9,7 @@ export default function BottomTabs() {
         { id: "home", icon: Home, label: "Home", path: "/dashboard" },
         { id: "study", icon: BookOpen, label: "Study", path: "/study" },
         { id: "record", icon: Mic, label: "Record", path: "/record", isMain: true },
-        { id: "schedule", icon: Calendar, label: "Schedule", path: "/schedule" },
+        { id: "sylens", icon: Sparkles, label: "Sylens", path: "/sylens" },
         { id: "profile", icon: User, label: "Profile", path: "/profile" },
     ];
 
@@ -23,7 +23,7 @@ export default function BottomTabs() {
                         <button
                             key={tab.id}
                             onClick={() => navigate(tab.path)}
-                            className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-4 rounded-full -mt-8 shadow-lg shadow-indigo-500/30 hover:scale-105 transition-transform"
+                            className="bg-gradient-to-br from-[#2c2c2c] to-[#111111] text-white p-4 rounded-full -mt-8 shadow-lg shadow-black/30 hover:scale-105 transition-transform"
                         >
                             <tab.icon className="w-6 h-6" />
                         </button>
@@ -34,10 +34,10 @@ export default function BottomTabs() {
                     <button
                         key={tab.id}
                         onClick={() => navigate(tab.path)}
-                        className={`flex flex-col items-center gap-1 transition-colors ${isActive ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
+                        className={`flex flex-col items-center gap-1 transition-colors ${isActive ? "text-slate-900" : "text-slate-400 hover:text-slate-600"
                             }`}
                     >
-                        <tab.icon className={`w-6 h-6 ${isActive ? "fill-indigo-100" : ""}`} />
+                        <tab.icon className={`w-6 h-6 ${isActive ? "fill-black/10" : ""}`} />
                         <span className="text-[10px] font-medium">{tab.label}</span>
                     </button>
                 );

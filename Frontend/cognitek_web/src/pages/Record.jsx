@@ -21,7 +21,7 @@ export default function Record() {
                 </div>
 
                 <div className="scale-125">
-                    <AudioRecorder />
+                    <AudioRecorder onUploadSuccess={() => navigate("/dashboard")} />
                 </div>
             </div>
         </div>

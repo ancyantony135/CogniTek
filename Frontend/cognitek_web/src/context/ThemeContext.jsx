@@ -1,32 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+// ThemeContext — Dark mode removed. App is light mode only.
+// Kept as a stub so existing imports don't break.
+import { createContext, useContext } from "react";
 
-const ThemeContext = createContext();
+const ThemeContext = createContext({ theme: "light", toggleTheme: () => { } });
 
 export function ThemeProvider({ children }) {
-    const [theme, setTheme] = useState(() => {
-        // Check localStorage or system preference
-        if (localStorage.getItem("theme")) {
-            return localStorage.getItem("theme");
-        }
-        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    });
-
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        root.classList.add(theme);
-        localStorage.setItem("theme", theme);
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-    };
-
-    return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
-            {children}
-        </ThemeContext.Provider>
-    );
+    return <ThemeContext.Provider value={{ theme: "light", toggleTheme: () => { } }}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

@@ -5,7 +5,7 @@ import { UserPlus, ArrowRight, AlertCircle } from "lucide-react";
 import Logo from "./Logo";
 
 export default function RegisterForm({ onFlip }) {
-    const [formData, setFormData] = useState({ email: "", password: "" }); // Changed username to email
+    const [formData, setFormData] = useState({ name: "", email: "", password: "" });
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const { register } = useAuth();
@@ -25,7 +25,7 @@ export default function RegisterForm({ onFlip }) {
         }
 
         // Call the new Supabase-linked register function
-        const res = await register(formData.email, formData.password);
+        const res = await register(formData.email, formData.password, formData.name);
 
         if (res.success) {
             navigate("/dashboard");
@@ -57,6 +57,14 @@ export default function RegisterForm({ onFlip }) {
 
             <form onSubmit={handleSubmit} className="w-full space-y-5">
                 <div className="space-y-4">
+                    <input
+                        type="text"
+                        placeholder="FULL NAME"
+                        className="input-ghost text-sm tracking-wide"
+                        required
+                        value={formData.name}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    />
                     {/* Updated to Email for Supabase compatibility */}
                     <input
                         type="email"
