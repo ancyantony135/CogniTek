@@ -31,8 +31,8 @@ function StepDot({ step, current, label }) {
     return (
         <div className="flex flex-col items-center gap-1">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${done ? "bg-emerald-500 text-white" :
-                    active ? "bg-slate-900 text-white scale-110" :
-                        "bg-slate-100 text-slate-400"
+                active ? "bg-slate-900 text-white scale-110" :
+                    "bg-slate-100 text-slate-400"
                 }`}>
                 {done ? <Check className="w-4 h-4" /> : step}
             </div>
@@ -76,11 +76,20 @@ export default function Onboarding() {
 
     // Step 3 — subjects
     const [selectedElectives, setSelectedElectives] = useState([]);
+    const [deselectedCore, setDeselectedCore] = useState(new Set()); // codes unchecked by user
     const [customInput, setCustomInput] = useState("");
     const [customSubjects, setCustomSubjects] = useState([]);
 
-    // Derive course list whenever branch/semester/scheme change
+    // Reset deselectedCore when branch/semester/scheme changes
     const { core, electives } = getCourses(branch, semester, scheme);
+
+    const toggleCore = (code) => {
+        setDeselectedCore(prev => {
+            const next = new Set(prev);
+            next.has(code) ? next.delete(code) : next.add(code);
+            return next;
+        });
+    };
 
     const toggleElective = (code) => {
         setSelectedElectives(prev =>
@@ -91,11 +100,13 @@ export default function Onboarding() {
     const addCustom = () => {
         const val = customInput.trim();
         if (!val) return;
-        setCustomSubjects(prev => [...prev, val]);
+        setCustomSubjects(prev => [...prev, { name: val, code: "" }]);
         setCustomInput("");
     };
 
     const removeCustom = (i) => setCustomSubjects(prev => prev.filter((_, idx) => idx !== i));
+    const updateCustomCode = (i, code) =>
+        setCustomSubjects(prev => prev.map((s, idx) => idx === i ? { ...s, code } : s));
 
     // ── Validate step 1 ────────────────────────────────────────────────────────
     const canAdvanceStep1 = fullName.trim().length >= 2;
@@ -122,14 +133,16 @@ export default function Onboarding() {
             await supabase.from("user_subjects").delete().eq("user_id", user.id);
 
             const rows = [
-                ...core.map(c => ({
-                    user_id: user.id,
-                    course_code: c.code,
-                    course_name: c.name,
-                    credits: c.credits,
-                    is_elective: false,
-                    is_custom: false,
-                })),
+                ...core
+                    .filter(c => !deselectedCore.has(c.code))
+                    .map(c => ({
+                        user_id: user.id,
+                        course_code: c.code,
+                        course_name: c.name,
+                        credits: c.credits,
+                        is_elective: false,
+                        is_custom: false,
+                    })),
                 ...electives
                     .filter(e => selectedElectives.includes(e.code))
                     .map(e => ({
@@ -140,12 +153,12 @@ export default function Onboarding() {
                         is_elective: true,
                         is_custom: false,
                     })),
-                ...customSubjects.map((name, i) => ({
+                ...customSubjects.map((sub, i) => ({
                     user_id: user.id,
-                    course_code: `CUSTOM${i + 1}`,
-                    course_name: name,
+                    course_code: sub.code?.trim() || `CUSTOM${i + 1}`,
+                    course_name: sub.name,
                     credits: null,
-                    is_elective: true,
+                    is_elective: false,
                     is_custom: true,
                 })),
             ];
@@ -160,7 +173,12 @@ export default function Onboarding() {
             navigate("/dashboard", { replace: true });
         } catch (err) {
             console.error("Onboarding save error:", err);
-            setError(err.message ?? "Something went wrong. Please try again.");
+            const msg = err.message ?? "";
+            if (msg.includes("profiles") || msg.includes("user_subjects") || msg.includes("does not exist")) {
+                setError("⚠️ Database tables not set up yet. Ask your admin to run the setup SQL in Supabase, then try again.");
+            } else {
+                setError(msg || "Something went wrong. Please try again.");
+            }
             setSaving(false);
         }
     };
@@ -252,21 +270,69 @@ export default function Onboarding() {
                                 <h2 className="font-bold text-slate-800">Your Subjects — {branch} · {semester}</h2>
                             </div>
 
-                            {/* Core subjects (locked) */}
-                            {core.length > 0 && (
+                            {/* Core subjects (locked) + custom subjects as rows */}
+                            {(core.length > 0 || customSubjects.length > 0) && (
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Core (mandatory)</p>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Core (mandatory)</p>
+                                        <p className="text-[10px] text-slate-300">Tap to remove if not in your syllabus</p>
+                                    </div>
                                     <div className="space-y-1.5">
-                                        {core.map(c => (
-                                            <div key={c.code} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                                <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                                                    <Check className="w-2.5 h-2.5 text-white" />
+                                        {core.map(c => {
+                                            const active = !deselectedCore.has(c.code);
+                                            return (
+                                                <button
+                                                    key={c.code}
+                                                    type="button"
+                                                    onClick={() => toggleCore(c.code)}
+                                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all ${active
+                                                        ? "bg-slate-50 border-slate-100"
+                                                        : "bg-white border-slate-100 opacity-40"
+                                                        }`}
+                                                >
+                                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${active ? "bg-emerald-500" : "bg-slate-200 border border-slate-300"
+                                                        }`}>
+                                                        {active && <Check className="w-2.5 h-2.5 text-white" />}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs font-semibold text-slate-700 truncate">{c.code} — {c.name}</p>
+                                                    </div>
+                                                    {c.credits && (
+                                                        <span className="text-[10px] font-bold text-slate-400 shrink-0">{c.credits}cr</span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                        {/* Custom subjects appear as core-style rows */}
+                                        {customSubjects.map((sub, i) => (
+                                            <div key={i} className="rounded-xl border border-indigo-100 bg-indigo-50 overflow-hidden">
+                                                <div className="flex items-center gap-3 px-3 py-2.5">
+                                                    <div className="w-4 h-4 rounded-full bg-indigo-400 flex items-center justify-center flex-shrink-0">
+                                                        <Check className="w-2.5 h-2.5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs font-semibold text-indigo-800 truncate">{sub.name}</p>
+                                                        {sub.code ? (
+                                                            <p className="text-[10px] text-indigo-500">{sub.code}</p>
+                                                        ) : (
+                                                            <p className="text-[10px] text-indigo-400 italic">Code not set — tap to add</p>
+                                                        )}
+                                                    </div>
+                                                    <button onClick={() => removeCustom(i)}
+                                                        className="p-1 rounded-lg hover:bg-indigo-100 text-indigo-400 hover:text-red-500 transition-colors">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-semibold text-slate-700 truncate">{c.code} — {c.name}</p>
-                                                </div>
-                                                {c.credits && (
-                                                    <span className="text-[10px] font-bold text-slate-400 shrink-0">{c.credits}cr</span>
+                                                {/* Inline code input */}
+                                                {!sub.code && (
+                                                    <div className="px-3 pb-2.5">
+                                                        <input
+                                                            className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-indigo-200 text-xs text-indigo-800 placeholder:text-indigo-300 outline-none focus:border-indigo-400"
+                                                            placeholder="Course code (optional, e.g. HSS301)"
+                                                            value={sub.code}
+                                                            onChange={e => updateCustomCode(i, e.target.value)}
+                                                        />
+                                                    </div>
                                                 )}
                                             </div>
                                         ))}
@@ -306,31 +372,20 @@ export default function Onboarding() {
                                 </div>
                             )}
 
-                            {/* Custom subjects */}
+                            {/* Add custom subject */}
                             <div>
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Add Custom / Honours / Minor</p>
-                                {customSubjects.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mb-2">
-                                        {customSubjects.map((s, i) => (
-                                            <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-700">
-                                                {s}
-                                                <button onClick={() => removeCustom(i)} className="hover:text-red-500 ml-0.5">
-                                                    <X className="w-3 h-3" />
-                                                </button>
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
                                 <div className="flex gap-2">
                                     <input className={`${inputClass} flex-1 !py-2.5 text-xs`}
                                         value={customInput} onChange={e => setCustomInput(e.target.value)}
                                         onKeyDown={e => e.key === "Enter" && addCustom()}
-                                        placeholder="e.g. HSS Elective: Management Studies" />
+                                        placeholder="Full course name (e.g. Management Studies)" />
                                     <button onClick={addCustom}
                                         className="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-700 transition-colors">
                                         <Plus className="w-4 h-4" />
                                     </button>
                                 </div>
+                                <p className="text-[10px] text-slate-400 mt-1.5 ml-1">Course code can be added after setup if you don't know it now.</p>
                             </div>
 
                             {core.length === 0 && electives.length === 0 && (
