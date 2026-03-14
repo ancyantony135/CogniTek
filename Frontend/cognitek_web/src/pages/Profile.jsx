@@ -204,28 +204,48 @@ export default function Profile() {
     const API_URL = import.meta.env.VITE_API_URL;
 
     // ── load persisted profile (local settings) ─────────────────────────────────
-    const [profile, setProfile] = useState(() => ({
-        name: authProfile?.full_name || "Student",
-        major: authProfile ? ktuData.meta.branches[authProfile.branch] || authProfile.branch : "B.Tech Student",
-        college: authProfile?.college || "Toc H Institute of Science and Technology",
-        studentId: authProfile?.student_id || "",
-        semester: authProfile?.semester ? `S${authProfile.semester}` : "S5",
-        scheme: authProfile?.scheme || "2019",
-        lectures: 0,
-        flashcards: 0,
-        taskCompletion: 90,
-        skillValues: DEFAULT_SKILL_VALUES,
-        placements: [
-            { id: 1, label: "Infosys Higher Package Drive", done: false },
-            { id: 2, label: "Kaynes Technology Interview", done: false },
-        ],
-        ngrokEnabled: true,
-        supabaseSync: true,
-        whisperSensitivity: "Medium",
-        geminiMode: "General Note Mode",
-        hardwareSync: false,
-        ...loadProfile(),
-    }));
+    const [profile, setProfile] = useState(() => {
+        const localProfile = loadProfile();
+        return {
+            taskCompletion: localProfile.taskCompletion ?? 90,
+            skillValues: localProfile.skillValues ?? DEFAULT_SKILL_VALUES,
+            placements: localProfile.placements ?? [
+                { id: 1, label: "Infosys Higher Package Drive", done: false },
+                { id: 2, label: "Kaynes Technology Interview", done: false },
+            ],
+            ngrokEnabled: localProfile.ngrokEnabled ?? true,
+            supabaseSync: localProfile.supabaseSync ?? true,
+            whisperSensitivity: localProfile.whisperSensitivity ?? "Medium",
+            geminiMode: localProfile.geminiMode ?? "General Note Mode",
+            hardwareSync: localProfile.hardwareSync ?? false,
+            lectures: localProfile.lectures ?? 0,
+            flashcards: localProfile.flashcards ?? 0,
+            name: authProfile?.full_name || localProfile.name || "Student",
+            major: authProfile?.branch ? (ktuData.meta.branches[authProfile.branch] || authProfile.branch) : localProfile.major || "B.Tech Student",
+            college: authProfile?.college || localProfile.college || "Toc H Institute of Science and Technology",
+            studentId: authProfile?.student_id || localProfile.studentId || "",
+            semester: authProfile?.semester ? `S${authProfile.semester}` : localProfile.semester || "S5",
+            scheme: authProfile?.scheme || localProfile.scheme || "2019",
+        };
+    });
+
+    useEffect(() => {
+        if (authProfile) {
+            setProfile(prev => {
+                const updated = {
+                    ...prev,
+                    name: authProfile.full_name || prev.name,
+                    major: authProfile.branch ? (ktuData.meta.branches[authProfile.branch] || authProfile.branch) : prev.major,
+                    college: authProfile.college || prev.college,
+                    studentId: authProfile.student_id || prev.studentId,
+                    semester: authProfile.semester ? `S${authProfile.semester}` : prev.semester,
+                    scheme: authProfile.scheme || prev.scheme,
+                };
+                saveProfile(updated);
+                return updated;
+            });
+        }
+    }, [authProfile]);
 
     // ── subject management ───────────────────────────────────────────────────────
     const [localSubjects, setLocalSubjects] = useState(subjects ?? []);
@@ -298,11 +318,38 @@ export default function Profile() {
 
     const cancelEdit = () => setEditing(false);
 
-    const saveEdit = () => {
+    const saveEdit = async () => {
         const updated = { ...profile, ...draft };
         setProfile(updated);
         saveProfile(updated);
         setEditing(false);
+
+        if (user?.id) {
+            const updates = {
+                full_name: draft.name,
+                college: draft.college,
+                student_id: draft.studentId,
+            };
+            if (draft.semester && draft.semester.startsWith('S')) {
+                const semNum = parseInt(draft.semester.replace("S", ""));
+                if (!isNaN(semNum)) updates.semester = semNum;
+            }
+            if (draft.scheme) {
+                updates.scheme = draft.scheme;
+            }
+
+            const branchEntry = Object.entries(ktuData.meta.branches).find(([code, name]) => name === draft.major || code === draft.major);
+            if (branchEntry) {
+                updates.branch = branchEntry[0];
+            }
+
+            try {
+                await supabase.from("profiles").update(updates).eq("id", user.id);
+                if (refreshProfile) await refreshProfile();
+            } catch (err) {
+                console.error("Failed to update Supabase profile", err);
+            }
+        }
     };
 
     // ── generic profile field updater ──────────────────────────────────────────
