@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CogniTek</string>
+    <string name="title_activity_main">CogniTek</string>
+    <string name="package_name">com.cognitek.app</string>
+    <string name="custom_url_scheme">com.cognitek.app</string>
+</resources>
