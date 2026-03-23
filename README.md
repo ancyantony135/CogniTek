@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react" alt="React" />
   <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" />
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python" alt="Python" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" />
   <img src="https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=google" alt="Gemini" />
   <img src="https://img.shields.io/badge/OpenAI_Whisper-412991?style=for-the-badge&logo=openai" alt="Whisper" />
 </div>
@@ -17,7 +17,7 @@
 
 **CogniTek** is an intelligent academic assistant and AI student companion designed specifically to streamline the learning process. Originally tailored for B.Tech students at Kerala Technological University (KTU), it features a multimodal interface that transforms raw study materials into actionable insights.
 
-Students can upload or record audio (like lecture recordings or personal notes), which the system transcribes and logically parses into **Actionable Tasks**, **Upcoming Deadlines**, and **Flashcard Study Decks** based on their enrolled subjects. It also features a conversational AI companion named **Sylens** to help guide their academic journey.
+Students can upload or trigger on-demand auto-recording of audio (like lecture recordings or personal notes) handsfree, which the system transcribes and logically parses into **Actionable Tasks**, **Upcoming Deadlines**, and **Flashcard Study Decks** based on their enrolled subjects. It also features a conversational AI companion named **Sylens** to help guide their academic journey.
 
 ---
 
