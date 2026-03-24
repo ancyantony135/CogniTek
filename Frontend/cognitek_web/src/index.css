@@ -103,6 +103,36 @@ body {
   }
 }
 
+/* Splash screen */
+@keyframes splash-logo-in {
+  0%   { opacity: 0; transform: scale(0.7); }
+  60%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes splash-text-in {
+  0%   { opacity: 0; letter-spacing: 0.6em; }
+  100% { opacity: 1; letter-spacing: 0.15em; }
+}
+
+/* Auth form slide-up */
+@keyframes slide-up {
+  0%   { opacity: 0; transform: translateY(60px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Rotating conic-gradient border (glow CTA buttons) */
+@keyframes rotating {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Loading bar */
+@keyframes loader-bar {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+
 .animate-breathe {
   animation: breathe 3s ease-in-out infinite;
 }
@@ -117,6 +147,20 @@ body {
 
 .animate-scroll {
   animation: scroll-text 15s linear infinite;
+}
+
+.animate-splash-logo {
+  animation: splash-logo-in 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+.animate-splash-text {
+  animation: splash-text-in 0.7s ease forwards;
+  animation-delay: 0.6s;
+  opacity: 0;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
 }
 
 .bg-circuit {
@@ -159,14 +203,52 @@ body {
 }
 
 /* ============================================================
+   GLOW CTA BUTTONS (Auth page — rotating conic border)
+   ============================================================ */
+.glow-cta-wrapper {
+  position: relative;
+  width: 100%;
+  height: 52px;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glow-cta-ring {
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 0deg, var(--c1, #6366f1), var(--c2, #a855f7), transparent, var(--c1, #6366f1));
+  animation: rotating 3s linear infinite;
+  border-radius: 50%;
+}
+
+.glow-cta-body {
+  position: absolute;
+  inset: 2px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  z-index: 1;
+  transition: background 0.3s;
+}
+
+/* ============================================================
    FORM INPUTS
    ============================================================ */
 .input-ghost {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.90);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  color: #0f0f0f;
+  background: rgba(10, 10, 10, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
   outline: none;
   transition: all 0.3s;
   border-radius: 0.375rem;
@@ -174,13 +256,13 @@ body {
 }
 
 .input-ghost::placeholder {
-  color: #999999;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .input-ghost:focus {
-  border-color: #111111;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 1);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  background: rgba(10, 10, 10, 0.6);
 }
 
 /* ============================================================
@@ -230,7 +312,7 @@ body {
    TYPOGRAPHY UTILITIES
    ============================================================ */
 .text-gradient-silver {
-  background: linear-gradient(to bottom, #0a0a0a, #3a3a3a);
+  background: linear-gradient(to bottom, #ffffff, #a3a3a3);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -76,6 +76,17 @@ class FlashcardDB(Base):
     content = Column(JSON)
     created_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
+class PlacementMilestoneDB(Base):
+    __tablename__ = "placement_milestones"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=True, index=True)
+    title = Column(String)           # e.g. "Infosys Off-Campus Drive"
+    company = Column(String, nullable=True)
+    due_date = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    is_done = Column(Boolean, default=False)
+    created_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
 Base.metadata.create_all(bind=engine)
 
 # --- SAFE SCHEMA MIGRATION ---
@@ -87,6 +98,13 @@ def run_migrations():
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS user_id UUID;",
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS description TEXT;",
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS time VARCHAR;",
+        # Placement milestones table is auto-created by SQLAlchemy above,
+        # but ensure columns exist if table was created in a previous schema:
+        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS user_id UUID;",
+        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS company VARCHAR;",
+        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS due_date VARCHAR;",
+        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS notes TEXT;",
+        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS is_done BOOLEAN DEFAULT FALSE;",
     ]
     with engine.connect() as conn:
         for stmt in migration_statements:
@@ -118,6 +136,9 @@ def parse_uid(user_id_str):
 
 class TaskUpdate(BaseModel):
     is_completed: bool
+
+class PlacementUpdate(BaseModel):
+    is_done: bool
 
 class ChatRequest(BaseModel):
     message: str
@@ -241,6 +262,17 @@ For each task, extract ALL of the following fields:
 - If a subject is mentioned generally (e.g., "physics", "maths"), map it to the most likely KTU course.
 - Use KTU-specific deadline terms where applicable: "Series Exam 1", "Series Exam 2", "Assignment 1", "Lab Internal", "Viva", "External Exam".
 
+=== PLACEMENT EXCEPTION RULE ===
+Your DEFAULT output for "placement_milestones" is ALWAYS an empty array: [].
+Upgrade it ONLY if the audio explicitly mentions campus/off-campus placements, internships, company names
+(e.g., Infosys, TCS, Wipro, Cognizant, Accenture, Google, etc.), recruitment drives, interview rounds,
+apatitude tests, or placement preparation advice. If none of this is present, output [].
+Fields for each placement milestone:
+- "title": Short descriptive name (e.g., "Infosys Off-Campus Drive")
+- "company": Company name, or null if not mentioned
+- "due_date": Date or deadline mentioned, or "Upcoming" if vague
+- "notes": 1–2 sentence context from the audio
+
 === OUTPUT FORMAT (Strict JSON only — no extra text, no markdown, no explanation) ===
 {{
   "tasks": [
@@ -255,6 +287,9 @@ For each task, extract ALL of the following fields:
   ],
   "flashcards": [
     {{ "topic": "Module Concept", "cards": [{{ "front": "Question", "back": "Answer" }}] }}
+  ],
+  "placement_milestones": [
+    {{ "title": "Example Drive", "company": "Infosys", "due_date": "April 15", "notes": "Off-campus drive mentioned in recording." }}
   ]
 }}
 """
@@ -305,11 +340,25 @@ For each task, extract ALL of the following fields:
             )
             db.add(new_deck)
             card_count += 1
+
+        # Save Placement Milestones (exception case)
+        placement_count = 0
+        for pm in data.get("placement_milestones", []):
+            parsed_id = parse_uid(user_id)
+            new_pm = PlacementMilestoneDB(
+                user_id=cast(parsed_id, PG_UUID) if parsed_id else None,
+                title=pm.get("title"),
+                company=pm.get("company"),
+                due_date=pm.get("due_date"),
+                notes=pm.get("notes"),
+            )
+            db.add(new_pm)
+            placement_count += 1
         
         db.commit()
         db.close()
         
-        print(f"💾 Saved for user '{user_id}': {task_count} tasks, {card_count} flashcard decks.")
+        print(f"💾 Saved for user '{user_id}': {task_count} tasks, {card_count} flashcard decks, {placement_count} placement milestones.")
         return {"status": "success", "text": transcribed_text, "data": data}
 
     except Exception as e:
@@ -446,6 +495,43 @@ def get_flashcards(user_id: Optional[str] = None):
         cards = db.query(FlashcardDB).all()
     db.close()
     return cards
+
+# 5. PLACEMENT MILESTONES
+@app.get("/api/placement-milestones")
+def get_placement_milestones(user_id: Optional[str] = None):
+    db = SessionLocal()
+    if user_id:
+        milestones = db.query(PlacementMilestoneDB).filter(
+            PlacementMilestoneDB.user_id == parse_uid(user_id)
+        ).order_by(PlacementMilestoneDB.id.desc()).all()
+    else:
+        milestones = db.query(PlacementMilestoneDB).order_by(PlacementMilestoneDB.id.desc()).all()
+    db.close()
+    return milestones
+
+@app.patch("/api/placement-milestones/{milestone_id}")
+def update_placement_milestone(milestone_id: int, update: PlacementUpdate):
+    db = SessionLocal()
+    pm = db.query(PlacementMilestoneDB).filter(PlacementMilestoneDB.id == milestone_id).first()
+    if not pm:
+        db.close()
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    pm.is_done = update.is_done
+    db.commit()
+    db.close()
+    return {"status": "updated", "id": milestone_id}
+
+@app.delete("/api/placement-milestones/{milestone_id}")
+def delete_placement_milestone(milestone_id: int):
+    db = SessionLocal()
+    pm = db.query(PlacementMilestoneDB).filter(PlacementMilestoneDB.id == milestone_id).first()
+    if not pm:
+        db.close()
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    db.delete(pm)
+    db.commit()
+    db.close()
+    return {"status": "deleted", "id": milestone_id}
 
 if __name__ == "__main__":
     import uvicorn

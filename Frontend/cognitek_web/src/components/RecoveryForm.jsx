@@ -39,13 +39,10 @@ export default function RecoveryForm({ onFlip }) {
         <div className="flex flex-col items-center h-full w-full relative">
             {/* Header */}
             <div className="w-full mb-4 text-center relative flex flex-col items-center flex-shrink-0">
-                <div className="mb-3">
+                <div className="mb-2">
                     <Logo className="w-16 h-16" />
                 </div>
-                <h1 className="text-3xl font-bold tracking-wider mb-1 text-gradient-silver uppercase">
-                    Recovery
-                </h1>
-                <p className="text-indigo-300/60 text-xs tracking-[0.2em] uppercase font-mono mt-1">
+                <p className="text-indigo-400 text-sm tracking-widest font-mono font-semibold drop-shadow-sm uppercase">
                     Access Restoration
                 </p>
             </div>
@@ -59,7 +56,7 @@ export default function RecoveryForm({ onFlip }) {
             {step === 1 ? (
                 <form onSubmit={handleSendCode} className="w-full space-y-6">
                     <div className="space-y-2">
-                        <label className="text-xs font-mono text-slate-500 uppercase tracking-widest ml-1">Secure Email / ID</label>
+                        <label className="text-xs font-mono text-slate-300 uppercase tracking-widest ml-1">Secure Email / ID</label>
                         <div className="relative">
                             <input
                                 type="email"
@@ -69,7 +66,7 @@ export default function RecoveryForm({ onFlip }) {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
-                            <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         </div>
                     </div>
 
@@ -84,7 +81,7 @@ export default function RecoveryForm({ onFlip }) {
             ) : (
                 <form onSubmit={handleVerify} className="w-full space-y-6">
                     <div className="space-y-4 text-center">
-                        <label className="text-xs font-mono text-slate-500 uppercase tracking-widest">Enter 4-Digit Protocol Key</label>
+                        <label className="text-xs font-mono text-slate-300 uppercase tracking-widest">Enter 4-Digit Protocol Key</label>
                         <div className="flex justify-center gap-3">
                             {otp.map((digit, idx) => (
                                 <input

@@ -63,13 +63,10 @@ export default function LoginForm({ onFlip }) {
         <div className="flex flex-col items-center h-full w-full">
             {/* Header Section */}
             <div className="w-full mb-8 text-center relative flex flex-col items-center">
-                <div className="mb-5 animate-breathe">
+                <div className="mb-2 animate-breathe">
                     <Logo className="w-20 h-20" />
                 </div>
-                <h1 className="text-4xl font-bold tracking-wider mb-2 text-gradient-silver uppercase">
-                    CogniTek
-                </h1>
-                <p className="text-indigo-500 text-sm tracking-widest font-mono mt-1 font-semibold drop-shadow-sm">
+                <p className="text-indigo-400 text-sm tracking-widest font-mono font-semibold drop-shadow-sm uppercase">
                     {greeting} / Sylens Online
                 </p>
             </div>
@@ -138,17 +135,7 @@ export default function LoginForm({ onFlip }) {
             </form>
 
 
-            {/* Micro-Feed */}
-            <div className="w-full mt-auto py-2 border-t border-slate-200/60 overflow-hidden relative">
-                <div className="whitespace-nowrap animate-scroll text-[10px] text-slate-400 font-mono flex gap-12 tracking-wider uppercase">
-                    <span>✨ System Status: Optimal</span>
-                    <span>🚀 Update 2.4: Installed</span>
-                    <span>🔒 Secure Enclave: Active</span>
-                    <span>📡 Network: Encrypted</span>
-                </div>
-                <div className="absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
-                <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
-            </div>
+
         </div>
     );
 }

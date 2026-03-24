@@ -4,9 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import ktuData from "../data/ktu_courses.json";
 import {
-    User, GraduationCap, BookOpen, Plus, X,
+    User, BookOpen, Plus, X,
     ChevronRight, ChevronLeft, Check, Loader2
 } from "lucide-react";
+import Logo from "../components/Logo";
 
 const BRANCHES = Object.entries(ktuData.meta.branches).map(([code, name]) => ({ code, name }));
 const SEMESTERS = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
@@ -189,8 +190,8 @@ export default function Onboarding() {
 
                 {/* Logo + Title */}
                 <div className="text-center mb-8">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center mx-auto mb-4 shadow-xl">
-                        <GraduationCap className="w-7 h-7 text-white" />
+                    <div className="w-14 h-14 rounded-2xl bg-[#0a0a0a] flex items-center justify-center mx-auto mb-4 shadow-xl">
+                        <Logo className="w-10 h-10" />
                     </div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Set Up Your Profile</h1>
                     <p className="text-sm text-slate-500 mt-1">Takes about 60 seconds. Helps Cognitek personalise everything.</p>

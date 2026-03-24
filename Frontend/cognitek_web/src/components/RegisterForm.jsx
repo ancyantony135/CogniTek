@@ -38,13 +38,10 @@ export default function RegisterForm({ onFlip }) {
     return (
         <div className="flex flex-col items-center h-full w-full">
             <div className="w-full mb-6 text-center relative flex flex-col items-center">
-                <div className="mb-4">
+                <div className="mb-2">
                     <Logo className="w-16 h-16" />
                 </div>
-                <h1 className="text-3xl font-bold tracking-wider mb-2 text-gradient-silver uppercase">
-                    New Account
-                </h1>
-                <p className="text-indigo-300/60 text-xs tracking-[0.2em] uppercase font-mono mt-1">
+                <p className="text-indigo-400 text-sm tracking-widest font-mono font-semibold drop-shadow-sm uppercase">
                     Join Protocol
                 </p>
             </div>
