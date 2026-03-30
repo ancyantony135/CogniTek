@@ -51,11 +51,30 @@ export const AuthProvider = ({ children }) => {
   // ── Session lifecycle ───────────────────────────────────────────────────────
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const u = session?.user ?? null;
-      setUser(u);
-      await loadProfile(u?.id);
-      setLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.warn("Session error:", error);
+          throw error;
+        }
+        const u = session?.user ?? null;
+        setUser(u);
+        if (u) {
+          await loadProfile(u.id);
+        } else {
+          setProfile(null);
+          setProfileComplete(false);
+          setSubjects([]);
+        }
+      } catch (err) {
+        console.error("Auth init error:", err);
+        setUser(null);
+        setProfile(null);
+        setProfileComplete(false);
+        setSubjects([]);
+      } finally {
+        setLoading(false);
+      }
     };
     checkUser();
 
@@ -103,7 +122,15 @@ export const AuthProvider = ({ children }) => {
     "Student";
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Sign Out Error:", error.message);
+    }
+    // Force clear state locally so the App redirects immediately
+    setUser(null);
+    setProfile(null);
+    setProfileComplete(false);
+    setSubjects([]);
   };
 
   return (

@@ -34,7 +34,7 @@ export default function SylensDrawer() {
         setLoading(true);
         try {
             const history = messages.filter(m => !m.typing).map(m => ({ role: m.role, content: m.content }));
-            const res = await api.post("/api/sylens/chat", { message: text, history, system: MINI_SYSTEM });
+            const res = await api.post("/api/sylens/chat-fast", { message: text, history, system: MINI_SYSTEM });
             setMessages(p => p.map(m => m.typing ? { ...m, content: res.data.reply || "…", typing: false } : m));
         } catch {
             setMessages(p => p.map(m => m.typing ? { ...m, content: "Backend seems offline!", typing: false } : m));

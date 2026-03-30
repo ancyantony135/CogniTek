@@ -30,3 +30,8 @@ __pycache__/
 venv/
 node_modules/
 database/cognitek.
+groq_key.txt
+*.key.txt
+.env
+__pycache__/
+*.pyc

@@ -1,10 +1,40 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AutoRecordProvider } from "./context/AutoRecordContext";
 import AppLayout from "./layouts/AppLayout";
 import InstallPrompt from "./components/InstallPrompt";
 import SplashScreen from "./components/SplashScreen";
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    this.setState({ errorInfo });
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 20, fontFamily: "sans-serif" }}>
+          <h2 style={{ color: "red" }}>App Crashed</h2>
+          <details style={{ whiteSpace: "pre-wrap" }}>
+            {this.state.error && this.state.error.toString()}
+            <br />
+            {this.state.errorInfo?.componentStack}
+          </details>
+          <button onClick={() => { localStorage.clear(); window.location.href = "/"; }} style={{ marginTop: 20, padding: 10 }}>Clear Storage & Reload</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Pages
 import AuthPage from "./pages/AuthPage";
@@ -86,16 +116,27 @@ function AppRoutes() {
 }
 
 export default function App() {
-  const [splashDone, setSplashDone] = useState(false);
+  // Use sessionStorage so splash only shows ONCE per browser session,
+  // not on every hard-refresh (which resets useState to false)
+  const [splashDone, setSplashDone] = useState(
+    () => sessionStorage.getItem("splash_shown") === "1"
+  );
+
+  const handleSplashDone = () => {
+    sessionStorage.setItem("splash_shown", "1");
+    setSplashDone(true);
+  };
 
   return (
-    <AuthProvider>
-      <AutoRecordProvider>
-        <BrowserRouter>
-          {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
-          {splashDone && <AppRoutes />}
-        </BrowserRouter>
-      </AutoRecordProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AutoRecordProvider>
+          <BrowserRouter>
+            {!splashDone && <SplashScreen onDone={handleSplashDone} />}
+            {splashDone && <AppRoutes />}
+          </BrowserRouter>
+        </AutoRecordProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

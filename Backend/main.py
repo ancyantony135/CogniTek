@@ -15,6 +15,12 @@ import torch
 from datetime import datetime
 from typing import Optional
 from dotenv import load_dotenv
+try:
+    from groq import Groq as GroqClient
+    GROQ_AVAILABLE = True
+except ImportError:
+    GROQ_AVAILABLE = False
+    print("⚠️  groq package not installed — chat-fast endpoint will use Gemini fallback.")
 
 # 1. API KEY & GEMINI INITIALIZATION (GLOBAL SCOPE)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
@@ -29,6 +35,22 @@ if not GEMINI_API_KEY:
 # Configure Gemini globally
 genai.configure(api_key=GEMINI_API_KEY)
 text_model = genai.GenerativeModel('gemini-2.5-flash') # This is the "Brain"
+
+# ── Groq (Tier 2 — Lightweight, fast chat) ─────────────────────────────────
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    try:
+        with open("groq_key.txt", "r") as f:
+            GROQ_API_KEY = f.read().strip()
+    except FileNotFoundError:
+        pass
+
+groq_client = None
+if GROQ_AVAILABLE and GROQ_API_KEY:
+    groq_client = GroqClient(api_key=GROQ_API_KEY)
+    print("✅ Groq (Llama 3) initialized — chat-fast endpoint ready.")
+else:
+    print("⚠️  Groq not configured — /api/sylens/chat-fast will fall back to Gemini.")
 
 # 2. DATABASE CONFIGURATION
 load_dotenv()
@@ -173,7 +195,7 @@ print(f"✅ GPU Mode: {device.upper()}")
 
 try:
     print("⏳ Loading Whisper (Perception) model...")
-    audio_model = whisper.load_model("medium", device=device)
+    audio_model = whisper.load_model("small", device=device)
     print("✅ Whisper Loaded. Ready for Perception.")
 except Exception as e:
     print(f"❌ MODEL LOAD FAILURE: {str(e)}")
@@ -190,7 +212,7 @@ def read_root():
 
 
 @app.post("/api/process-audio")
-async def process_audio(
+def process_audio(
     file: UploadFile = File(...),
     user_id: Optional[str] = Form(None),
     subjects: Optional[str] = Form(None),   # JSON string: [{"code":"CST301","name":"..."},...]
@@ -249,7 +271,7 @@ For each task, extract ALL of the following fields:
 - "due_date": Specific date/deadline or KTU term (e.g., "Friday", "Series Exam 1", "Upcoming")
 - "time": Specific time of day OR estimated duration (e.g., "3:00 PM", "2 hours", "Before 5 PM"). Use null if not mentioned.
 - "priority": "High", "Medium", or "Low" — infer from urgency/importance
-- "description": 1–2 sentence plain-English summary of what the task involves and any relevant context from the audio. Be specific and helpful.
+- "description": 1-2 sentence plain-English summary of what the task involves. Write it as a direct instruction or action item. Do NOT mention "the audio", "the recording", or "the speaker".
 
 === FLASHCARD EXTRACTION (Concept-Oriented) ===
 - Extract technical definitions, laws, formulas, theorems, or module-specific concepts from the audio.
@@ -430,7 +452,7 @@ def delete_task(task_id: int):
     db.close()
     return {"status": "deleted", "id": task_id}
 
-# 3a. SYLENS — Academic AI Companion
+# 3a. SYLENS — Academic AI Companion (Gemini — heavy quality)
 @app.post("/api/sylens/chat")
 def sylens_chat(req: SylensChatRequest):
     try:
@@ -453,6 +475,51 @@ def sylens_chat(req: SylensChatRequest):
         return {"reply": reply}
     except Exception as e:
         print(f"❌ Sylens Chat Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 3b. SYLENS FAST CHAT — Groq / Llama 3 (Tier 2 — lightweight, fast)
+@app.post("/api/sylens/chat-fast")
+def sylens_chat_fast(req: SylensChatRequest):
+    """Fast chat endpoint using Groq's Llama 3. Falls back to Gemini if Groq is unavailable."""
+    # ── Groq path ──────────────────────────────────────────────────────────────
+    if groq_client:
+        try:
+            messages = []
+            if req.system:
+                messages.append({"role": "system", "content": req.system})
+            for turn in req.history[-10:]:
+                role = turn.get("role", "user")
+                content = turn.get("content", "")
+                messages.append({"role": role, "content": content})
+            messages.append({"role": "user", "content": req.message})
+
+            response = groq_client.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=messages,
+                max_tokens=768,
+                temperature=0.7,
+            )
+            reply = response.choices[0].message.content.strip()
+            return {"reply": reply, "model": "groq/llama3-8b"}
+        except Exception as e:
+            print(f"⚠️  Groq failed, falling back to Gemini: {e}")
+    # ── Gemini fallback ──────────────────────────────────────────────────────
+    try:
+        parts = []
+        if req.system:
+            parts.append(req.system)
+        for turn in req.history[-10:]:
+            role_label = "Student" if turn.get("role") == "user" else "Sylens"
+            parts.append(f"{role_label}: {turn.get('content', '')}")
+        parts.append(f"Student: {req.message}")
+        parts.append("Sylens:")
+        response = text_model.generate_content("\n\n".join(parts))
+        reply = response.text.strip()
+        if reply.lower().startswith("sylens:"):
+            reply = reply[7:].strip()
+        return {"reply": reply, "model": "gemini-fallback"}
+    except Exception as e:
+        print(f"❌ Sylens Chat-Fast Gemini Fallback Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # 3b. CHATBOT INTELLIGENCE (legacy endpoint — kept for compatibility)
@@ -532,6 +599,72 @@ def delete_placement_milestone(milestone_id: int):
     db.commit()
     db.close()
     return {"status": "deleted", "id": milestone_id}
+
+# 6. TIMETABLE IMAGE PARSING
+@app.post("/api/parse-timetable-image")
+async def parse_timetable_image(file: UploadFile = File(...)):
+    """
+    Accept an image of a class timetable, send it to Gemini Vision,
+    and return structured JSON representing the weekly schedule.
+    """
+    import base64
+
+    try:
+        contents = await file.read()
+        b64_image = base64.b64encode(contents).decode("utf-8")
+
+        # Determine MIME type
+        mime = file.content_type or "image/jpeg"
+
+        vision_model = genai.GenerativeModel("gemini-1.5-flash")
+
+        prompt = """You are analyzing an image of a college class timetable.
+Extract the schedule and return it as strict JSON.
+
+The time slots span from 09:00 to 16:00 (9 AM to 4 PM), with 1-hour periods.
+Use these exact slot keys: "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"
+Days must use these exact keys: "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+
+For each slot, return an object: { "subject": "Subject Name", "type": "class" }
+For break/lunch periods: { "type": "break" }
+For free/empty periods: omit the key entirely.
+
+Return ONLY a JSON object in this exact format, no extra text:
+{
+  "Monday": {
+    "09:00": { "subject": "Digital Signal Processing", "type": "class" },
+    "12:00": { "type": "break" }
+  },
+  "Tuesday": { ... }
+}
+
+If you cannot read the timetable clearly, return { "error": "Could not parse timetable" }
+"""
+
+        response = vision_model.generate_content([
+            prompt,
+            {"mime_type": mime, "data": b64_image}
+        ])
+
+        raw = response.text.strip()
+        # Strip markdown code fences if present
+        raw = raw.replace("```json", "").replace("```", "").strip()
+        start = raw.find("{")
+        end = raw.rfind("}")
+        if start != -1 and end != -1:
+            raw = raw[start:end + 1]
+
+        parsed = json.loads(raw)
+        if "error" in parsed:
+            return {"status": "error", "message": parsed["error"]}
+
+        print(f"✅ Timetable parsed: {list(parsed.keys())} days")
+        return {"status": "success", "timetable": parsed}
+
+    except Exception as e:
+        print(f"❌ Timetable parse error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn

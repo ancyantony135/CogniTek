@@ -5,7 +5,7 @@ import TaskBoard from "../components/TaskBoard";
 import FlashcardDeck from "../components/FlashcardDeck";
 import api from "../api/api";
 import {
-    ClipboardList, Zap, Target, CalendarDays, Mic,
+    ClipboardList, Zap, Target, CalendarDays,
     Trophy, ChevronRight, BookOpen, Clock
 } from "lucide-react";
 
@@ -211,24 +211,29 @@ export default function Home() {
         <div className="min-h-screen bg-[#f7f7f9]">
 
             {/* ── STICKY HEADER ────────────────────────────────────────── */}
-            <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 pt-10 pb-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-[11px] text-slate-400 font-medium">{today}</p>
-                        <h1 className="text-lg font-black text-slate-900 leading-tight">
-                            {greeting.emoji} {greeting.text}, {getDisplayName()}
+            <div className="sticky top-0 z-30 shadow-sm">
+                <div
+                    className="px-4 pt-10 pb-3 relative overflow-hidden flex items-center justify-between"
+                    style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)" }}
+                >
+                    {/* Background decorative blobs */}
+                    <div className="absolute -top-8 -right-8 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-24 h-16 bg-violet-500/10 rounded-full blur-xl pointer-events-none" />
+
+                    <div className="relative z-10 flex-1 min-w-0 pr-4">
+                        <p className="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-0.5 flex items-center gap-2">
+                            {today} <span className="w-1 h-1 rounded-full bg-white/30" /> {greeting.text}
+                        </p>
+                        <h1 className="text-lg font-black text-white leading-tight truncate">
+                            Hey, <span style={{ background: "linear-gradient(90deg, #a78bfa, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{getDisplayName()}</span> {greeting.emoji}
                         </h1>
                     </div>
                     {/* Streak badge */}
-                    <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5">
-                        <span className="text-base">🔥</span>
-                        <span className="text-sm font-black text-amber-600">{streak}</span>
-                        <span className="text-[10px] font-semibold text-amber-500">day{streak !== 1 ? "s" : ""}</span>
+                    <div className="relative z-10 flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/30 rounded-xl px-2.5 py-1.5 flex-shrink-0">
+                        <span className="text-base leading-none">🔥</span>
+                        <span className="text-sm font-black text-amber-300 leading-none">{streak}</span>
                     </div>
                 </div>
-
-                {/* Motivational tip */}
-                <p className="text-xs text-slate-400 mt-1 italic">{greeting.tip}</p>
             </div>
 
             <div className="px-4 pb-28">
@@ -298,14 +303,6 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* ── QUICK RECORD FAB ───────────────────────────────────── */}
-            <button
-                onClick={() => navigate("/record")}
-                className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#1a1a2e] to-[#6366f1] text-white shadow-xl shadow-indigo-900/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
-                title="Quick Record"
-            >
-                <Mic className="w-6 h-6" />
-            </button>
         </div>
     );
 }

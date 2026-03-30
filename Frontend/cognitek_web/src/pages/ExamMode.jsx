@@ -59,7 +59,7 @@ export default function ExamMode() {
         setLoading(true);
         try {
             const history = messages.filter(m => !m.typing).map(m => ({ role: m.role, content: m.content }));
-            const res = await api.post("/api/sylens/chat", { message: t, history, system: EXAM_SYSTEM });
+            const res = await api.post("/api/sylens/chat-fast", { message: t, history, system: EXAM_SYSTEM });
             setMessages(p => p.map(m => m.typing ? { ...m, content: res.data.reply || "…", typing: false } : m));
         } catch {
             setMessages(p => p.map(m => m.typing ? { ...m, content: "Backend offline!", typing: false } : m));
@@ -121,7 +121,7 @@ export default function ExamMode() {
             </div>
 
             {/* ── CHAT ── */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-36">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-48">
                 {messages.map(msg => (
                     <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div className={`max-w-[82%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
@@ -141,7 +141,7 @@ export default function ExamMode() {
             </div>
 
             {/* ── INPUT ── */}
-            <div className="fixed bottom-0 left-0 right-0 px-4 pb-8 pt-3 border-t border-red-900/30" style={{background:"rgba(26,0,5,0.9)", backdropFilter:"blur(12px)"}}>
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-red-900/30" style={{background:"rgba(26,0,5,0.9)", backdropFilter:"blur(12px)",marginBottom:0}}>
                 <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5 border border-white/10">
                     <input
                         ref={inputRef}

@@ -1,26 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Logo from "./Logo";
 
 const SPLASH_KEY = "cognitek_splash_shown";
 
 export default function SplashScreen({ onDone }) {
     const [phase, setPhase] = useState("in"); // 'in' | 'out' | 'done'
+    const calledDone = useRef(false);
+
+    const finish = () => {
+        if (calledDone.current) return;
+        calledDone.current = true;
+        setPhase("done");
+        onDone();
+    };
 
     useEffect(() => {
-        // Run splash screen once per app load
-
-
         // After logo + text animate in, start fade-out
         const outTimer = setTimeout(() => setPhase("out"), 2000);
         // After fade-out completes, unmount
-        const doneTimer = setTimeout(() => {
-            setPhase("done");
-            onDone();
-        }, 2700);
+        const doneTimer = setTimeout(finish, 2700);
+        // Hard safety: always finish within 3s even if callbacks fail
+        const safeTimer = setTimeout(finish, 3000);
 
         return () => {
             clearTimeout(outTimer);
             clearTimeout(doneTimer);
+            clearTimeout(safeTimer);
         };
     }, []);
 

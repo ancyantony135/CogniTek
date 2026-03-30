@@ -8,7 +8,7 @@ export default function AppLayout() {
     const hideFab = ["/sylens", "/exam-mode", "/research-mode"].includes(location.pathname);
 
     return (
-        <div className="min-h-screen pb-24 relative overflow-hidden">
+        <div className="min-h-screen pb-24 relative">
             {/* Background Layers */}
             <div className="fixed inset-0 bg-[var(--bg-primary)] -z-20" />
             <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,var(--bg-gradient)_0%,transparent_70%)] -z-10 opacity-60" />
