@@ -21,18 +21,8 @@
                     "credits": 4
                 },
                 {
-                    "code": "PHT100",
-                    "name": "Engineering Physics A",
-                    "credits": 4
-                },
-                {
                     "code": "CYT100",
                     "name": "Engineering Chemistry",
-                    "credits": 4
-                },
-                {
-                    "code": "EST100",
-                    "name": "Engineering Mechanics",
                     "credits": 4
                 },
                 {
@@ -41,7 +31,12 @@
                     "credits": 4
                 },
                 {
-                    "code": "HUT100",
+                    "code": "EST120",
+                    "name": "Basics of Civil and Mechanical Engineering",
+                    "credits": 4
+                },
+                {
+                    "code": "HUN101",
                     "name": "Life Skills",
                     "credits": 2
                 }
@@ -51,23 +46,13 @@
         "S2": {
             "core": [
                 {
-                    "code": "MAT102",
-                    "name": "Vector Calculus, Differential Equations and Transforms",
+                    "code": "PHT100",
+                    "name": "Engineering Physics A",
                     "credits": 4
                 },
                 {
-                    "code": "PHT110",
-                    "name": "Engineering Physics B",
-                    "credits": 4
-                },
-                {
-                    "code": "EST102",
-                    "name": "Problem Solving using Python",
-                    "credits": 4
-                },
-                {
-                    "code": "EST120",
-                    "name": "Basics of Civil & Mechanical Engineering",
+                    "code": "EST100",
+                    "name": "Engineering Mechanics",
                     "credits": 4
                 },
                 {
@@ -76,9 +61,19 @@
                     "credits": 4
                 },
                 {
-                    "code": "HUT110",
-                    "name": "Engineering Ethics",
+                    "code": "MAT102",
+                    "name": "Vector Calculus, Differential Equations and Transforms",
+                    "credits": 4
+                },
+                {
+                    "code": "HUN102",
+                    "name": "Professional Communication",
                     "credits": 2
+                },
+                {
+                    "code": "EST102",
+                    "name": "Programming in C",
+                    "credits": 4
                 }
             ],
             "electives": []
@@ -1505,64 +1500,34 @@
                 "S3": {
                     "core": [
                         {
+                            "code": "EST200",
+                            "name": "Design and Engineering",
+                            "credits": 2
+                        },
+                        {
+                            "code": "MCN201",
+                            "name": "Sustainable Engineering",
+                            "credits": 2
+                        },
+                        {
                             "code": "EET201",
-                            "name": "Circuit Theory",
-                            "credits": 4,
-                            "modules": [
-                                "Mesh and Node Analysis",
-                                "Network Theorems",
-                                "Transient Analysis",
-                                "Resonance",
-                                "Two-Port Networks"
-                            ]
-                        },
-                        {
-                            "code": "EET203",
-                            "name": "Electronic Devices and Circuits",
-                            "credits": 4,
-                            "modules": [
-                                "Semiconductor Devices",
-                                "Diodes & BJT",
-                                "MOSFET",
-                                "Amplifiers",
-                                "Biasing"
-                            ]
-                        },
-                        {
-                            "code": "EET205",
-                            "name": "Digital Electronics",
-                            "credits": 4,
-                            "modules": [
-                                "Boolean Algebra",
-                                "Combinational Circuits",
-                                "Sequential Circuits",
-                                "ADC/DAC",
-                                "PLDs"
-                            ]
+                            "name": "Circuits and Networks",
+                            "credits": 4
                         },
                         {
                             "code": "MAT203",
                             "name": "Discrete Mathematical Structures",
-                            "credits": 4,
-                            "modules": [
-                                "Logic",
-                                "Relations",
-                                "Graph Theory",
-                                "Trees",
-                                "Combinatorics"
-                            ]
+                            "credits": 4
                         },
                         {
-                            "code": "EET207",
-                            "name": "Programming in C",
-                            "credits": 4,
-                            "modules": [
-                                "Data Types",
-                                "Control Structures",
-                                "Functions",
-                                "Pointers",
-                                "File Handling"
-                            ]
+                            "code": "CST201",
+                            "name": "Data Structures",
+                            "credits": 4
+                        },
+                        {
+                            "code": "CST205",
+                            "name": "Object Oriented Programming Using Java",
+                            "credits": 4
                         }
                     ],
                     "electives": []
@@ -1570,52 +1535,34 @@
                 "S4": {
                     "core": [
                         {
-                            "code": "EET202",
-                            "name": "Electrical Machines",
-                            "credits": 4,
-                            "modules": [
-                                "DC Machines",
-                                "Transformers",
-                                "Induction Motors",
-                                "Synchronous Machines",
-                                "Special Machines"
-                            ]
+                            "code": "HUT200",
+                            "name": "Professional Ethics",
+                            "credits": 2
                         },
                         {
-                            "code": "EET204",
-                            "name": "Signals and Systems",
-                            "credits": 4,
-                            "modules": [
-                                "Signal Classification",
-                                "LTI Systems",
-                                "Fourier Transform",
-                                "Laplace Transform",
-                                "Z-Transform"
-                            ]
+                            "code": "MCN202",
+                            "name": "Constitution of India",
+                            "credits": 2
                         },
                         {
                             "code": "EET206",
-                            "name": "Computer Organization",
-                            "credits": 4,
-                            "modules": [
-                                "CPU Architecture",
-                                "Memory Hierarchy",
-                                "Instruction Set",
-                                "I/O",
-                                "Pipeline"
-                            ]
+                            "name": "Digital Electronics",
+                            "credits": 4
                         },
                         {
-                            "code": "EET208",
-                            "name": "Electromagnetic Theory",
-                            "credits": 4,
-                            "modules": [
-                                "Electrostatics",
-                                "Magnetostatics",
-                                "Maxwell Equations",
-                                "Wave Propagation",
-                                "Transmission Lines"
-                            ]
+                            "code": "CST202",
+                            "name": "Computer Organisation and Architecture",
+                            "credits": 4
+                        },
+                        {
+                            "code": "CST206",
+                            "name": "Operating Systems",
+                            "credits": 4
+                        },
+                        {
+                            "code": "MAT204",
+                            "name": "Probability, Random Process and Numerical Methods",
+                            "credits": 4
                         }
                     ],
                     "electives": []
@@ -1623,216 +1570,132 @@
                 "S5": {
                     "core": [
                         {
-                            "code": "EET301",
-                            "name": "Power Systems Analysis",
-                            "credits": 4,
-                            "modules": [
-                                "Power System Modeling",
-                                "Load Flow",
-                                "Fault Analysis",
-                                "Stability",
-                                "Protection"
-                            ]
+                            "code": "MCN301",
+                            "name": "Disaster Management",
+                            "credits": 2
                         },
                         {
-                            "code": "EET303",
-                            "name": "Control Systems",
-                            "credits": 4,
-                            "modules": [
-                                "Transfer Functions",
-                                "Block Diagrams",
-                                "Time Response",
-                                "Stability Analysis",
-                                "PID Controllers"
-                            ]
+                            "code": "CST309",
+                            "name": "Management of Software Systems",
+                            "credits": 3
                         },
                         {
-                            "code": "EET305",
-                            "name": "Embedded Systems",
-                            "credits": 4,
-                            "modules": [
-                                "Microcontroller Architecture",
-                                "Peripherals",
-                                "RTOS",
-                                "Embedded C",
-                                "IoT Basics"
-                            ]
+                            "code": "EOT301",
+                            "name": "Instrumentation Systems",
+                            "credits": 4
                         },
                         {
-                            "code": "EET307",
-                            "name": "Digital Signal Processing",
-                            "credits": 4,
-                            "modules": [
-                                "DFT and FFT",
-                                "FIR Filters",
-                                "IIR Filters",
-                                "Multirate DSP",
-                                "Applications"
-                            ]
+                            "code": "EOT307",
+                            "name": "Computer Communication and Network Security",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT305",
+                            "name": "Database Management Systems",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT303",
+                            "name": "Microprocessors and Embedded Systems",
+                            "credits": 4
                         }
                     ],
-                    "electives": [
-                        {
-                            "code": "EET309",
-                            "name": "Renewable Energy Systems",
-                            "credits": 4,
-                            "modules": [
-                                "Solar PV",
-                                "Wind Energy",
-                                "Hydro Power",
-                                "Energy Storage",
-                                "Grid Integration"
-                            ]
-                        },
-                        {
-                            "code": "EET311",
-                            "name": "Industrial Automation",
-                            "credits": 4,
-                            "modules": [
-                                "PLC Programming",
-                                "SCADA",
-                                "Sensors",
-                                "Actuators",
-                                "HMI"
-                            ]
-                        }
-                    ]
+                    "electives": []
                 },
                 "S6": {
                     "core": [
                         {
-                            "code": "EET302",
-                            "name": "Power Electronics",
-                            "credits": 4,
-                            "modules": [
-                                "Power Devices",
-                                "Rectifiers",
-                                "Choppers",
-                                "Inverters",
-                                "AC Voltage Controllers"
-                            ]
+                            "code": "HUT300",
+                            "name": "Industrial Economics and Foreign Trade",
+                            "credits": 3
                         },
                         {
-                            "code": "EET304",
-                            "name": "Microprocessors and Interfacing",
-                            "credits": 4,
-                            "modules": [
-                                "8086 Architecture",
-                                "Instruction Set",
-                                "Interfacing Techniques",
-                                "DMA",
-                                "Interrupts"
-                            ]
+                            "code": "EET322",
+                            "name": "Renewable Energy Systems",
+                            "credits": 4
                         },
                         {
-                            "code": "EET306",
-                            "name": "Computer Networks",
-                            "credits": 4,
-                            "modules": [
-                                "OSI Model",
-                                "TCP/IP",
-                                "Routing Protocols",
-                                "Security",
-                                "Wireless Networks"
-                            ]
+                            "code": "EOT302",
+                            "name": "Power Electronics and Drives",
+                            "credits": 4
                         },
                         {
-                            "code": "EET308",
-                            "name": "Electric Drives",
-                            "credits": 4,
-                            "modules": [
-                                "DC Drives",
-                                "AC Drives",
-                                "VFD",
-                                "Speed Control",
-                                "Energy Efficiency"
-                            ]
+                            "code": "EOT304",
+                            "name": "Internet of Things",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT306",
+                            "name": "Electrical Machines",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT308",
+                            "name": "Comprehensive Course Work",
+                            "credits": 2
                         }
                     ],
-                    "electives": [
-                        {
-                            "code": "EET312",
-                            "name": "Machine Learning for Engineers",
-                            "credits": 4,
-                            "modules": [
-                                "Supervised Learning",
-                                "Neural Networks",
-                                "Applications in Electrical Systems",
-                                "Predictive Maintenance",
-                                "Deep Learning Basics"
-                            ]
-                        },
-                        {
-                            "code": "EET314",
-                            "name": "VLSI Design",
-                            "credits": 4,
-                            "modules": [
-                                "CMOS Design",
-                                "Cell Libraries",
-                                "Timing Analysis",
-                                "Physical Design",
-                                "FPGA"
-                            ]
-                        }
-                    ]
+                    "electives": []
                 },
                 "S7": {
-                    "core": [],
-                    "electives": [
+                    "core": [
                         {
-                            "code": "EET401",
-                            "name": "Smart Grid Technology",
-                            "credits": 4,
-                            "modules": [
-                                "Smart Grid Architecture",
-                                "AMI",
-                                "Demand Response",
-                                "Cybersecurity",
-                                "EV Integration"
-                            ]
+                            "code": "MCN401",
+                            "name": "Industrial Safety Engineering",
+                            "credits": 2
                         },
                         {
-                            "code": "EET403",
-                            "name": "Robotics and Automation",
-                            "credits": 4,
-                            "modules": [
-                                "Robot Kinematics",
-                                "Sensors",
-                                "Path Planning",
-                                "Robot Programming",
-                                "Industrial Robots"
-                            ]
+                            "code": "CET455",
+                            "name": "Environmental Health and Safety",
+                            "credits": 3
                         },
                         {
-                            "code": "EET405",
-                            "name": "Internet of Things",
-                            "credits": 4,
-                            "modules": [
-                                "IoT Protocols",
-                                "Embedded Platforms",
-                                "Cloud Integration",
-                                "Edge Computing",
-                                "Security"
-                            ]
+                            "code": "EOT401",
+                            "name": "Control Systems",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT423",
+                            "name": "Energy Management",
+                            "credits": 4
                         }
-                    ]
+                    ],
+                    "electives": []
                 },
                 "S8": {
-                    "core": [],
-                    "electives": [
+                    "core": [
                         {
-                            "code": "EET462",
-                            "name": "AI in Power Systems",
-                            "credits": 4,
-                            "modules": [
-                                "Load Forecasting",
-                                "Fault Detection",
-                                "Energy Optimization",
-                                "Reinforcement Learning",
-                                "Digital Twins"
-                            ]
+                            "code": "EOT402",
+                            "name": "Power System Engineering",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT434",
+                            "name": "Cryptography",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT426",
+                            "name": "Electric and Hybrid Vehicles",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EET438",
+                            "name": "Energy Storage Systems",
+                            "credits": 4
+                        },
+                        {
+                            "code": "EOT404",
+                            "name": "Comprehensive Viva Voce",
+                            "credits": 2
+                        },
+                        {
+                            "code": "EOD416",
+                            "name": "Project Phase II",
+                            "credits": 6
                         }
-                    ]
+                    ],
+                    "electives": []
                 }
             }
         },

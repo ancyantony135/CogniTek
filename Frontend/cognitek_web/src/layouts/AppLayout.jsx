@@ -4,8 +4,8 @@ import SylensDrawer from "../components/SylensDrawer";
 
 export default function AppLayout() {
     const location = useLocation();
-    // Don't show FAB on Sylens page itself, or mode pages
-    const hideFab = ["/sylens", "/exam-mode", "/research-mode"].includes(location.pathname);
+    // Only show Sylens FAB on the home/dashboard page
+    const showFab = location.pathname === "/dashboard";
 
     return (
         <div className="min-h-screen pb-24 relative">
@@ -17,8 +17,8 @@ export default function AppLayout() {
             <Outlet />
             <BottomTabs />
 
-            {/* Sylens floating drawer (shows on all pages except sylens itself) */}
-            {!hideFab && <SylensDrawer />}
+            {/* Sylens floating drawer (home page only) */}
+            {showFab && <SylensDrawer />}
         </div>
     );
 }

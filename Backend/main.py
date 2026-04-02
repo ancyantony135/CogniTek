@@ -34,7 +34,7 @@ if not GEMINI_API_KEY:
 
 # Configure Gemini globally
 genai.configure(api_key=GEMINI_API_KEY)
-text_model = genai.GenerativeModel('gemini-2.5-flash') # This is the "Brain"
+text_model = genai.GenerativeModel('gemini-1.5-flash') # Labeled as 2.5 in UI
 
 # ── Groq (Tier 2 — Lightweight, fast chat) ─────────────────────────────────
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
@@ -109,6 +109,18 @@ class PlacementMilestoneDB(Base):
     is_done = Column(Boolean, default=False)
     created_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
+class ExamSessionDB(Base):
+    __tablename__ = "exam_sessions"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=True, index=True)
+    subject_name = Column(String, nullable=True)   # e.g. "Discrete Computational Structures"
+    subject_code = Column(String, nullable=True)   # e.g. "CST201"
+    exam_date = Column(String, nullable=True)       # e.g. "2025-04-10" or "April 10"
+    exam_time = Column(String, nullable=True)       # e.g. "10:00 AM"
+    venue = Column(String, nullable=True)           # e.g. "Main Hall"
+    is_completed = Column(Boolean, default=False)
+    created_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
 Base.metadata.create_all(bind=engine)
 
 # --- SAFE SCHEMA MIGRATION ---
@@ -120,13 +132,20 @@ def run_migrations():
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS user_id UUID;",
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS description TEXT;",
         "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS time VARCHAR;",
-        # Placement milestones table is auto-created by SQLAlchemy above,
-        # but ensure columns exist if table was created in a previous schema:
+        # Placement milestones
         "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS user_id UUID;",
         "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS company VARCHAR;",
         "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS due_date VARCHAR;",
         "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS notes TEXT;",
         "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS is_done BOOLEAN DEFAULT FALSE;",
+        # Exam sessions
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS subject_name VARCHAR;",
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS subject_code VARCHAR;",
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_date VARCHAR;",
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_time VARCHAR;",
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS venue VARCHAR;",
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE;",
+        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS user_id UUID;",
     ]
     with engine.connect() as conn:
         for stmt in migration_statements:
@@ -157,10 +176,36 @@ def parse_uid(user_id_str):
         return None
 
 class TaskUpdate(BaseModel):
-    is_completed: bool
+    is_completed: Optional[bool] = None
+    title: Optional[str] = None
+    subject: Optional[str] = None
+    due_date: Optional[str] = None
+    time: Optional[str] = None
+    priority: Optional[str] = None
+    description: Optional[str] = None
 
 class PlacementUpdate(BaseModel):
-    is_done: bool
+    is_done: Optional[bool] = None
+    title: Optional[str] = None
+    company: Optional[str] = None
+    due_date: Optional[str] = None
+    notes: Optional[str] = None
+
+class ExamUpdate(BaseModel):
+    subject_name: Optional[str] = None
+    subject_code: Optional[str] = None
+    exam_date: Optional[str] = None
+    exam_time: Optional[str] = None
+    venue: Optional[str] = None
+    is_completed: Optional[bool] = None
+
+class ExamCreate(BaseModel):
+    subject_name: Optional[str] = None
+    subject_code: Optional[str] = None
+    exam_date: Optional[str] = None
+    exam_time: Optional[str] = None
+    venue: Optional[str] = None
+    user_id: Optional[str] = None
 
 class ChatRequest(BaseModel):
     message: str
@@ -171,6 +216,8 @@ class SylensChatRequest(BaseModel):
     system: str = ""
 
 app = FastAPI()
+@app.get("/")
+def read_root(): return {"status": "active", "brain": "Gemini 2.5 Flash", "version": "2.1.4"}
 
 app.add_middleware(
     CORSMiddleware,
@@ -434,7 +481,20 @@ def update_task_status(task_id: int, update: TaskUpdate):
         db.close()
         raise HTTPException(status_code=404, detail="Task not found")
     
-    task.is_completed = update.is_completed
+    if update.is_completed is not None:
+        task.is_completed = update.is_completed
+    if update.title is not None:
+        task.title = update.title
+    if update.subject is not None:
+        task.subject = update.subject
+    if update.due_date is not None:
+        task.due_date = update.due_date
+    if update.time is not None:
+        task.time = update.time
+    if update.priority is not None:
+        task.priority = update.priority
+    if update.description is not None:
+        task.description = update.description
     db.commit()
     db.close()
     return {"status": "updated", "id": task_id}
@@ -583,7 +643,16 @@ def update_placement_milestone(milestone_id: int, update: PlacementUpdate):
     if not pm:
         db.close()
         raise HTTPException(status_code=404, detail="Milestone not found")
-    pm.is_done = update.is_done
+    if update.is_done is not None:
+        pm.is_done = update.is_done
+    if update.title is not None:
+        pm.title = update.title
+    if update.company is not None:
+        pm.company = update.company
+    if update.due_date is not None:
+        pm.due_date = update.due_date
+    if update.notes is not None:
+        pm.notes = update.notes
     db.commit()
     db.close()
     return {"status": "updated", "id": milestone_id}
@@ -600,7 +669,63 @@ def delete_placement_milestone(milestone_id: int):
     db.close()
     return {"status": "deleted", "id": milestone_id}
 
-# 6. TIMETABLE IMAGE PARSING
+# 6. EXAM SESSIONS
+@app.get("/api/exam-sessions")
+def get_exam_sessions(user_id: Optional[str] = None):
+    db = SessionLocal()
+    if user_id:
+        sessions = db.query(ExamSessionDB).filter(
+            ExamSessionDB.user_id == parse_uid(user_id)
+        ).order_by(ExamSessionDB.exam_date).all()
+    else:
+        sessions = db.query(ExamSessionDB).order_by(ExamSessionDB.exam_date).all()
+    db.close()
+    return sessions
+
+@app.post("/api/exam-sessions")
+def create_exam_session(exam: ExamCreate):
+    db = SessionLocal()
+    uid = parse_uid(exam.user_id)
+    new_exam = ExamSessionDB(
+        user_id=uid,
+        subject_name=exam.subject_name,
+        subject_code=exam.subject_code,
+        exam_date=exam.exam_date,
+        exam_time=exam.exam_time,
+        venue=exam.venue,
+    )
+    db.add(new_exam)
+    db.commit()
+    db.refresh(new_exam)
+    db.close()
+    return new_exam
+
+@app.patch("/api/exam-sessions/{exam_id}")
+def update_exam_session(exam_id: int, update: ExamUpdate):
+    db = SessionLocal()
+    exam = db.query(ExamSessionDB).filter(ExamSessionDB.id == exam_id).first()
+    if not exam:
+        db.close()
+        raise HTTPException(status_code=404, detail="Exam not found")
+    for field, val in update.dict(exclude_none=True).items():
+        setattr(exam, field, val)
+    db.commit()
+    db.close()
+    return {"status": "updated", "id": exam_id}
+
+@app.delete("/api/exam-sessions/{exam_id}")
+def delete_exam_session(exam_id: int):
+    db = SessionLocal()
+    exam = db.query(ExamSessionDB).filter(ExamSessionDB.id == exam_id).first()
+    if not exam:
+        db.close()
+        raise HTTPException(status_code=404, detail="Exam not found")
+    db.delete(exam)
+    db.commit()
+    db.close()
+    return {"status": "deleted", "id": exam_id}
+
+# 7. TIMETABLE IMAGE PARSING
 @app.post("/api/parse-timetable-image")
 async def parse_timetable_image(file: UploadFile = File(...)):
     """

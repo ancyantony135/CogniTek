@@ -1,6 +1,5 @@
 import { Clock, Calendar, BookOpen, CheckCircle2, Trash2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import api from "../api/api";
 
 const PRIORITY_STYLES = {
   High: "bg-red-500/10 text-red-500 border-red-500/20",
@@ -8,111 +7,138 @@ const PRIORITY_STYLES = {
   Low: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
 };
 
+// Resolves "today", "tomorrow", raw date strings to a human-friendly label
+function resolveDisplayDate(dateStr) {
+  if (!dateStr) return null;
+  const lower = dateStr.toLowerCase().trim();
+  const now = new Date();
+
+  const fmt = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+
+  if (lower === "today") {
+    return { label: `Today · ${fmt(now)}`, isToday: true, isTomorrow: false, isOverdue: false };
+  }
+  if (lower === "tomorrow") {
+    const tom = new Date(now); tom.setDate(tom.getDate() + 1);
+    return { label: `Tomorrow · ${fmt(tom)}`, isToday: false, isTomorrow: true, isOverdue: false };
+  }
+  // Try to parse as date
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed)) {
+    const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const parsedMid = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    const diffDays = Math.round((parsedMid - todayMid) / 86400000);
+    const isOverdue = diffDays < 0;
+    const isToday = diffDays === 0;
+    const isTomorrow = diffDays === 1;
+    let label = fmt(parsed);
+    if (isToday) label = `Today · ${fmt(parsed)}`;
+    else if (isTomorrow) label = `Tomorrow · ${fmt(parsed)}`;
+    else if (diffDays === 2) label = `In 2 days · ${fmt(parsed)}`;
+    else if (isOverdue) label = `Overdue · ${fmt(parsed)}`;
+    return { label, isToday, isTomorrow, isOverdue, diffDays };
+  }
+  return { label: dateStr, isToday: false, isTomorrow: false, isOverdue: false };
+}
+
 export default function TaskCard({ task, onToggle, onDelete }) {
   const [expanded, setExpanded] = useState(false);
-  const priorityStyle = PRIORITY_STYLES[task.priority] ?? "bg-slate-100 text-slate-600 border-slate-200";
+  const dateInfo = resolveDisplayDate(task.due_date);
 
   return (
     <div
-      className={`tech-glass-card rounded-2xl overflow-hidden transition-all duration-300 ${task.is_completed ? "opacity-60" : ""
-        }`}
+      className={`relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-300 ${task.is_completed ? "opacity-60 grayscale-[0.5]" : "hover:border-indigo-200 hover:shadow-md"}`}
     >
-      {/* Priority accent bar */}
-      <div
-        className={`h-1 w-full ${task.priority === "High"
-            ? "bg-gradient-to-r from-red-500 to-rose-400"
-            : task.priority === "Medium"
-              ? "bg-gradient-to-r from-amber-400 to-yellow-300"
-              : "bg-gradient-to-r from-emerald-500 to-teal-400"
-          }`}
-      />
+      {/* Priority Indicator */}
+      <div className={`absolute top-0 left-0 w-1.5 h-full ${
+        task.priority === "High" ? "bg-rose-500" :
+        task.priority === "Medium" ? "bg-amber-400" : "bg-emerald-400"
+      }`} />
 
-      <div className="p-5">
-        {/* Row 1 — badges + complete toggle */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2 min-w-0 flex-wrap">
-            <span
-              className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border ${priorityStyle}`}
-            >
-              {task.priority || "Normal"}
-            </span>
-            {task.subject && (
-              <span className="flex items-center gap-1 text-xs text-[var(--text-secondary)] font-medium px-2 py-0.5 bg-[var(--glass)] border border-[var(--glass-border)] rounded-full truncate max-w-[180px]">
-                <BookOpen className="w-3 h-3 shrink-0" />
-                {task.subject}
-              </span>
-            )}
-          </div>
-
-          <button
-            onClick={() => onToggle(task.id, task.is_completed)}
-            title={task.is_completed ? "Mark incomplete" : "Mark complete"}
-            className={`p-1.5 rounded-full shrink-0 transition-all duration-300 ${task.is_completed
-                ? "text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20"
-                : "text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--glass)]"
-              }`}
-          >
-            <CheckCircle2 className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Row 2 — title */}
-        <h3
-          className={`font-bold text-[var(--text-primary)] text-base leading-snug mb-1 ${task.is_completed ? "line-through text-[var(--text-secondary)]" : ""
-            }`}
-        >
-          {task.title}
-        </h3>
-
-        {/* Row 3 — description (collapsible) */}
-        {task.description && (
-          <div className="mb-3">
-            <p
-              className={`text-sm text-[var(--text-secondary)] leading-relaxed ${expanded ? "" : "line-clamp-2"
+      <div className="pl-5 pr-4 py-4">
+        {/* Top Meta info */}
+        <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                   task.priority === "High" ? "bg-rose-50 border-rose-100 text-rose-600" :
+                   task.priority === "Medium" ? "bg-amber-50 border-amber-100 text-amber-600" :
+                   "bg-emerald-50 border-emerald-100 text-emerald-600"
+                }`}>
+                    {task.priority || "Normal"}
+                </span>
+                {task.subject && (
+                    <span className="text-[10px] font-bold text-slate-400 truncate max-w-[120px]">
+                        {task.subject}
+                    </span>
+                )}
+            </div>
+            <button
+                onClick={() => onToggle(task.id, task.is_completed)}
+                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                    task.is_completed ? "bg-emerald-500 border-emerald-500" : "border-slate-200 hover:border-indigo-500"
                 }`}
             >
-              {task.description}
-            </p>
-            {task.description.length > 100 && (
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-0.5 text-[10px] font-semibold text-[var(--primary)] mt-0.5 hover:opacity-80"
-              >
-                {expanded ? (
-                  <><ChevronUp className="w-3 h-3" /> Show less</>
-                ) : (
-                  <><ChevronDown className="w-3 h-3" /> Show more</>
+                {task.is_completed && <CheckCircle2 className="w-4 h-4 text-white" />}
+            </button>
+        </div>
+
+        {/* Task Title */}
+        <h3 className={`text-sm font-black text-slate-800 mb-2 leading-snug ${task.is_completed ? "line-through opacity-50" : ""}`}>
+            {task.title}
+        </h3>
+
+        {/* Bottom Detail */}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-50">
+            <div className="flex items-center gap-3">
+                {dateInfo && (
+                    <div className="flex items-center gap-1.5 font-bold">
+                        <Calendar className={`w-3 h-3 ${dateInfo.isOverdue && !task.is_completed ? "text-rose-500" : "text-slate-400"}`} />
+                        <span className={`text-[10px] ${
+                            dateInfo.isOverdue && !task.is_completed ? "text-rose-600" : "text-slate-500"
+                        }`}>
+                            {dateInfo.label}
+                        </span>
+                    </div>
                 )}
-              </button>
+                {task.time && (
+                    <div className="flex items-center gap-1.5 font-bold">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <span className="text-[10px] text-slate-500">{task.time}</span>
+                    </div>
+                )}
+            </div>
+            <div className="flex items-center gap-1">
+                <button onClick={() => onDelete(task.id)} className="p-1 px-2 rounded-lg text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all">
+                    <Trash2 className="w-3.5 h-3.5" />
+                </button>
+                {(task.description || task.notes) && (
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="p-1 px-2 rounded-lg bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-wider hover:bg-indigo-100 transition-all"
+                    >
+                        {expanded ? "Less" : "Info"}
+                    </button>
+                )}
+            </div>
+        </div>
+
+        {/* Expanded Details */}
+        {expanded && (
+          <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
+            {task.description && (
+              <div className="flex flex-col gap-1">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Description</p>
+                <p className="text-[11px] text-slate-600 leading-relaxed font-medium">{task.description}</p>
+              </div>
+            )}
+            {task.notes && (
+              <div className="flex flex-col gap-1">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Sylens Insight</p>
+                <p className="text-[11px] text-slate-500 italic leading-relaxed">{task.notes}</p>
+              </div>
             )}
           </div>
         )}
-
-        {/* Row 4 — footer: date · time · delete */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--glass-border)]">
-          <div className="flex items-center gap-3 text-xs text-[var(--text-secondary)]">
-            {task.due_date && (
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" />
-                {task.due_date}
-              </span>
-            )}
-            {task.time && (
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {task.time}
-              </span>
-            )}
-          </div>
-
-          <button
-            onClick={() => onDelete(task.id)}
-            title="Delete task"
-            className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-500/10 transition-all duration-200"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
       </div>
     </div>
   );

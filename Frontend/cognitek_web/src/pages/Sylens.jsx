@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-    Send, Sparkles, User as UserIcon, Loader2,
-    BookOpen, MessageCircle, Brain, GraduationCap, ArrowLeft
+    Send, User as UserIcon, Loader2,
+    BookOpen, MessageCircle, Brain, GraduationCap
 } from "lucide-react";
+import sylensAvatar from "../assets/sylens_avatar.png";
 
 const SYLENS_SYSTEM = `You are Sylens, the intelligent AI academic companion embedded inside CogniTek — a smart student assistant app built by Hansel, an Electrical and Computer Engineering student at Toc H Institute of Science and Technology (TIST), affiliated with APJ Abdul Kalam Technological University (KTU).
 
@@ -21,14 +22,15 @@ Rules:
 - ALWAYS break answers into short paragraphs of 1-2 sentences max.
 - Add a blank line between every paragraph.
 - NEVER output walls of text. Be punchy and precise.
-- Respond only in plain text (no markdown, no bullet symbols, no asterisks).`;
+- Use relevant emojis at the start of paragraphs to add visual rhythm — e.g. 💡 for tips, 📚 for study content, ✅ for confirmations, ⚠️ for warnings, 🎯 for goals.
+- Respond in plain text only — no markdown symbols like ** or ## or bullet dashes.`;
 
 const SUGGESTIONS = [
-    "Help me prep for KTU Series Exam",
-    "Explain this topic in simple terms",
-    "What are KTU grade boundaries?",
-    "How do I improve my CGPA?",
-    "Give me a study schedule for S6",
+    { emoji: "📚", label: "Series Exam Prep", q: "Help me prep for KTU Series Exam" },
+    { emoji: "💡", label: "Explain a Topic", q: "Explain this topic in simple terms" },
+    { emoji: "🎓", label: "Grade Boundaries", q: "What are KTU grade boundaries?" },
+    { emoji: "📈", label: "Improve CGPA", q: "How do I improve my CGPA?" },
+    { emoji: "🗓️", label: "Study Schedule", q: "Give me a study schedule for S6" },
 ];
 
 const MODES = [
@@ -37,15 +39,28 @@ const MODES = [
     { id: "research", label: "Research", icon: Brain,          color: "bg-blue-600", route: "/research-mode" },
 ];
 
+// Post-process assistant replies to add rhythmic emoji gaps
+function formatReply(text) {
+    if (!text) return text;
+    // Add line breaks between long sentences
+    let formatted = text
+        .replace(/\. ([A-Z])/g, ".\n\n$1") // sentence breaks
+        .trim();
+    return formatted;
+}
+
 // ── Message Bubble ─────────────────────────────────────────────────────────────
-function Bubble({ msg }) {
+function Bubble({ msg, userAvatar }) {
     const isUser = msg.role === "user";
     return (
         <div className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"} items-end`}>
-            <div className={`w-7 h-7 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-md ${
-                isUser ? "bg-slate-700" : "bg-gradient-to-br from-indigo-500 to-violet-600"
+            <div className={`w-7 h-7 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md overflow-hidden ${
+                isUser ? "bg-slate-700" : ""
             }`}>
-                {isUser ? <UserIcon className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+                {isUser
+                    ? (userAvatar ? <img src={userAvatar} alt="User" className="w-full h-full object-cover" /> : <UserIcon className="w-3.5 h-3.5 text-white" />)
+                    : <img src={sylensAvatar} alt="Sylens" className="w-full h-full object-cover" />
+                }
             </div>
             <div className={`max-w-[78%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
                 isUser
@@ -60,7 +75,7 @@ function Bubble({ msg }) {
                         ))}
                     </span>
                 ) : (
-                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                    <span className="whitespace-pre-wrap">{formatReply(msg.content)}</span>
                 )}
             </div>
         </div>
@@ -70,17 +85,27 @@ function Bubble({ msg }) {
 export default function Sylens() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Student";
 
     const [messages, setMessages] = useState([{
         id: 0, role: "assistant",
-        content: `Hey ${displayName}! I'm Sylens 🧠\n\nAsk me anything — KTU stuff, study tips, or just what to do next.`,
+        content: `Hey ${displayName}! I'm Sylens 🧠\n\nAsk me anything — KTU stuff, study tips, or just what to do next.\n\n💡 I'm here to help you study smarter, not harder.`,
     }]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(true);
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
+
+    // Handle pre-filled query from FlashcardDeck
+    useEffect(() => {
+        const q = searchParams.get("q");
+        if (q) {
+            setShowSuggestions(false);
+            sendMessage(decodeURIComponent(q));
+        }
+    }, []);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -114,13 +139,12 @@ export default function Sylens() {
 
             {/* ── HEADER ───────────────────────────────────────────────── */}
             <div className="px-4 pt-12 pb-4 bg-gradient-to-b from-[#0f0f16] to-[#12121e] relative">
-                {/* Glow */}
                 <div className="absolute top-0 right-10 w-40 h-24 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
                 <div className="flex items-center gap-3 mb-5 relative z-10">
                     {/* Sylens Avatar */}
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                        <Sparkles className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg shadow-indigo-500/30 border border-indigo-500/20">
+                        <img src={sylensAvatar} alt="Sylens" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                         <h1 className="text-xl font-black text-white leading-tight">Sylens</h1>
@@ -154,28 +178,34 @@ export default function Sylens() {
             </div>
 
             {/* ── MESSAGES ──────────────────────────────────────────────── */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-36" style={{ background: "linear-gradient(to bottom, #12121e, #f7f7f9)" }}>
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-40 bg-[#0f0f16]">
+                {/* Quick starts — horizontal scrollable */}
                 {showSuggestions && (
-                    <div className="space-y-2 mb-2">
-                        <p className="text-[10px] text-center text-white/30 font-semibold uppercase tracking-widest">Quick starts</p>
-                        <div className="flex flex-col gap-2">
+                    <div className="mb-2">
+                        <p className="text-[10px] text-center text-white/30 font-semibold uppercase tracking-widest mb-3">Quick starts</p>
+                        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                             {SUGGESTIONS.map(s => (
-                                <button key={s} onClick={() => sendMessage(s)}
-                                    className="text-left text-sm px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/70 font-medium hover:bg-indigo-500/10 hover:border-indigo-500/30 hover:text-white transition-all shadow-sm">
-                                    {s}
+                                <button
+                                    key={s.q}
+                                    onClick={() => sendMessage(s.q)}
+                                    className="flex-shrink-0 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white/80 hover:bg-indigo-500/10 hover:border-indigo-500/30 hover:text-white transition-all shadow-sm w-32 text-center"
+                                >
+                                    <span className="text-2xl leading-none">{s.emoji}</span>
+                                    <p className="text-[11px] font-bold leading-tight">{s.label}</p>
                                 </button>
                             ))}
                         </div>
                     </div>
                 )}
-                {messages.map(msg => <Bubble key={msg.id} msg={msg} />)}
+                {messages.map(msg => <Bubble key={msg.id} msg={msg} userAvatar={user?.user_metadata?.avatar_url} />)}
                 <div ref={bottomRef} />
             </div>
 
             {/* ── INPUT BAR ─────────────────────────────────────────────── */}
-            <div className="fixed bottom-16 left-0 right-0 px-4 pt-3 pb-4 z-40"
-                style={{ background: "linear-gradient(to top, white 80%, transparent)" }}>
-                <div className="flex items-end gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-lg shadow-slate-200/50">
+            <div className="fixed bottom-24 left-0 right-0 px-4 pt-4 pb-6 z-40"
+                style={{ background: "linear-gradient(to top, #0f0f16 85%, transparent)" }}>
+                <div className="flex items-end gap-2 bg-[#1a1a2e]/80 backdrop-blur-xl border border-white/10 rounded-3xl px-4 py-3 shadow-2xl shadow-black/50 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none" />
                     <textarea
                         ref={inputRef}
                         rows={1}
@@ -187,21 +217,22 @@ export default function Sylens() {
                         }}
                         onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                         placeholder="Ask Sylens anything…"
-                        className="flex-1 bg-transparent outline-none resize-none text-sm text-slate-800 placeholder-slate-400 leading-relaxed py-0.5 max-h-28"
+                        className="flex-1 bg-transparent outline-none resize-none text-sm text-white placeholder-slate-500 leading-relaxed py-0.5 max-h-28 relative z-10"
                     />
                     <button
                         onClick={() => sendMessage()}
                         disabled={!input.trim() || loading}
-                        className={`p-2.5 rounded-xl flex-shrink-0 transition-all ${
+                        className={`p-2.5 rounded-2xl flex-shrink-0 transition-all relative z-10 ${
                             input.trim() && !loading
-                                ? "bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md hover:scale-105 active:scale-95"
-                                : "text-slate-300"
+                                ? "bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95"
+                                : "text-white/20 bg-white/5"
                         }`}
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin text-indigo-400" /> : <Send className="w-4 h-4" />}
                     </button>
                 </div>
-                <p className="text-center text-[10px] text-slate-400 mt-1.5">Sylens may be wrong. Always verify critical info.</p>
+                {/* Disclaimer — below input, subtle */}
+                <p className="text-center text-[10px] text-slate-500 mt-2 font-medium opacity-60">⚠️ Sylens may be wrong. Always verify critical info.</p>
             </div>
         </div>
     );

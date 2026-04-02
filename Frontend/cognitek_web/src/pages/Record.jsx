@@ -10,18 +10,35 @@ import {
 } from "lucide-react";
 
 const TIMETABLE_KEY = "cognitek_timetable";
+const PROFILE_KEY = "cognitek_profile";
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const HOURS = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
-const HOUR_LABELS = {
-    "09:00": "9:00 AM", "10:00": "10:00 AM", "11:00": "11:00 AM",
-    "12:00": "12:00 PM", "13:00": "1:00 PM", "14:00": "2:00 PM",
-    "15:00": "3:00 PM", "16:00": "4:00 PM"
-};
-const NEXT_HOUR = {
-    "09:00": "10:00", "10:00": "11:00", "11:00": "12:00",
-    "12:00": "13:00", "13:00": "14:00", "14:00": "15:00",
-    "15:00": "16:00", "16:00": "17:00"
-};
+
+// Read profile synchronously to determine scheme layout
+const profile = (() => { try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}"); } catch { return {}; }})();
+const is2024 = profile.scheme === "2024";
+
+const PERIODS = is2024 ? [
+    { start: "09:00", end: "09:50", label: "9:00 – 9:50", short: "9:00 AM" },
+    { start: "10:00", end: "10:50", label: "10:00 – 10:50", short: "10:00 AM" },
+    { start: "10:50", end: "11:40", label: "10:50 – 11:40", short: "10:50 AM" },
+    { start: "12:30", end: "13:20", label: "12:30 – 1:20", short: "12:30 PM" },
+    { start: "13:20", end: "14:10", label: "1:20 – 2:10", short: "1:20 PM" },
+    { start: "14:10", end: "15:00", label: "2:10 – 3:00", short: "2:10 PM" },
+    { start: "15:00", end: "15:50", label: "3:00 – 3:50", short: "3:00 PM" },
+] : [
+    { start: "09:00", end: "09:50", label: "9:00 – 9:50", short: "9:00 AM" },
+    { start: "09:50", end: "10:40", label: "9:50 – 10:40", short: "9:50 AM" },
+    { start: "10:50", end: "11:40", label: "10:50 – 11:40", short: "10:50 AM" },
+    { start: "11:40", end: "12:30", label: "11:40 – 12:30", short: "11:40 AM" },
+    { start: "13:20", end: "14:10", label: "1:20 – 2:10", short: "1:20 PM" },
+    { start: "14:10", end: "15:00", label: "2:10 – 3:00", short: "2:10 PM" },
+    { start: "15:00", end: "15:50", label: "3:00 – 3:50", short: "3:00 PM" },
+];
+
+const HOURS = PERIODS.map(p => p.start);
+const HOUR_LABELS = Object.fromEntries(PERIODS.map(p => [p.start, p.short]));
+const NEXT_HOUR = Object.fromEntries(PERIODS.map((p, i) => [p.start, PERIODS[i+1]?.start || "16:00"]));
+
 
 function loadTimetable() {
     try { return JSON.parse(localStorage.getItem(TIMETABLE_KEY) || "{}"); } catch { return {}; }
@@ -240,7 +257,7 @@ export default function Record() {
             setStatus("Synced!");
             setIsSuccess(true);
             setIsProcessing(false);
-            setTimeout(() => { setIsSuccess(false); setStatus("Ready"); }, 3500);
+            setTimeout(() => { setIsSuccess(false); setStatus("Ready"); navigate("/dashboard"); }, 2000);
         } catch {
             setStatus("Upload Failed");
             setIsProcessing(false);
@@ -330,10 +347,50 @@ export default function Record() {
                     </div>
 
                     {todaySlots.length === 0 ? (
-                        <div className="text-center py-6">
-                            <CalendarClock className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                            <p className="text-sm text-white/40 font-medium">No classes today</p>
-                            <p className="text-xs text-white/25 mt-1">Add your timetable in Profile → Class Timetable</p>
+                        /* No timetable - show standalone period picker */
+                        <div>
+                            <p className="text-[10px] text-white/40 mb-3 text-center">No classes set today. Pick a period to auto-record:</p>
+                            <div className="space-y-2">
+                                {PERIODS.map((period) => {
+                                    const isScheduled = scheduledHour === period.start;
+                                    const secs = isScheduled ? countdown : getSecondsUntil(period.start);
+                                    const past = getSecondsUntil(period.start) === null;
+                                    return (
+                                        <div key={period.start} className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all ${
+                                            past
+                                                ? "bg-white/5 border-white/5 opacity-40"
+                                                : isScheduled
+                                                    ? "bg-indigo-500/15 border-indigo-500/30"
+                                                    : "bg-white/5 border-white/10 hover:bg-white/10"
+                                        }`}>
+                                            <div className="flex-1">
+                                                <p className="text-xs font-bold text-white">{period.label}</p>
+                                                {isScheduled && secs !== null && (
+                                                    <p className="text-[10px] text-indigo-400 flex items-center gap-1 mt-0.5">
+                                                        <AlarmClock className="w-2.5 h-2.5" />
+                                                        Starts in {formatCountdown(secs)}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            {!past && (
+                                                isScheduled ? (
+                                                    <button onClick={() => setScheduledHour(null)} className="p-1.5 text-indigo-400 hover:text-red-400 transition-colors">
+                                                        <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => setScheduledHour(period.start)}
+                                                        className="flex items-center gap-1 px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 text-[10px] font-bold hover:bg-indigo-500/30 transition-all"
+                                                    >
+                                                        <Bell className="w-3 h-3" /> Set
+                                                    </button>
+                                                )
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <p className="text-[9px] text-white/20 text-center mt-3">Add your timetable in Profile → Class Timetable to see class names</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
