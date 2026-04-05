@@ -9,6 +9,8 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
+    // Set flag to show splash screen on auth page
+    sessionStorage.setItem("cognitek_logged_out", "true");
     navigate("/");
   };
 

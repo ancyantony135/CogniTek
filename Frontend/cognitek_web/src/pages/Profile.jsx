@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import ktuData from "../data/ktu_courses.json";
 import { useAuth } from "../context/AuthContext";
@@ -627,6 +628,7 @@ function EditableDataRow({ record, type, onSave, onDelete }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Profile() {
     const { user, logout, profile: authProfile, subjects, refreshProfile } = useAuth();
+    const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [profile, setProfile] = useState(() => {
@@ -971,7 +973,11 @@ export default function Profile() {
             {/* Sign Out */}
             <div className="mx-4 mb-32">
                 <button
-                    onClick={logout}
+                    onClick={() => {
+                        sessionStorage.setItem("cognitek_logged_out", "true");
+                        logout();
+                        navigate("/");
+                    }}
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-red-200 bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 active:scale-95 transition-all"
                 >
                     <LogOut className="w-4 h-4" />

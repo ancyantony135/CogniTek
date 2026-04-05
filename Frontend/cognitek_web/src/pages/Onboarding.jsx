@@ -126,8 +126,7 @@ export default function Onboarding() {
                 full_name: fullName.trim(),
                 college: college.trim(),
                 student_id: studentId.trim(),
-                classroom: classroom.trim(),
-                building: building.trim(),
+                
                 branch,
                 semester: parseInt(semester.replace("S", "")),
                 scheme,
@@ -180,7 +179,7 @@ export default function Onboarding() {
             console.error("Onboarding save error:", err);
             const msg = err.message ?? "";
             if (msg.includes("profiles") || msg.includes("user_subjects") || msg.includes("does not exist")) {
-                setError("⚠️ Database tables not set up yet. Ask your admin to run the setup SQL in Supabase, then try again.");
+                setError("⚠️ Database tables not set up yet...");
             } else {
                 setError(msg || "Something went wrong. Please try again.");
             }

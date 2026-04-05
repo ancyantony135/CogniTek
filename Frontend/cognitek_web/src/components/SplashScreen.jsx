@@ -68,7 +68,6 @@ export default function SplashScreen({ onDone }) {
                 <div
                     className="h-full bg-indigo-400 rounded-full"
                     style={{
-                        animation: "slide-up 2s ease forwards",
                         width: "100%",
                         transform: "translateX(-100%)",
                         animation: "loader-bar 2s ease forwards",

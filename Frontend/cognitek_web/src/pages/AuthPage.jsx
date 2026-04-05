@@ -4,10 +4,21 @@ import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
 import RecoveryForm from "../components/RecoveryForm";
 import Logo from "../components/Logo";
+import SplashScreen from "../components/SplashScreen";
 
 export default function AuthPage() {
     const [view, setView] = useState("landing"); // 'landing' | 'login' | 'register' | 'recovery'
+    const [showSplash, setShowSplash] = useState(false);
     const location = useLocation();
+
+    // Show splash screen if user just logged out (flag set by Navbar)
+    useEffect(() => {
+        const wasLoggedOut = sessionStorage.getItem("cognitek_logged_out");
+        if (wasLoggedOut) {
+            setShowSplash(true);
+            sessionStorage.removeItem("cognitek_logged_out");
+        }
+    }, []);
 
     // Set initial view based on URL
     useEffect(() => {
@@ -17,6 +28,10 @@ export default function AuthPage() {
     }, [location.pathname]);
 
     const showForm = view !== "landing";
+
+    if (showSplash) {
+        return <SplashScreen onDone={() => setShowSplash(false)} />;
+    }
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#0a0a0a] relative overflow-hidden">
