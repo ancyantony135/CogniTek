@@ -331,6 +331,18 @@ For each task, extract ALL of the following fields:
 - "priority": "High", "Medium", or "Low" — infer from urgency/importance
 - "description": A quick tip or breakdown of what the task is and how to proceed (e.g., if the task is "Submit Tutorial assignment on mergesort", the description could be "Tutorial can be written in the tutorial book. Should include the working of mergesort with example.") Write it as actionable advice. Do NOT mention the audio.
 
+=== EXAM SCHEDULE EXTRACTION (Class Test Only) ===
+Your DEFAULT output for "exam_schedules" is ALWAYS an empty array: [].
+Upgrade it ONLY if the audio explicitly mentions exam schedules/dates.
+IMPORTANT: Only extract "Class Test" exams. Do NOT extract Semester Exams, Series Exams, or other types.
+For each exam detected, extract:
+- "subject": Subject name (map to enrolled subjects if possible)
+- "subject_code": KTU course code if available
+- "exam_type": MUST be "Class Test" (only this type)
+- "exam_date": Date mentioned (e.g., "Monday", "April 15", "Next week Tuesday")
+- "exam_time": Time mentioned (e.g., "2 PM", "10:30 AM"). Use null if not mentioned.
+- "venue": Classroom/hall name mentioned. Use null if not mentioned.
+
 === FLASHCARD EXTRACTION (Concept-Oriented) ===
 - Extract technical definitions, laws, formulas, theorems, or module-specific concepts from the audio.
 - Ground each flashcard topic in the KTU B.Tech syllabus (e.g., "Module 2: Semiconductor Devices", "Unit 3: Graph Theory").
@@ -367,6 +379,9 @@ Fields for each placement milestone:
   ],
   "flashcards": [
     {{ "topic": "Module Concept", "cards": [{{ "front": "Question", "back": "Answer" }}] }}
+  ],
+  "exam_schedules": [
+    {{ "subject": "Subject Name", "subject_code": "CST201", "exam_type": "Class Test", "exam_date": "Monday", "exam_time": "2 PM", "venue": "A101" }}
   ],
   "placement_milestones": [
     {{ "title": "Example Drive", "company": "Infosys", "due_date": "April 15", "notes": "Off-campus drive mentioned in recording." }}
@@ -434,11 +449,26 @@ Fields for each placement milestone:
             )
             db.add(new_pm)
             placement_count += 1
+
+        # Save Exam Schedules (from audio detection)
+        exam_count = 0
+        for exam in data.get("exam_schedules", []):
+            parsed_id = parse_uid(user_id)
+            new_exam = ExamSessionDB(
+                user_id=cast(parsed_id, PG_UUID) if parsed_id else None,
+                subject_name=exam.get("subject"),
+                subject_code=exam.get("subject_code"),
+                exam_date=exam.get("exam_date"),
+                exam_time=exam.get("exam_time"),
+                venue=exam.get("venue"),
+            )
+            db.add(new_exam)
+            exam_count += 1
         
         db.commit()
         db.close()
         
-        print(f"💾 Saved for user '{user_id}': {task_count} tasks, {card_count} flashcard decks, {placement_count} placement milestones.")
+        print(f"💾 Saved for user '{user_id}': {task_count} tasks, {card_count} flashcard decks, {exam_count} exam schedules, {placement_count} placement milestones.")
         return {"status": "success", "text": transcribed_text, "data": data}
 
     except Exception as e:

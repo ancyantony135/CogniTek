@@ -47,7 +47,7 @@ export default function Study() {
     return (
         <div className="pb-32">
             {/* ── HEADER ── */}
-            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-6 pt-16 pb-12 relative overflow-hidden rounded-b-[40px] shadow-2xl mb-8">
+            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-6 pt-10 pb-12 relative overflow-hidden rounded-b-[40px] shadow-2xl mb-8">
                 {/* Decorative blobs */}
                 <div className="absolute -top-24 -right-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 -left-12 w-48 h-48 bg-violet-500/5 rounded-full blur-2xl pointer-events-none" />
@@ -58,7 +58,7 @@ export default function Study() {
                         <h1 className="text-3xl font-black text-white leading-tight flex items-center gap-3">
                             Flashcards <span className="text-2xl">🧠</span>
                         </h1>
-                        <p className="text-white/40 text-xs mt-2 font-medium">Master your lectures, one card at a time.</p>
+                        <p className="text-white/40 text-s mt-2 font-medium">Master your lectures, one card at a time.</p>
                     </div>
                     {hardCards.length > 0 && (
                         <div className="flex flex-col items-end gap-2">

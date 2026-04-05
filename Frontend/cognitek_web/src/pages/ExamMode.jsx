@@ -13,6 +13,13 @@ const EXAM_SYSTEM = `You are Sylens in Exam Mode — ultra-focused, ultra-concis
 - NEVER use markdown. No asterisks, no bolding. Plain text only.
 - If asked a PYQ (previous year question), answer it directly then say "likely exam pattern".`;
 
+const EXAM_SUGGESTIONS = [
+    { emoji: "📄", label: "Previous Papers", q: "Show me previous year questions for this topic" },
+    { emoji: "📖", label: "Quick Definition", q: "Give me a one-line definition" },
+    { emoji: "💡", label: "Exam Tips", q: "What should I focus on for this topic in exam?" },
+    { emoji: "🎯", label: "MCQ Pattern", q: "What are common exam question patterns?" },
+];
+
 function formatReply(text) {
     if (!text) return text;
     return text.replace(/\. ([A-Z])/g, ".\n\n$1").trim();
@@ -59,6 +66,7 @@ export default function ExamMode() {
     }]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(true);
     const [countdownDate, setCountdownDate] = useState("");
     const [timeLeft, setTimeLeft] = useState(null);
     const [checklist, setChecklist] = useState([
@@ -91,6 +99,7 @@ export default function ExamMode() {
         const t = (text || input).trim();
         if (!t || loading) return;
         setInput("");
+        setShowSuggestions(false);
         const userMsg = { id: Date.now(), role: "user", content: t };
         const typingMsg = { id: Date.now() + 1, role: "assistant", content: "", typing: true };
         setMessages(p => [...p, userMsg, typingMsg]);
@@ -130,17 +139,22 @@ export default function ExamMode() {
             {/* ── TOOLS ROW (countdown + checklist toggle) ── */}
             <div className="px-4 py-3 border-b border-red-900/20 space-y-3">
                 {/* Countdown */}
-                <div className="flex items-center gap-3 bg-white/5 rounded-xl px-3 py-2.5">
-                    <Timer className="w-4 h-4 text-red-400 flex-shrink-0" />
-                    <input
-                        type="date"
-                        value={countdownDate}
-                        onChange={e => setCountdownDate(e.target.value)}
-                        className="flex-1 bg-transparent text-white/70 text-xs outline-none"
-                    />
-                    {timeLeft && (
-                        <span className="text-sm font-black text-red-300">{timeLeft}</span>
-                    )}
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mb-2">⏱️ Exam Countdown</p>
+                    <div className="flex items-center gap-3 bg-white/5 rounded-xl px-3 py-2.5 border border-white/10">
+                        <Timer className="w-4 h-4 text-red-400 flex-shrink-0" />
+                        <input
+                            type="date"
+                            value={countdownDate}
+                            onChange={e => setCountdownDate(e.target.value)}
+                            className="flex-1 bg-transparent text-white/70 text-xs outline-none"
+                            title="Set your exam date to start the countdown timer"
+                        />
+                        {timeLeft && (
+                            <span className="text-sm font-black text-red-300">{timeLeft}</span>
+                        )}
+                    </div>
+                    <p className="text-[10px] text-red-300/60 mt-1">Set date → Countdown starts</p>
                 </div>
                 {/* Topic checklist */}
                 <div className="space-y-1.5">
@@ -160,13 +174,32 @@ export default function ExamMode() {
 
             {/* ── CHAT ── */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-48">
+                {/* Quick starts — exam suggestions */}
+                {showSuggestions && (
+                    <div className="mb-2">
+                        <p className="text-[10px] text-center text-white/30 font-semibold uppercase tracking-widest mb-3">Quick prep questions</p>
+                        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                            {EXAM_SUGGESTIONS.map(s => (
+                                <button
+                                    key={s.q}
+                                    onClick={() => send(s.q)}
+                                    className="flex-shrink-0 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl bg-red-900/20 border border-red-500/30 text-white/80 hover:bg-red-500/10 hover:border-red-500/50 hover:text-white transition-all shadow-sm w-28 text-center"
+                                >
+                                    <span className="text-2xl leading-none">{s.emoji}</span>
+                                    <p className="text-[11px] font-bold leading-tight">{s.label}</p>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 {messages.map(msg => <Bubble key={msg.id} msg={msg} userAvatar={user?.user_metadata?.avatar_url} />)}
                 <div ref={bottomRef} />
             </div>
 
             {/* ── INPUT ── */}
-            <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-red-900/30" style={{background:"rgba(26,0,5,0.9)", backdropFilter:"blur(12px)",marginBottom:0}}>
-                <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5 border border-white/10">
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-red-900/30" 
+                style={{ background: "rgba(26,0,5,0.95)", backdropFilter: "blur(12px)", marginBottom: 0 }}>
+                <div className="flex items-center gap-2 bg-white/8 rounded-2xl px-3 py-2.5 border border-white/10 shadow-lg">
                     <textarea
                         ref={inputRef}
                         rows={1}
@@ -181,7 +214,7 @@ export default function ExamMode() {
                         className="flex-1 bg-transparent outline-none resize-none text-sm text-white placeholder-white/30 leading-relaxed py-0.5 max-h-28"
                     />
                     <button onClick={() => send()} disabled={!input.trim() || loading}
-                        className={`p-2 rounded-xl flex-shrink-0 transition-all ${input.trim() && !loading ? "bg-red-500 text-white shadow-lg shadow-red-500/30 hover:scale-105" : "text-white/20"}`}>
+                        className={`p-2.5 rounded-2xl flex-shrink-0 transition-all ${input.trim() && !loading ? "bg-red-500 text-white shadow-lg shadow-red-500/30 hover:scale-105 active:scale-95" : "text-white/20 bg-white/5"}`}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                     </button>
                 </div>

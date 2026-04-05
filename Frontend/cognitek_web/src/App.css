@@ -99,3 +99,20 @@ body {
   margin-top: 10px;
   border-radius: 10px;
 }
+
+@keyframes red-glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(248, 113, 113, 0.7));
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.2);
+    opacity: 0.9;
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(248, 113, 113, 1));
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+    opacity: 1;
+  }
+}
+
+.animate-red-glow {
+  animation: red-glow-pulse 2s ease-in-out infinite;
+}

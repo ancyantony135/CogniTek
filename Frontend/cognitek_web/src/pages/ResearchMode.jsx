@@ -13,6 +13,13 @@ const RESEARCH_SYSTEM = `You are Sylens in Research Mode — a knowledgeable res
 - Encourage the student to explore further: end answers with one follow-up question they might want to investigate.
 - Be scholarly but accessible.`;
 
+const RESEARCH_SUGGESTIONS = [
+    { emoji: "📚", label: "Deep Dive", q: "Give me a comprehensive overview of this topic" },
+    { emoji: "🔗", label: "Citation Hunt", q: "What are the key papers or sources for this?" },
+    { emoji: "🤔", label: "Critical Analysis", q: "What are the strengths and weaknesses of this concept?" },
+    { emoji: "🎓", label: "KTU Alignment", q: "How does this relate to KTU syllabus?" },
+];
+
 function formatReply(text) {
     if (!text) return text;
     return text.replace(/\. ([A-Z])/g, ".\n\n$1").trim();
@@ -59,6 +66,7 @@ export default function ResearchMode() {
     }]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(true);
     const [notes, setNotes] = useState(() => {
         try { return localStorage.getItem("cognitek_research_notes") || ""; } catch { return ""; }
     });
@@ -85,6 +93,7 @@ export default function ResearchMode() {
         const t = (text || input).trim();
         if (!t || loading) return;
         setInput("");
+        setShowSuggestions(false);
         setActivePanel("chat");
         const userMsg = { id: Date.now(), role: "user", content: t };
         const typingMsg = { id: Date.now() + 1, role: "assistant", content: "", typing: true };
@@ -163,6 +172,24 @@ export default function ResearchMode() {
             {/* ── CHAT PANEL ── */}
             {activePanel === "chat" && (
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-48">
+                    {/* Quick starts — research suggestions */}
+                    {showSuggestions && (
+                        <div className="mb-2">
+                            <p className="text-[10px] text-center text-white/30 font-semibold uppercase tracking-widest mb-3">Research starting points</p>
+                            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                                {RESEARCH_SUGGESTIONS.map(s => (
+                                    <button
+                                        key={s.q}
+                                        onClick={() => send(s.q)}
+                                        className="flex-shrink-0 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl bg-blue-900/20 border border-blue-500/30 text-white/80 hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-white transition-all shadow-sm w-28 text-center"
+                                    >
+                                        <span className="text-2xl leading-none">{s.emoji}</span>
+                                        <p className="text-[11px] font-bold leading-tight">{s.label}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     {messages.map(msg => <Bubble key={msg.id} msg={msg} userAvatar={user?.user_metadata?.avatar_url} />)}
                     <div ref={bottomRef} />
                 </div>
@@ -182,8 +209,9 @@ export default function ResearchMode() {
             )}
 
             {/* ── INPUT ── */}
-            <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-blue-900/30" style={{background:"rgba(2,11,24,0.92)", backdropFilter:"blur(12px)",marginBottom:0}}>
-                <div className="flex items-center gap-2 bg-white/8 rounded-2xl px-3 py-2.5 border border-white/10">
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-blue-900/30" 
+                style={{ background: "rgba(2,11,24,0.95)", backdropFilter: "blur(12px)", marginBottom: 0 }}>
+                <div className="flex items-center gap-2 bg-white/8 rounded-2xl px-3 py-2.5 border border-white/10 shadow-lg">
                     <textarea
                         ref={inputRef}
                         rows={1}
@@ -198,7 +226,7 @@ export default function ResearchMode() {
                         className="flex-1 bg-transparent outline-none resize-none text-sm text-white placeholder-white/30 leading-relaxed py-0.5 max-h-28"
                     />
                     <button onClick={() => send()} disabled={!input.trim() || loading}
-                        className={`p-2 rounded-xl flex-shrink-0 transition-all ${input.trim() && !loading ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:scale-105" : "text-white/20"}`}>
+                        className={`p-2.5 rounded-2xl flex-shrink-0 transition-all ${input.trim() && !loading ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95" : "text-white/20 bg-white/5"}`}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                     </button>
                 </div>

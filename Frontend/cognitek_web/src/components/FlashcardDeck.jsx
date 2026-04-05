@@ -25,7 +25,7 @@ function matchSubject(topicText, enrolledSubjects) {
 }
 
 export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubject = "All" }) {
-    const { user } = useAuth();
+    const { user, subjects } = useAuth(); // Get subjects from AuthContext
     const navigate = useNavigate();
     const [allDecks, setAllDecks] = useState([]); // Store all fetched decks
     const [decks, setDecks] = useState([]);       // Store filtered filtered decks
@@ -35,11 +35,10 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
     const [loading, setLoading] = useState(true);
     const [shuffled, setShuffled] = useState(false);
     const [cardOrder, setCardOrder] = useState([]);
+    const [filterSubject, setFilterSubject] = useState("All"); // Track selected subject filter
 
-    // Load enrolled subjects from localStorage
-    const enrolledSubjects = (() => {
-        try { return JSON.parse(localStorage.getItem("cognitek_profile") || "{}").subjects || []; } catch { return []; }
-    })();
+    // Load enrolled subjects from AuthContext
+    const enrolledSubjects = subjects || [];
 
     // Fetch all decks
     useEffect(() => {
@@ -59,22 +58,39 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
         fetchFlashcards();
     }, [user?.id]);
 
-    // Apply filter when selectedSubject or allDecks changes
+    // Apply filter when filterSubject or allDecks changes
     useEffect(() => {
-        if (selectedSubject === "All") {
-            setDecks(allDecks);
+        let filtered = [];
+        if (filterSubject === "All") {
+            filtered = allDecks;
         } else {
-            const filtered = allDecks.filter(deck => {
+            filtered = allDecks.filter(deck => {
                 const matched = matchSubject(deck.topic || "", enrolledSubjects);
-                return matched && matched.code === selectedSubject;
+                return matched && matched.code === filterSubject;
             });
-            setDecks(filtered);
         }
+        
+        // Consolidate decks by topic (module) - group same topics together
+        const topicMap = {};
+        filtered.forEach(deck => {
+            const topic = deck.topic || "Untitled";
+            if (!topicMap[topic]) {
+                topicMap[topic] = {
+                    ...deck,
+                    content: [],
+                };
+            }
+            // Merge all cards from the same topic into one deck
+            topicMap[topic].content.push(...(deck.content || []));
+        });
+        
+        const consolidatedDecks = Object.values(topicMap);
+        setDecks(consolidatedDecks);
         setCurrentDeckIndex(0);
         setCurrentCardIndex(0);
         setIsFlipped(false);
         setShuffled(false);
-    }, [selectedSubject, allDecks]);
+    }, [filterSubject, allDecks, enrolledSubjects]);
 
     // Update card order when decks or currentDeckIndex changes
     useEffect(() => {
@@ -140,48 +156,84 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
 
     if (loading) return <div className="p-4 text-center text-slate-500 animate-pulse">Loading study materials...</div>;
     
-    if (decks.length === 0) return (
+    // Always render tabs first so they stay visible
+    const emptyState = decks.length === 0 ? (
         <div className="glass-card p-12 text-center flex flex-col items-center justify-center text-slate-400 min-h-[260px] rounded-2xl border border-slate-200 bg-white/50 backdrop-blur-sm">
             <Brain className="w-12 h-12 mb-4 opacity-50" />
-            <p className="font-semibold">{selectedSubject === "All" ? "No flashcards generated yet." : `No flashcards for ${selectedSubject}.`}</p>
+            <p className="font-semibold">{filterSubject === "All" ? "No flashcards generated yet." : `No flashcards for ${filterSubject}.`}</p>
             <p className="text-sm mt-2">Record a lecture to start studying!</p>
         </div>
-    );
-
-    const currentCard = currentDeck.content[cardOrder[currentCardIndex]];
-    const currentCardRealIdx = cardOrder[currentCardIndex];
-    const hardKey = `${currentDeck.id}:${currentCardRealIdx}`;
-    const isHard = hardCards.includes(hardKey);
-
-    // Parse subject and module from topic
-    const topicText = currentDeck.topic || "Study Material";
-    const colonIdx = topicText.indexOf(":");
-    let subjectLine = "";
-    let moduleLine = topicText;
-    if (colonIdx > 0 && colonIdx < 40) {
-        subjectLine = topicText.slice(0, colonIdx).trim();
-        moduleLine = topicText.slice(colonIdx + 1).trim();
-    }
-
-    // Try to match against enrolled subjects
-    const matched = matchSubject(topicText, enrolledSubjects);
-    const displaySubject = matched ? `${matched.code} · ${matched.name}` : subjectLine;
-
-    const handleQuizMe = () => {
-        const question = currentCard?.front || "";
-        const topic = moduleLine;
-        // Navigate to Sylens with a pre-filled message
-        navigate(`/sylens?q=${encodeURIComponent(`Quiz me on this topic: "${topic}". Ask me a practice question based on: "${question}"`)}`);
-    };
-
-    const handleAddToNotes = () => {
-        const topic = moduleLine;
-        navigate(`/sylens?q=${encodeURIComponent(`Summarize key points about "${topic}" in a concise study note format.`)}`);
-    };
+    ) : null;
 
     return (
-        <div className="space-y-3 max-w-lg mx-auto mt-1 px-1">
-            {/* ── Banner: Subject + Module ── */}
+        <div className="space-y-3 max-w-lg mx-auto mt-1 px-1 relative">
+            {/* ── Subject Filter Tabs (Always Visible - White Background) ── */}
+            {enrolledSubjects.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+                    <button
+                        onClick={() => setFilterSubject("All")}
+                        className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${
+                            filterSubject === "All"
+                                ? "bg-[#13264D] text-white shadow-lg"
+                                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                        }`}
+                    >
+                        All Decks
+                    </button>
+                    {enrolledSubjects.map(s => (
+                        <button
+                            key={s.course_code}
+                            onClick={() => setFilterSubject(s.course_code)}
+                            className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${
+                                filterSubject === s.course_code
+                                    ? "bg-[#203560] text-white shadow-lg"
+                                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                            }`}
+                        >
+                            {s.course_code}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+     {/* ── Empty State (when no decks) ── */}
+            {emptyState}
+            
+            {/* Rest of the component - only render if there are decks */}
+            {decks.length > 0 && (() => {
+                const currentDeck = decks[currentDeckIndex];
+                const currentCard = currentDeck.content[cardOrder[currentCardIndex]];
+                const currentCardRealIdx = cardOrder[currentCardIndex];
+                const hardKey = `${currentDeck.id}:${currentCardRealIdx}`;
+                const isHard = hardCards.includes(hardKey);
+
+                // Parse subject and module from topic
+                const topicText = currentDeck.topic || "Study Material";
+                const colonIdx = topicText.indexOf(":");
+                let subjectLine = "";
+                let moduleLine = topicText;
+                if (colonIdx > 0 && colonIdx < 40) {
+                    subjectLine = topicText.slice(0, colonIdx).trim();
+                    moduleLine = topicText.slice(colonIdx + 1).trim();
+                }
+
+                // Try to match against enrolled subjects
+                const matched = matchSubject(topicText, enrolledSubjects);
+                const displaySubject = matched ? `${matched.code} · ${matched.name}` : subjectLine;
+
+                const handleQuizMe = () => {
+                    const question = currentCard?.front || "";
+                    const topic = moduleLine;
+                    navigate(`/sylens?q=${encodeURIComponent(`Quiz me on this topic: "${topic}". Ask me a practice question based on: "${question}"`)}`);
+                };
+
+                const handleAddToNotes = () => {
+                    const topic = moduleLine;
+                    navigate(`/sylens?q=${encodeURIComponent(`Summarize key points about "${topic}" in a concise study note format.`)}`);
+                };
+
+                return (
+                <>
             <div
                 className="relative overflow-hidden rounded-2xl px-4 py-4 border border-indigo-900/40"
                 style={{ background: "linear-gradient(135deg, #0f0f16 0%, #16213e 60%, #1a1a2e 100%)" }}
@@ -213,8 +265,8 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
                 </div>
             </div>
 
-            {/* ── Deck Navigation ── */}
-            {decks.length > 1 && (
+            {/* ── Deck Navigation (Only show under "All Decks") ── */}
+            {filterSubject === "All" && decks.length > 1 && (
                 <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-1.5 shadow-sm">
                     <button onClick={prevDeck} className="p-2 rounded-lg hover:bg-slate-100 transition-colors active:scale-90">
                         <ChevronLeft className="w-4 h-4 text-slate-500" />
@@ -315,6 +367,9 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
                     {/* Add to notes removed */}
                 </div>
             </div>
+            </>
+                );
+            })()} 
         </div>
     );
 }

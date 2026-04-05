@@ -69,6 +69,8 @@ export default function Onboarding() {
     const [fullName, setFullName] = useState(user?.user_metadata?.display_name ?? "");
     const [college, setCollege] = useState("Toc H Institute of Science and Technology");
     const [studentId, setStudentId] = useState("");
+    const [classroom, setClassroom] = useState("");
+    const [building, setBuilding] = useState("");
 
     // Step 2
     const [branch, setBranch] = useState("CSE");
@@ -124,6 +126,8 @@ export default function Onboarding() {
                 full_name: fullName.trim(),
                 college: college.trim(),
                 student_id: studentId.trim(),
+                classroom: classroom.trim(),
+                building: building.trim(),
                 branch,
                 semester: parseInt(semester.replace("S", "")),
                 scheme,
@@ -227,6 +231,14 @@ export default function Onboarding() {
                             <Field label="KTU Student ID (optional)">
                                 <input className={inputClass} value={studentId} onChange={e => setStudentId(e.target.value)}
                                     placeholder="e.g. TCH22CS001" />
+                            </Field>
+                            <Field label="Classroom / Section (optional)">
+                                <input className={inputClass} value={classroom} onChange={e => setClassroom(e.target.value)}
+                                    placeholder="e.g. A1, B2, etc." />
+                            </Field>
+                            <Field label="Building Name (optional)">
+                                <input className={inputClass} value={building} onChange={e => setBuilding(e.target.value)}
+                                    placeholder="e.g. Academic Block, Lab Building" />
                             </Field>
                         </>
                     )}

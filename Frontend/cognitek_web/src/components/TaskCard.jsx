@@ -22,9 +22,14 @@ function resolveDisplayDate(dateStr) {
     const tom = new Date(now); tom.setDate(tom.getDate() + 1);
     return { label: `Tomorrow · ${fmt(tom)}`, isToday: false, isTomorrow: true, isOverdue: false };
   }
-  // Try to parse as date
-  const parsed = new Date(dateStr);
+  // Try to parse as date (handle ISO dates and local dates correctly)
+  let parsed = new Date(dateStr);
   if (!isNaN(parsed)) {
+    // If dateStr looks like ISO date (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss), parse as local date to avoid timezone issues
+    if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateStr.trim())) {
+      const parts = dateStr.split('T')[0].split('-');
+      parsed = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
     const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const parsedMid = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
     const diffDays = Math.round((parsedMid - todayMid) / 86400000);

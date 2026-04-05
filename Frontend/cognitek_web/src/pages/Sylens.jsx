@@ -202,10 +202,9 @@ export default function Sylens() {
             </div>
 
             {/* ── INPUT BAR ─────────────────────────────────────────────── */}
-            <div className="fixed bottom-24 left-0 right-0 px-4 pt-4 pb-6 z-40"
-                style={{ background: "linear-gradient(to top, #0f0f16 85%, transparent)" }}>
-                <div className="flex items-end gap-2 bg-[#1a1a2e]/80 backdrop-blur-xl border border-white/10 rounded-3xl px-4 py-3 shadow-2xl shadow-black/50 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none" />
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-indigo-900/30" 
+                style={{ background: "rgba(15,15,22,0.95)", backdropFilter: "blur(12px)", marginBottom: 0 }}>
+                <div className="flex items-center gap-2 bg-white/8 rounded-2xl px-3 py-2.5 border border-white/10 shadow-lg">
                     <textarea
                         ref={inputRef}
                         rows={1}
@@ -217,12 +216,12 @@ export default function Sylens() {
                         }}
                         onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                         placeholder="Ask Sylens anything…"
-                        className="flex-1 bg-transparent outline-none resize-none text-sm text-white placeholder-slate-500 leading-relaxed py-0.5 max-h-28 relative z-10"
+                        className="flex-1 bg-transparent outline-none resize-none text-sm text-white placeholder-slate-500 leading-relaxed py-0.5 max-h-28"
                     />
                     <button
                         onClick={() => sendMessage()}
                         disabled={!input.trim() || loading}
-                        className={`p-2.5 rounded-2xl flex-shrink-0 transition-all relative z-10 ${
+                        className={`p-2.5 rounded-2xl flex-shrink-0 transition-all ${
                             input.trim() && !loading
                                 ? "bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95"
                                 : "text-white/20 bg-white/5"

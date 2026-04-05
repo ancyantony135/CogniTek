@@ -4,13 +4,15 @@ import ktuData from "../data/ktu_courses.json";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
 import axios from "axios";
+import '../App.css';
 import {
     User as UserIcon, LogOut, Pencil, Check, X, Database, Activity,
     BookOpen, Zap, Target, Brain, Code2, Layers, BadgeCheck,
     ChevronDown, ChevronUp, Bluetooth, Watch, Plus, Wifi, ArrowLeft,
     FlaskConical, Briefcase, BookMarked, Trash2, Loader2, GraduationCap,
     Trophy, ChevronRight, Settings, Shield, CalendarClock, Clock,
-    Upload, Image as ImageIcon, Sun, Moon, Coffee, AlertCircle, PlusCircle
+    Upload, Image as ImageIcon, Sun, Moon, Coffee, AlertCircle, PlusCircle, Cpu,
+    Smartphone
 } from "lucide-react";
 import ServerStatus from "../components/ServerStatus";
 
@@ -29,7 +31,7 @@ function getSchedule(scheme) {
         { start: "12:30", end: "13:20", label: "12:30 – 1:20" },
         { start: "13:20", end: "14:10", label: "1:20 – 2:10" },
         { start: "14:10", end: "15:00", label: "2:10 – 3:00" },
-        { start: "15:00", end: "15:50", label: "3:00 – 3:50" },
+        { start: "15:10", end: "16:00", label: "3:10 – 4:00" },
     ] : [
         { start: "09:00", end: "09:50", label: "9:00 – 9:50" },
         { start: "09:50", end: "10:40", label: "9:50 – 10:40" },
@@ -37,17 +39,19 @@ function getSchedule(scheme) {
         { start: "11:40", end: "12:30", label: "11:40 – 12:30" },
         { start: "13:20", end: "14:10", label: "1:20 – 2:10" },
         { start: "14:10", end: "15:00", label: "2:10 – 3:00" },
-        { start: "15:00", end: "15:50", label: "3:00 – 3:50" },
+        { start: "15:10", end: "16:00", label: "3:10 – 4:00" },
     ];
-    
+
     return {
         PERIODS: periods,
         BREAK_SLOTS: is2024 ? [
             { label: "Snack time", time: "9:50 – 10:00", key: "break1" },
             { label: "Lunch time", time: "11:40 – 12:30", key: "lunch" },
+            { label: "Break", time: "3:00 – 3:10", key: "break2" },
         ] : [
             { label: "Snack time", time: "10:40 – 10:50", key: "break1" },
             { label: "Lunch time", time: "12:30 – 1:20", key: "lunch" },
+            { label: "Break", time: "3:00 – 3:10", key: "break2" },
         ],
         HOURS: periods.map(p => p.start),
         HOUR_LABELS: Object.fromEntries(periods.map(p => [p.start, p.label]))
@@ -73,20 +77,20 @@ function Avatar({ name, size = "lg", src = null, onClick }) {
     const initials = (name || "S").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
     const sz = size === "lg" ? "w-20 h-20 text-2xl" : "w-10 h-10 text-sm";
     const clickable = size === "lg" && (src || true);
-    
+
     if (src) {
         return (
-            <img 
-                src={src} 
-                alt="Profile" 
+            <img
+                src={src}
+                alt="Profile"
                 onClick={onClick}
                 className={`${sz} rounded-2xl object-cover shadow-lg flex-shrink-0 border border-white/20 ${clickable ? "cursor-pointer hover:scale-105 active:scale-95 transition-transform" : ""}`}
             />
         );
     }
-    
+
     return (
-        <div 
+        <div
             onClick={onClick}
             className={`${sz} rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-black shadow-lg flex-shrink-0 ${clickable ? "cursor-pointer hover:scale-105 active:scale-95 transition-transform" : ""}`}
         >
@@ -100,15 +104,15 @@ function AvatarModal({ src, name, open, onClose }) {
     if (!open) return null;
     const initials = (name || "S").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
     return (
-        <div 
+        <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
             onClick={onClose}
         >
             <div className="relative" onClick={e => e.stopPropagation()}>
                 {src ? (
-                    <img 
-                        src={src} 
-                        alt="Profile" 
+                    <img
+                        src={src}
+                        alt="Profile"
                         className="w-72 h-72 rounded-3xl object-cover shadow-2xl border-4 border-white/20"
                     />
                 ) : (
@@ -116,8 +120,8 @@ function AvatarModal({ src, name, open, onClose }) {
                         {initials}
                     </div>
                 )}
-                <button 
-                    onClick={onClose} 
+                <button
+                    onClick={onClose}
                     className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg text-slate-600 hover:text-red-500 transition-colors"
                 >
                     <X className="w-4 h-4" />
@@ -280,7 +284,7 @@ function TimetableSheet({ open, onClose, subjects }) {
     };
 
     const subjectOptions = subjects?.map(s => s.course_name) || [];
-    
+
     // Get schedule configuration based on the user's scheme
     const profile = loadProfile();
     const { PERIODS, BREAK_SLOTS, HOURS, HOUR_LABELS } = getSchedule(profile.scheme);
@@ -328,11 +332,10 @@ function TimetableSheet({ open, onClose, subjects }) {
                             <button
                                 key={d}
                                 onClick={() => setActiveDay(d)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all border ${
-                                    activeDay === d
-                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
-                                }`}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all border ${activeDay === d
+                                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                                    }`}
                             >
                                 {d.slice(0, 3)}
                             </button>
@@ -351,10 +354,10 @@ function TimetableSheet({ open, onClose, subjects }) {
 
                             return PERIODS.map((period, i) => {
                                 const slot = getSlot(activeDay, period.start);
-                                
+
                                 const showSnack = is2024 ? i === 1 : i === 2;
                                 const snackLabel = is2024 ? { time: "9:50 – 10:00", start: "9:50", m: "10 min" } : { time: "10:40 – 10:50", start: "10:40", m: "10 min" };
-                                
+
                                 const showLunch = is2024 ? i === 3 : i === 4;
                                 const lunchLabel = is2024 ? { time: "11:40 – 12:30", start: "11:40", m: "50 min" } : { time: "12:30 – 1:20", start: "12:30", m: "50 min" };
 
@@ -384,12 +387,11 @@ function TimetableSheet({ open, onClose, subjects }) {
                                                 <span className="ml-auto text-[10px] text-orange-500 font-medium">· {lunchLabel.m}</span>
                                             </div>
                                         )}
-                                        
-                                        <div className={`flex items-center gap-2 p-3 rounded-xl border transition-all ${
-                                            slot?.subject
-                                                ? "bg-indigo-50 border-indigo-200"
-                                                : "bg-white border-slate-100"
-                                        }`}>
+
+                                        <div className={`flex items-center gap-2 p-3 rounded-xl border transition-all ${slot?.subject
+                                            ? "bg-indigo-50 border-indigo-200"
+                                            : "bg-white border-slate-100"
+                                            }`}>
                                             {/* Time label */}
                                             <div className="w-16 flex-shrink-0">
                                                 <p className="text-[10px] font-black text-slate-500">{period.label.split(" – ")[0]}</p>
@@ -407,35 +409,35 @@ function TimetableSheet({ open, onClose, subjects }) {
                                                 </div>
                                             )}
 
-                                        {/* Actions */}
-                                        <div className="flex gap-1 flex-shrink-0">
-                                            {slot ? (
-                                                <button
-                                                    onClick={() => clearSlot(activeDay, period.start)}
-                                                    className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 text-slate-300 transition-colors"
-                                                >
-                                                    <X className="w-3 h-3" />
-                                                </button>
-                                            ) : (
-                                                <>
-                                                    <SlotPicker
-                                                        label="+"
-                                                        subjectOptions={subjectOptions}
-                                                        onSelect={(val) => setSlot(activeDay, period.start, { subject: val, type: "class" })}
-                                                    />
+                                            {/* Actions */}
+                                            <div className="flex gap-1 flex-shrink-0">
+                                                {slot ? (
                                                     <button
-                                                        onClick={() => setSlot(activeDay, period.start, { type: "break" })}
-                                                        className="px-2 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-bold hover:bg-amber-100 transition-colors"
+                                                        onClick={() => clearSlot(activeDay, period.start)}
+                                                        className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 text-slate-300 transition-colors"
                                                     >
-                                                        Break
+                                                        <X className="w-3 h-3" />
                                                     </button>
-                                                </>
-                                            )}
+                                                ) : (
+                                                    <>
+                                                        <SlotPicker
+                                                            label="+"
+                                                            subjectOptions={subjectOptions}
+                                                            onSelect={(val) => setSlot(activeDay, period.start, { subject: val, type: "class" })}
+                                                        />
+                                                        <button
+                                                            onClick={() => setSlot(activeDay, period.start, { type: "break" })}
+                                                            className="px-2 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-bold hover:bg-amber-100 transition-colors"
+                                                        >
+                                                            Break
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        });
+                                );
+                            });
                         })()}
                     </div>
                 </div>
@@ -448,7 +450,7 @@ function TimetableSheet({ open, onClose, subjects }) {
                             {/* Header row */}
                             <div />
                             {DAYS.map(d => (
-                                <div key={d} className="text-center text-[10px] font-black text-slate-400 pb-2">{d.slice(0,3)}</div>
+                                <div key={d} className="text-center text-[10px] font-black text-slate-400 pb-2">{d.slice(0, 3)}</div>
                             ))}
                             {/* Period rows */}
                             {(() => {
@@ -468,11 +470,10 @@ function TimetableSheet({ open, onClose, subjects }) {
                                             {DAYS.map(day => {
                                                 const slot = getSlot(day, period.start);
                                                 return (
-                                                    <div key={`${day}-${period.start}`} className={`h-7 mx-0.5 mb-1 rounded text-[8px] font-bold flex items-center justify-center truncate px-0.5 ${
-                                                        slot?.type === "break" ? "bg-amber-100 text-amber-600" :
+                                                    <div key={`${day}-${period.start}`} className={`h-7 mx-0.5 mb-1 rounded text-[8px] font-bold flex items-center justify-center truncate px-0.5 ${slot?.type === "break" ? "bg-amber-100 text-amber-600" :
                                                         slot?.subject ? "bg-indigo-100 text-indigo-700" :
-                                                        "bg-slate-50"
-                                                    }`}>
+                                                            "bg-slate-50"
+                                                        }`}>
                                                         {slot?.type === "break" ? "☕" : slot?.subject?.split(" ")[0] || ""}
                                                     </div>
                                                 );
@@ -510,7 +511,7 @@ function SlotPicker({ subjectOptions, onSelect }) {
                             placeholder="Type subject name…"
                             value={custom}
                             onChange={e => setCustom(e.target.value)}
-                            onKeyDown={e => { if (e.key === "Enter" && custom.trim()) { onSelect(custom.trim()); setOpen(false); setCustom(""); }}}
+                            onKeyDown={e => { if (e.key === "Enter" && custom.trim()) { onSelect(custom.trim()); setOpen(false); setCustom(""); } }}
                         />
                     </div>
                     <div className="max-h-40 overflow-y-auto">
@@ -582,41 +583,41 @@ function EditableDataRow({ record, type, onSave, onDelete }) {
 
     return (
         <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl mb-2 flex flex-col gap-2">
-            <input 
-                type="text" value={title} onChange={e => setTitle(e.target.value)} 
-                className="w-full text-sm font-semibold bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 ring-indigo-500" 
-                placeholder="Title" 
+            <input
+                type="text" value={title} onChange={e => setTitle(e.target.value)}
+                className="w-full text-sm font-semibold bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 ring-indigo-500"
+                placeholder="Title"
             />
-            <input 
-                type="text" value={desc} onChange={e => setDesc(e.target.value)} 
-                className="w-full text-xs bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500" 
-                placeholder={type === "task" ? "Subject/Description" : type === "exam" ? "Subject Name" : "Notes"} 
+            <input
+                type="text" value={desc} onChange={e => setDesc(e.target.value)}
+                className="w-full text-xs bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500"
+                placeholder={type === "task" ? "Subject/Description" : type === "exam" ? "Subject Name" : "Notes"}
             />
             {type === "exam" && (
                 <div className="grid grid-cols-2 gap-2">
-                    <input 
-                        type="text" value={record.subject_code || ""} onChange={e => onSave(record.id, { subject_code: e.target.value })} 
-                        className="w-full text-[11px] bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500" 
-                        placeholder="Subject Code" 
+                    <input
+                        type="text" value={record.subject_code || ""} onChange={e => onSave(record.id, { subject_code: e.target.value })}
+                        className="w-full text-[11px] bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500"
+                        placeholder="Subject Code"
                     />
-                    <input 
-                        type="text" value={record.venue || ""} onChange={e => onSave(record.id, { venue: e.target.value })} 
-                        className="w-full text-[11px] bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500" 
-                        placeholder="Venue" 
+                    <input
+                        type="text" value={record.venue || ""} onChange={e => onSave(record.id, { venue: e.target.value })}
+                        className="w-full text-[11px] bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500"
+                        placeholder="Venue"
                     />
                 </div>
             )}
-            <input 
-                type="text" value={timeField} onChange={e => setTimeField(e.target.value)} 
-                className="w-full text-[11px] bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500" 
-                placeholder={type === "task" ? "Time (e.g. 10:00 AM)" : type === "exam" ? "Exam Date (e.g. 2025-04-10)" : "Due Date"} 
+            <input
+                type="text" value={timeField} onChange={e => setTimeField(e.target.value)}
+                className="w-full text-[11px] bg-white border border-indigo-100 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 ring-indigo-500"
+                placeholder={type === "task" ? "Time (e.g. 10:00 AM)" : type === "exam" ? "Exam Date (e.g. 2025-04-10)" : "Due Date"}
             />
             <div className="flex items-center justify-end gap-2 mt-1">
                 <button onClick={() => setIsEditing(false)} className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">
                     Cancel
                 </button>
                 <button onClick={handleSave} disabled={saving} className="px-3 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center gap-1 disabled:opacity-60">
-                    {saving ? <Loader2 className="w-3 h-3 animate-spin"/> : <Check className="w-3 h-3"/>} Save
+                    {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
                 </button>
             </div>
         </div>
@@ -635,6 +636,8 @@ export default function Profile() {
             major: authProfile?.branch ? (ktuData.meta.branches[authProfile.branch] || authProfile.branch) : lp.major || "B.Tech",
             college: authProfile?.college || lp.college || "TIST",
             studentId: authProfile?.student_id || lp.studentId || "",
+            classroom: authProfile?.classroom || lp.classroom || "",
+            building: authProfile?.building || lp.building || "",
             semester: authProfile?.semester ? `S${authProfile.semester}` : lp.semester || "S6",
             scheme: authProfile?.scheme || lp.scheme || "2019",
             birthday: authProfile?.birthday || lp.birthday || "",
@@ -651,6 +654,8 @@ export default function Profile() {
                 major: authProfile.branch ? (ktuData.meta.branches[authProfile.branch] || authProfile.branch) : profile.major,
                 college: authProfile.college || profile.college,
                 studentId: authProfile.student_id || profile.studentId,
+                classroom: authProfile.classroom || profile.classroom,
+                building: authProfile.building || profile.building,
                 semester: authProfile.semester ? `S${authProfile.semester}` : profile.semester,
                 scheme: authProfile.scheme || profile.scheme,
                 birthday: authProfile.birthday || profile.birthday,
@@ -702,7 +707,13 @@ export default function Profile() {
         const updated = { ...profile, ...draft };
         setProfile(updated); saveProfile(updated); setEditing(false);
         if (user?.id) {
-            const updates = { full_name: draft.name, college: draft.college, student_id: draft.studentId };
+            const updates = {
+                full_name: draft.name,
+                college: draft.college,
+                student_id: draft.studentId,
+                classroom: draft.classroom,
+                building: draft.building,
+            };
             if (draft.semester?.startsWith("S")) updates.semester = parseInt(draft.semester.replace("S", ""));
             if (draft.scheme) updates.scheme = draft.scheme;
             if (draft.birthday) updates.birthday = draft.birthday;
@@ -760,24 +771,24 @@ export default function Profile() {
             const completion = total > 0 ? Math.round((done / total) * 100) : 0;
             const subjs = new Set(tasks.filter(t => t.is_completed).map(t => t.subject?.split(":")[0]?.trim()).filter(Boolean));
             const breadth = Math.min(100, subjs.size * 20);
-            const streak = (() => { try { return JSON.parse(localStorage.getItem("cognitek_streak") || "{}").count || 1; } catch { return 1; }})();
+            const streak = (() => { try { return JSON.parse(localStorage.getItem("cognitek_streak") || "{}").count || 1; } catch { return 1; } })();
             const consistency = Math.min(100, streak * 10);
             setSkills({ completion, breadth, consistency });
-        }).catch(() => {});
+        }).catch(() => { });
 
         api.get("/api/flashcards", { params: { user_id: user.id } }).then(r => {
             const sessions = r.data || [];
             setRecordings(sessions);
             const cardCount = sessions.reduce((sum, d) => sum + (d.content?.length || 0), 0);
             setKnowledgeStats({ lectures: sessions.length, flashcards: cardCount });
-        }).catch(() => {});
+        }).catch(() => { });
     }, [user?.id]);
 
     // Placement milestones
     const [placements, setPlacements] = useState([]);
     useEffect(() => {
         if (!user?.id) return;
-        api.get("/api/placement-milestones", { params: { user_id: user.id } }).then(r => setPlacements(r.data || [])).catch(() => {});
+        api.get("/api/placement-milestones", { params: { user_id: user.id } }).then(r => setPlacements(r.data || [])).catch(() => { });
     }, [user?.id]);
     const togglePlacement = async (id, current) => {
         await api.patch(`/api/placement-milestones/${id}`, { is_done: !current });
@@ -788,11 +799,11 @@ export default function Profile() {
     const [examHistory, setExamHistory] = useState([]);
     useEffect(() => {
         if (!user?.id) return;
-        api.get("/api/exam-sessions", { params: { user_id: user.id } }).then(r => setExamHistory(r.data || [])).catch(() => {});
+        api.get("/api/exam-sessions", { params: { user_id: user.id } }).then(r => setExamHistory(r.data || [])).catch(() => { });
     }, [user?.id]);
 
     // Streak
-    const streak = (() => { try { return JSON.parse(localStorage.getItem("cognitek_streak") || "{}").count || 1; } catch { return 1; }})();
+    const streak = (() => { try { return JSON.parse(localStorage.getItem("cognitek_streak") || "{}").count || 1; } catch { return 1; } })();
     const tasksDoneThisWeek = (() => {
         const week = new Date(); week.setDate(week.getDate() - 7);
         return allTasks.filter(t => t.is_completed && new Date(t.created_at) >= week).length;
@@ -854,13 +865,13 @@ export default function Profile() {
     const lastSync = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
     const GRID = [
-        { key: "identity",  label: "Academic Identity", icon: GraduationCap, color: "from-violet-500/10 to-purple-500/10 border-violet-200", iconColor: "text-violet-600", desc: "Profile & subjects" },
-        { key: "timetable", label: "Class Timetable",   icon: CalendarClock, color: "from-sky-500/10 to-blue-500/10 border-sky-200",    iconColor: "text-sky-600",    desc: "Weekly schedule" },
-        { key: "skills",    label: "Skill Matrix",      icon: Activity,      color: "from-emerald-500/10 to-green-500/10 border-emerald-200", iconColor: "text-emerald-600", desc: "Performance & goals" },
-        { key: "knowledge", label: "Knowledge Bank",    icon: BookOpen,      color: "from-amber-500/10 to-orange-500/10 border-amber-200", iconColor: "text-amber-600",  desc: "Study library" },
-        { key: "history",   label: "Activity History",  icon: Clock,         color: "from-rose-500/10 to-pink-500/10 border-rose-200",     iconColor: "text-rose-600",   desc: "Sessions & exams" },
-        { key: "settings",  label: "About the App",     icon: Settings,      color: "from-slate-500/10 to-gray-500/10 border-slate-200",  iconColor: "text-slate-600",  desc: "App info & AI pipeline" },
-        { key: "edit_data", label: "Manage Data",       icon: Pencil,        color: "from-indigo-500/10 to-blue-500/10 border-indigo-200", iconColor: "text-indigo-600", desc: "Edit tasks & exams" },
+        { key: "identity", label: "Academic Identity", icon: GraduationCap, color: "from-violet-500/10 to-purple-500/10 border-violet-200", iconColor: "text-violet-600", desc: "Profile & subjects" },
+        { key: "timetable", label: "Class Timetable", icon: CalendarClock, color: "from-sky-500/10 to-blue-500/10 border-sky-200", iconColor: "text-sky-600", desc: "Weekly schedule" },
+        { key: "skills", label: "Skill Matrix", icon: Activity, color: "from-emerald-500/10 to-green-500/10 border-emerald-200", iconColor: "text-emerald-600", desc: "Performance & goals" },
+        { key: "knowledge", label: "Knowledge Bank", icon: BookOpen, color: "from-amber-500/10 to-orange-500/10 border-amber-200", iconColor: "text-amber-600", desc: "Study library" },
+        { key: "history", label: "Activity History", icon: Clock, color: "from-rose-500/10 to-pink-500/10 border-rose-200", iconColor: "text-rose-600", desc: "Sessions & exams" },
+        { key: "settings", label: "About the App", icon: Settings, color: "from-slate-500/10 to-gray-500/10 border-slate-200", iconColor: "text-slate-600", desc: "App info & AI pipeline" },
+        { key: "edit_data", label: "Manage Data", icon: Pencil, color: "from-indigo-500/10 to-blue-500/10 border-indigo-200", iconColor: "text-indigo-600", desc: "Edit tasks & exams" },
     ];
 
     return (
@@ -904,7 +915,7 @@ export default function Profile() {
                         { label: "Streak", value: `${streak}🔥`, sub: "days" },
                         { label: "Done", value: tasksDoneThisWeek, sub: "this week" },
                         { label: "Subjects", value: localSubjects.length, sub: "enrolled" },
-                        { label: "Today", value: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short" }), sub: new Date().toLocaleDateString("en-IN", { weekday: "short" }) },
+                        { label: "Classroom", value: profile.classroom || "—", sub: profile.building || "Location" },
                     ].map(stat => (
                         <div key={stat.label} className="flex flex-col items-center py-2 px-1 rounded-xl bg-white/5 border border-white/10">
                             <p className="text-sm font-black text-white leading-tight">{stat.value}</p>
@@ -923,9 +934,8 @@ export default function Profile() {
                     <div className="space-y-2">
                         {placements.slice(0, 2).map(p => (
                             <button key={p.id} onClick={() => togglePlacement(p.id, p.is_done)}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all ${
-                                    p.is_done ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-amber-50 border-amber-200 text-slate-800"
-                                }`}>
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all ${p.is_done ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-amber-50 border-amber-200 text-slate-800"
+                                    }`}>
                                 <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${p.is_done ? "bg-emerald-500 border-emerald-500" : "border-amber-400"}`}>
                                     {p.is_done && <Check className="w-2.5 h-2.5 text-white" />}
                                 </div>
@@ -1044,7 +1054,7 @@ export default function Profile() {
                                                 const sy = (img.height - min) / 2;
                                                 ctx.drawImage(img, sx, sy, min, min, 0, 0, SIZE, SIZE);
                                                 const compressed = canvas.toDataURL("image/jpeg", 0.9); // Increased from 0.6
-                                                setDraft(d => ({...d, avatarDataUrl: compressed}));
+                                                setDraft(d => ({ ...d, avatarDataUrl: compressed }));
                                             };
                                             img.src = URL.createObjectURL(file);
                                         }} />
@@ -1053,9 +1063,9 @@ export default function Profile() {
                             </div>
                             {[
                                 ["Student ID", "studentId", "e.g. TCH22EC001"],
-                                ["Full Name",  "name",      "Your full name"],
-                                ["College",    "college",   "Institution name"],
-                                ["Major",      "major",     "Branch"],
+                                ["Full Name", "name", "Your full name"],
+                                ["College", "college", "Institution name"],
+                                ["Major", "major", "Branch"],
                             ].map(([label, key, ph]) => (
                                 <div key={key}>
                                     <label className="text-xs font-bold uppercase tracking-wide text-slate-400 ml-1 mb-1 block">{label}</label>
@@ -1067,8 +1077,24 @@ export default function Profile() {
                                 </div>
                             ))}
                             <div>
+                                <label className="text-xs font-bold uppercase tracking-wide text-slate-400 ml-1 mb-1 block">Classroom / Section</label>
+                                <LightInput
+                                    value={draft.classroom || ""}
+                                    onChange={e => setDraft({ ...draft, classroom: e.target.value })}
+                                    placeholder="e.g. A1, B2"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold uppercase tracking-wide text-slate-400 ml-1 mb-1 block">Building Name</label>
+                                <LightInput
+                                    value={draft.building || ""}
+                                    onChange={e => setDraft({ ...draft, building: e.target.value })}
+                                    placeholder="e.g. Academic Block"
+                                />
+                            </div>
+                            <div>
                                 <label className="text-xs font-bold uppercase tracking-wide text-slate-400 ml-1 mb-1 block">Birthday</label>
-                                <input 
+                                <input
                                     type="date"
                                     value={draft.birthday || ""}
                                     onChange={e => setDraft({ ...draft, birthday: e.target.value })}
@@ -1076,8 +1102,8 @@ export default function Profile() {
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                                {[["Semester", "semester", ["S1","S2","S3","S4","S5","S6","S7","S8"]],
-                                  ["Scheme", "scheme", ["2019","2024"]]].map(([label, key, opts]) => (
+                                {[["Semester", "semester", ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"]],
+                                ["Scheme", "scheme", ["2019", "2024"]]].map(([label, key, opts]) => (
                                     <div key={key}>
                                         <label className="text-xs font-bold uppercase tracking-wide text-slate-400 ml-1 mb-1 block">{label}</label>
                                         <select
@@ -1146,16 +1172,14 @@ export default function Profile() {
                                                 <p className="text-xs font-bold text-slate-800 truncate">{sub.course_code}</p>
                                                 <p className="text-[10px] text-slate-400 truncate">{sub.course_name}</p>
                                             </div>
-                                            <span className={`text-sm font-black ml-2 flex-shrink-0 ${
-                                                pct >= 75 ? "text-emerald-600" : pct >= 40 ? "text-amber-500" : "text-slate-400"
-                                            }`}>{pct}%</span>
+                                            <span className={`text-sm font-black ml-2 flex-shrink-0 ${pct >= 75 ? "text-emerald-600" : pct >= 40 ? "text-amber-500" : "text-slate-400"
+                                                }`}>{pct}%</span>
                                         </div>
                                         <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                                            <div className={`h-full rounded-full transition-all duration-700 ${
-                                                pct >= 75 ? "bg-gradient-to-r from-emerald-400 to-teal-400" :
+                                            <div className={`h-full rounded-full transition-all duration-700 ${pct >= 75 ? "bg-gradient-to-r from-emerald-400 to-teal-400" :
                                                 pct >= 40 ? "bg-gradient-to-r from-amber-400 to-yellow-400" :
-                                                "bg-slate-300"
-                                            }`} style={{ width: `${pct}%` }} />
+                                                    "bg-slate-300"
+                                                }`} style={{ width: `${pct}%` }} />
                                         </div>
                                         <p className="text-[10px] text-slate-400 mt-1">{done}/{subTasks.length} tasks done</p>
                                     </div>
@@ -1167,7 +1191,7 @@ export default function Profile() {
 
                 <div className="space-y-2">
                     {[
-                        { label: "Total Tasks Completed", value: `${allTasks.filter(t=>t.is_completed).length}`, desc: `out of ${allTasks.length} total` },
+                        { label: "Total Tasks Completed", value: `${allTasks.filter(t => t.is_completed).length}`, desc: `out of ${allTasks.length} total` },
                         { label: "Subjects Actively Working", value: `${Math.round(skills.breadth / 20)}`, desc: "have at least one completion" },
                         { label: "Streak", value: `${Math.round(skills.consistency / 10)} day${Math.round(skills.consistency / 10) !== 1 ? "s" : ""}`, desc: "in a row" },
                     ].map(item => (
@@ -1190,7 +1214,7 @@ export default function Profile() {
                         { label: "Sessions Recorded", value: knowledgeStats.lectures, icon: BookOpen, bg: "bg-amber-100", iconColor: "text-amber-700", textColor: "text-amber-800" },
                         { label: "Flashcards Generated", value: knowledgeStats.flashcards, icon: Zap, bg: "bg-orange-100", iconColor: "text-orange-700", textColor: "text-orange-800" },
                         { label: "Subjects Enrolled", value: localSubjects.length, icon: GraduationCap, bg: "bg-yellow-100", iconColor: "text-yellow-700", textColor: "text-yellow-800" },
-                        { label: "Active Tasks", value: allTasks.filter(t=>!t.is_completed).length, icon: Target, bg: "bg-rose-100", iconColor: "text-rose-700", textColor: "text-rose-800" },
+                        { label: "Active Tasks", value: allTasks.filter(t => !t.is_completed).length, icon: Target, bg: "bg-rose-100", iconColor: "text-rose-700", textColor: "text-rose-800" },
                     ].map(({ label, value, icon: Icon, bg, iconColor, textColor }) => (
                         <div key={label} className={`p-4 rounded-2xl ${bg} border border-white`}>
                             <Icon className={`w-5 h-5 mb-2 ${iconColor}`} />
@@ -1239,7 +1263,7 @@ export default function Profile() {
             {/* ── Activity History ── */}
             <Sheet open={sheet === "history"} onClose={() => setSheet(null)} title="🕐 Activity History">
                 <p className="text-xs text-slate-400 mb-6 leading-relaxed">Your complete academic timeline — recordings, tasks, placements, and exams.</p>
-                
+
                 <div className="space-y-8">
                     {/* Lecture Recordings Section */}
                     {recordings.length > 0 && (
@@ -1280,9 +1304,8 @@ export default function Profile() {
                                 {allTasks.slice(0, 5).map(t => (
                                     <div key={t.id} className="flex gap-4">
                                         <div className="flex flex-col items-center">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border flex-shrink-0 ${
-                                                t.is_completed ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"
-                                            }`}>
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border flex-shrink-0 ${t.is_completed ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"
+                                                }`}>
                                                 {t.is_completed ? <Check className="w-4 h-4 text-emerald-500" /> : <Target className="w-4 h-4 text-rose-500" />}
                                             </div>
                                             <div className="flex-1 w-0.5 bg-slate-100 my-1" />
@@ -1339,92 +1362,169 @@ export default function Profile() {
             </Sheet>
 
             {/* ── About the App ── */}
-            <Sheet open={sheet === "settings"} onClose={() => setSheet(null)} title="🔬 About CogniTek">
-                <p className="text-xs text-slate-400 mb-4 leading-relaxed">System architecture and active configurations for your CogniTek instance. These are read-only diagnostics.</p>
-                
+            <Sheet open={sheet === "settings"} onClose={() => setSheet(null)} title="🔬 About Cognitek">
+                <p className="text-sm text-slate-600 mb-6 leading-relaxed font-medium">
+                    System architecture and active neural configurations for your Cognitek instance.
+                    These are real-time diagnostics of your academic intelligence layer.
+                </p>
+
                 {/* Lab Status Section */}
-                <div className="mb-6 p-4 rounded-2xl bg-[#0f0f16] border border-white/5 relative overflow-hidden shadow-xl shadow-black/40">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl pointer-events-none" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/80 mb-3 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                        CogniTek Lab Status
+                <div className="mb-6 p-4 rounded-2xl bg-[#0a0a0f] border border-white/10 relative overflow-hidden shadow-2xl">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl pointer-events-none" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 mb-3 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]" />
+                        Cognitek Lab Status
                     </p>
                     <ServerStatus />
-                    <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">Verifying backend heartbeat and GPU-accelerated inference nodes.</p>
+                    <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                        Verifying heartbeat across <strong>Render nodes</strong> and <strong>LPU inference clusters</strong>.
+                    </p>
                 </div>
 
                 <div className="mb-8 p-1">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-center text-slate-500 mb-6 font-mono">Sylens AI Pipeline Architecture</p>
-                    
-                    <div className="relative flex flex-col gap-6 items-center px-4">
-                        {/* Vertical Flow Line */}
-                        <div className="absolute top-6 bottom-6 left-[38px] w-0.5 bg-gradient-to-b from-sky-400 via-indigo-500 to-emerald-400 opacity-20" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-center text-slate-400 mb-8 font-mono">
+                        Cognitek AI Pipeline Architecture
+                    </p>
 
-                        {/* Step 1: Perception */}
+                    <div className="relative flex flex-col gap-8 items-center px-2">
+                        {/* Vertical Flow Line - More vibrant for visibility */}
+                        <div className="absolute top-6 bottom-20 left-[26px] w-1 bg-gradient-to-b from-orange-400 via-indigo-500 via-sky-400 via-emerald-400 to-red-600 opacity-60" />
+
+                        {/* Step 1: Perception via Groq */}
                         <div className="group relative w-full flex items-start gap-4">
-                            <div className="relative z-10 w-9 h-9 rounded-xl bg-[#1a1a2e] border border-sky-500/30 flex items-center justify-center shadow-lg shadow-sky-500/10 group-hover:scale-110 transition-transform">
-                                <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-pulse" />
+                            <div className="relative z-10 w-10 h-10 rounded-xl bg-[#1a1a2e] border border-orange-500/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <Zap className="w-5 h-5 text-orange-400" />
                             </div>
-                            <div className="flex-1 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                            <div className="flex-1 p-4 rounded-2xl bg-black/30 border border-white/10 hover:bg-black/40 transition-colors">
                                 <div className="flex items-center justify-between mb-1">
-                                    <p className="text-[10px] font-black text-white uppercase tracking-wider">1. Perception</p>
-                                    <span className="text-[9px] font-bold text-sky-400 px-1.5 py-0.5 bg-sky-400/10 rounded-md border border-sky-400/20">Whisper v3</span>
+                                    <p className="text-[11px] font-black text-white uppercase tracking-wider">1. Rapid Perception</p>
+                                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-orange-300 px-2 py-0.5 bg-orange-950/50 rounded border border-orange-500/30 drop-shadow-[0_0_1.5px_rgba(253,186,116,0.9)] shadow-[0_0_8px_rgba(249,115,22,0.2)]">
+                                        Grok LPU
+                                    </span>
                                 </div>
-                                <p className="text-[10px] text-slate-400 leading-relaxed italic">"Audio lecture transcoded to semantic-rich text segments via OpenAI Whisper."</p>
+                                <p className="font-sans text-[12px] text-white leading-relaxed italic">
+                                    <p>• Sub-second transcription via Llama-3 & Whisper</p>
+                                    <p>• LPU: A processor built for AI speed</p>
+                                    <p>• Converts audio to text almost instantly</p>
+                                    <p>• Faster than a blink: Real-time processing</p>
+                                    <p>• Clean capture: Filters out background noise</p>
+                                    <p>• Zero lag: No loading screens, just results</p>
+                                    <p>• Student-ready: Turn lectures into notes instantly</p>
+                                </p>
                             </div>
                         </div>
 
-                        {/* Step 2: Logic Extraction */}
+                        {/* Step 2: Logic Engine via Gemini */}
                         <div className="group relative w-full flex items-start gap-4">
-                            <div className="relative z-10 w-9 h-9 rounded-xl bg-[#1a1a2e] border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/10 group-hover:scale-110 transition-transform">
-                                <Zap className="w-4 h-4 text-indigo-400" />
+                            <div className="relative z-10 w-10 h-10 rounded-xl bg-[#1a1a2e] border border-indigo-500/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <Cpu className="w-5 h-5 text-indigo-400" />
                             </div>
-                            <div className="flex-1 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                            <div className="flex-1 p-4 rounded-2xl bg-black/30 border border-white/10 hover:bg-black/40 transition-colors">
                                 <div className="flex items-center justify-between mb-1">
-                                    <p className="text-[10px] font-black text-white uppercase tracking-wider">2. Logic Engine</p>
-                                    <span className="text-[9px] font-bold text-indigo-400 px-1.5 py-0.5 bg-indigo-400/10 rounded-md border border-indigo-400/20">Gemini 2.5 Flash</span>
+                                    <p className="text-[11px] font-black text-white uppercase tracking-wider">2. Cognitive Logic</p>
+                                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-violet-300 px-2 py-0.5 bg-violet-950/50 rounded border border-violet-500/30 drop-shadow-[0_0_1.5px_rgba(196,181,253,0.9)] shadow-[0_0_8px_rgba(139,92,246,0.3)]">
+                                        Gemini 2.5
+                                    </span>
                                 </div>
-                                <p className="text-[10px] text-slate-400 leading-relaxed italic">"De-noising, context mapping, and extraction of tasks, exams, and flashcards."</p>
+                                <p className="text-[11px] text-white leading-relaxed italic">
+                                    <p>• Brain Power: Gemini 2.5 handles the heavy thinking</p>
+                                    <p>• Intent Focus: It understands exactly what you need to do</p>
+                                    <p>• Noise Filter: Ignores the filler, keeps the important facts</p>
+                                    <p>• Task Master: Automatically creates high-precision to-do lists</p>
+                                    <p>• Study Ready: Turns technical lectures into instant flashcards</p>
+                                    <p>• Precision Grip: Catches the details most AI would miss</p>
+                                    <p>• Memory Booster: Organizes thoughts so you don't have to</p>
+                                </p>
                             </div>
                         </div>
 
-                        {/* Step 3: Deployment */}
+                        {/* Step 3: Orchestration via FastAPI */}
                         <div className="group relative w-full flex items-start gap-4">
-                            <div className="relative z-10 w-9 h-9 rounded-xl bg-[#1a1a2e] border border-emerald-500/30 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
-                                <Database className="w-4 h-4 text-emerald-400" />
+                            <div className="relative z-10 w-10 h-10 rounded-xl bg-[#1a1a2e] border border-sky-500/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <Layers className="w-5 h-5 text-sky-400" />
                             </div>
-                            <div className="flex-1 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                            <div className="flex-1 p-4 rounded-2xl bg-black/30 border border-white/10 hover:bg-black/40 transition-colors">
                                 <div className="flex items-center justify-between mb-1">
-                                    <p className="text-[10px] font-black text-white uppercase tracking-wider">3. Persistence</p>
-                                    <span className="text-[9px] font-bold text-emerald-400 px-1.5 py-0.5 bg-emerald-400/10 rounded-md border border-emerald-400/20">Supabase DB</span>
+                                    <p className="text-[11px] font-black text-white uppercase tracking-wider">3. Orchestration</p>
+                                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-blue-300 px-2 py-0.5 bg-blue-950/50 rounded border border-blue-500/30 drop-shadow-[0_0_1.5px_rgba(147,197,253,0.9)] shadow-[0_0_8px_rgba(59,130,246,0.2)]">
+                                        FastAPI
+                                    </span>
                                 </div>
-                                <p className="text-[10px] text-slate-400 leading-relaxed italic">"Encrypted storage for actionable records, synced across all devices."</p>
+                                <p className="text-[11px] text-white leading-relaxed italic">
+                                    <p>• Data Traffic Controller: Moves your info at lightning speeds</p>
+                                    <p>• KTU Specialist: Maps your notes directly to your syllabus</p>
+                                    <p>• Multi-tasking King: Handles audio and text at the same time</p>
+                                    <p>• Syllabus Match: Automatically links lectures to exam topics</p>
+                                    <p>• Instant Routing: Sends your data exactly where it needs to go</p>
+                                    <p>• Always Active: No waiting for the server to "wake up"</p>
+                                    <p>• Academic Guardrail: Keeps your notes relevant to your degree</p>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Step 4: Persistence */}
+                        <div className="group relative w-full flex items-start gap-4">
+                            <div className="relative z-10 w-10 h-10 rounded-xl bg-[#1a1a2e] border border-emerald-500/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <Database className="w-5 h-5 text-emerald-400" />
+                            </div>
+                            <div className="flex-1 p-4 rounded-2xl bg-black/30 border border-white/10 hover:bg-black/40 transition-colors">
+                                <div className="flex items-center justify-between mb-1">
+                                    <p className="text-[11px] font-black text-white uppercase tracking-wider">4. Persistence</p>
+                                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-emerald-300 px-2 py-0.5 bg-emerald-950/50 rounded border border-emerald-500/30 drop-shadow-[0_0_1.5px_rgba(110,231,183,0.9)] shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                                        Supabase
+                                    </span>
+                                </div>
+                                <p className="text-[11px] text-white leading-relaxed italic">
+                                    <p>• Safe Keeping: Your academic records are locked and stored</p>
+                                    <p>• Private Access: Only you can see your data, nobody else</p>
+                                    <p>• Instant Sync: Your notes and tasks are ready when you are</p>
+                                    <p>• Rock-Solid Storage: Built to handle all your study materials</p>
+                                    <p>• Privacy First: Advanced security keeps your info guarded</p>
+                                    <p>• Cloud Backup: Never worry about losing a lecture note</p>
+                                    <p>• Quick Retrieval: Find what you need, exactly when you need it</p>
+                                </p>
+                            </div>
+                        </div>
+                        {/* Step 5: CogniTek */}
+                        <div className="group relative w-full flex items-start gap-4">
+                            <div className="relative z-10 w-10 h-10 rounded-xl bg-[#1a1a2e] border border-red-500/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <Smartphone className="w-5 h-5 text-red-400" />
+                            </div>
+                            <div className="flex-1 p-4 rounded-2xl bg-black/30 border border-white/10 hover:bg-black/10 transition-colors">
+                                <div className="flex items-center justify-between mb-1">
+                                    
+                                    <span className="animate-red-glow text-[13px] font-bold uppercase tracking-[0.2em] text-red-400 px-16 py-3 bg-red-950/40 rounded border border-red-500/30">
+                                        CogniTEK
+                                    </span>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
                 </div>
+                
 
-                {/* Data Privacy Note */}
-                <div className="p-4 mb-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 blur-2xl pointer-events-none" />
-                    <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest mb-1 flex items-center gap-2">
-                        <Shield className="w-3.5 h-3.5" /> Privacy Secure
+                {/* Data Privacy Note - Increased contrast */}
+                <div className="p-4 mb-8 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/20 blur-2xl pointer-events-none" />
+                    <p className="text-[11px] font-black uppercase text-emerald-400 tracking-widest mb-2 flex items-center gap-2">
+                        <Shield className="w-4 h-4" /> Privacy Protocol Active
                     </p>
-                    <p className="text-[10px] text-emerald-100 leading-relaxed">
-                        Lectures are processed in volatile memory. Raw audio files are <strong>never stored</strong>. Only the intelligent data parsed from them persists.
+                    <p className="text-[11px] text-grey-400 leading-relaxed font-medium">
+                        Lectures are processed via <strong>Ephemeral Streams</strong>. Raw audio is never stored on disk. Only synthesized academic data persists in your secure vault.
                     </p>
                 </div>
 
-                <div className="p-4 rounded-2xl border border-white/5 bg-white/5 text-center mb-4">
-                    <p className="text-[10px] text-slate-500">Built by Hansel Sabu · Electrical and Computer Engineering · TIST-KTU</p>
-                    <p className="text-[9px] text-slate-600 mt-1 uppercase tracking-widest font-black">CogniTek System v2.1.4_STRIKE</p>
+                <div className="p-6 rounded-2xl border border-white/10 bg-black/30 text-center mb-4 shadow-inner">
+                    <p className="text-[11px] text-white font-medium">Built by Hansel Sabu · Electrical and Computer Engineering · TIST-KTU</p>
+                    <p className="text-[10px] text-white/80 mt-2 uppercase tracking-[0.3em] font-black">Cognitek System v2.1.4_STRIKE</p>
                 </div>
             </Sheet>
 
             {/* ── Manage Data Sheet ── */}
             <Sheet open={sheet === "edit_data"} onClose={() => setSheet(null)} title="📝 Manage Academic Data">
                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">Fix any discrepancies parsed by Sylens. You can also manually add upcoming exams or tasks here.</p>
-                
+
                 <div className="space-y-6">
                     {/* Tasks Section */}
                     <div>
@@ -1437,10 +1537,10 @@ export default function Profile() {
                         ) : (
                             <div className="space-y-2">
                                 {allTasks.map(task => (
-                                    <EditableDataRow 
-                                        key={task.id} 
-                                        record={task} 
-                                        type="task" 
+                                    <EditableDataRow
+                                        key={task.id}
+                                        record={task}
+                                        type="task"
                                         onSave={async (id, updates) => {
                                             await api.patch(`/api/tasks/${id}`, updates);
                                             setAllTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
@@ -1467,15 +1567,15 @@ export default function Profile() {
                         ) : (
                             <div className="space-y-2">
                                 {examHistory.map(exam => (
-                                    <EditableDataRow 
-                                        key={exam.id} 
+                                    <EditableDataRow
+                                        key={exam.id}
                                         record={{
                                             ...exam,
                                             title: exam.subject_name || exam.subject_code,
                                             notes: exam.venue,
                                             due_date: exam.exam_date
                                         }}
-                                        type="exam" 
+                                        type="exam"
                                         onSave={async (id, updates) => {
                                             const backendUpdates = {
                                                 subject_name: updates.title,

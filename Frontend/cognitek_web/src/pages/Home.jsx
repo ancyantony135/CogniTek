@@ -48,6 +48,19 @@ function getDueDiff(dateStr) {
     return Math.round((parsedMid - todayMid) / 86400000);
 }
 
+// ── Time format helper ──────────────────────────────────────────────────────
+function formatExamTime(timeStr) {
+    if (!timeStr) return "";
+    const trimmed = timeStr.trim().toUpperCase();
+    if (trimmed.includes("AM") || trimmed.includes("PM")) return timeStr;
+    const hour = parseInt(timeStr);
+    if (isNaN(hour) || hour < 0 || hour > 23) return timeStr;
+    if (hour === 0) return "12 AM";
+    if (hour < 12) return `${hour} AM`;
+    if (hour === 12) return "12 PM";
+    return `${hour - 12} PM`;
+}
+
 // ── Deadline Alert Banner ─────────────────────────────────────────────────────
 function DeadlineAlert({ tasks, milestones, onDismiss }) {
     const now = new Date();
@@ -401,13 +414,15 @@ function ScheduleTab({ userId }) {
 
 // ── Exam Tab ──────────────────────────────────────────────────────────────────
 function ExamTab({ userId, semester, onRefresh }) {
+    const { subjects } = useAuth(); // Get subjects from AuthContext
     const [exams, setExams] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showPromotion, setShowPromotion] = useState(false);
 
     const [promoting, setPromoting] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
-    const [newExam, setNewExam] = useState({ type: "Series IA1", subject: "", date: "", time: "", venue: "" });
+    const [newExam, setNewExam] = useState({ type: "Class Test", subject: "", date: "", time: "", venue: "" });
     const [saving, setSaving] = useState(false);
     const [tipIndex, setTipIndex] = useState(0);
 
@@ -425,9 +440,13 @@ function ExamTab({ userId, semester, onRefresh }) {
         return () => clearInterval(iv);
     }, []);
 
-    // Enrolled subjects from profile
-    const enrolledSubjects = (() => {
-        try { return JSON.parse(localStorage.getItem("cognitek_profile") || "{}").subjects || []; } catch { return []; }
+    // Get classroom from profile
+    const classroom = (() => {
+        try { 
+            const profile = JSON.parse(localStorage.getItem("cognitek_profile") || "{}");
+            const building = profile.building ? ` · ${profile.building}` : "";
+            return profile.classroom ? `${profile.classroom}${building}` : ""; 
+        } catch { return ""; }
     })();
 
     const handleAddExam = async () => {
@@ -437,15 +456,15 @@ function ExamTab({ userId, semester, onRefresh }) {
             const payload = {
                 user_id: userId,
                 subject_name: newExam.subject,
-                subject_code: enrolledSubjects.find(s=>s.course_name === newExam.subject || s.course_code === newExam.subject)?.course_code || "",
+                subject_code: subjects.find(s=>s.course_name === newExam.subject || s.course_code === newExam.subject)?.course_code || "",
                 exam_date: newExam.date,
-                exam_time: newExam.time,
-                venue: newExam.venue,
+                exam_time: formatExamTime(newExam.time),
+                venue: newExam.venue || classroom,
                 notes: newExam.type
             };
             await api.post("/api/exam-sessions", payload);
             setIsAdding(false);
-            setNewExam({ type: "Series IA1", subject: "", date: "", time: "", venue: "" });
+            setNewExam({ type: "Class Test", subject: "", date: "", time: "", venue: "" });
             // Refresh list
             const r = await api.get("/api/exam-sessions", { params: { user_id: userId } });
             setExams(r.data || []);
@@ -458,13 +477,25 @@ function ExamTab({ userId, semester, onRefresh }) {
 
     useEffect(() => {
         if (!userId) return;
-        api.get("/api/exam-sessions", { params: { user_id: userId } })
-            .then(r => {
-                const data = r.data || [];
-                setExams(data);
-                if (data.length === 0) return;
+        Promise.all([
+            api.get("/api/exam-sessions", { params: { user_id: userId } }),
+            api.get("/api/tasks", { params: { user_id: userId } })
+        ])
+            .then(([examRes, taskRes]) => {
+                const examData = examRes.data || [];
+                setExams(examData);
+                
+                // Filter tasks that contain "exam" keywords
+                const examTasks = (taskRes.data || []).filter(t => {
+                    const title = (t.title || "").toLowerCase();
+                    const desc = (t.description || "").toLowerCase();
+                    return title.includes("exam") || desc.includes("exam") || title.includes("test");
+                });
+                setTasks(examTasks);
+                
+                if (examData.length === 0) return;
                 // Check if all exams are past
-                const allPast = data.every(e => {
+                const allPast = examData.every(e => {
                     const diff = getDueDiff(e.exam_date);
                     return diff !== null && diff < 0;
                 });
@@ -558,27 +589,23 @@ function ExamTab({ userId, semester, onRefresh }) {
                             onChange={e => setNewExam({...newExam, type: e.target.value})}
                             className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 ring-white/30"
                         >
-                            <option className="text-slate-800" value="Series IA1">Series IA1 (Internal)</option>
-                            <option className="text-slate-800" value="Series IA2">Series IA2 (Internal)</option>
-                            <option className="text-slate-800" value="Semester Exam">Semester Exam</option>
-                            <option className="text-slate-800" value="Supplementary">Supplementary Exam</option>
                             <option className="text-slate-800" value="Class Test">Class Test</option>
                         </select>
                         <div>
-                            <input
-                                list="subject-options"
-                                placeholder={enrolledSubjects.length === 0 ? "No subjects enrolled yet..." : "Select or type subject..."}
+                            <select
                                 value={newExam.subject}
                                 onChange={e => setNewExam({...newExam, subject: e.target.value})}
-                                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 ring-white/30"
-                                disabled={enrolledSubjects.length === 0}
-                            />
-                            <datalist id="subject-options">
-                                {enrolledSubjects.map(s => (
-                                    <option key={`${s.course_code}-${s.id || s.course_name}`} value={s.course_name}>{s.course_code}: {s.course_name}</option>
+                                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 ring-white/30"
+                                disabled={subjects.length === 0}
+                            >
+                                <option className="text-slate-800" value="">{subjects.length === 0 ? "No subjects enrolled yet..." : "Select a subject..."}</option>
+                                {subjects.map(s => (
+                                    <option key={`${s.course_code}-${s.id || s.course_name}`} className="text-slate-800" value={s.course_name}>
+                                        {s.course_code} — {s.course_name}
+                                    </option>
                                 ))}
-                            </datalist>
-                            {enrolledSubjects.length === 0 && (
+                            </select>
+                            {subjects.length === 0 && (
                                 <p className="text-[10px] text-amber-300 mt-1">Add subjects in your Profile first</p>
                             )}
                         </div>
@@ -594,7 +621,10 @@ function ExamTab({ userId, semester, onRefresh }) {
                             />
                         </div>
                         <input 
-                            type="text" placeholder="Venue / Hall (Optional)" value={newExam.venue} onChange={e => setNewExam({...newExam, venue: e.target.value})}
+                            type="text" 
+                            placeholder={classroom ? `Venue (default: ${classroom})` : "Venue / Hall"} 
+                            value={newExam.venue} 
+                            onChange={e => setNewExam({...newExam, venue: e.target.value})}
                             className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 ring-white/30"
                         />
                         <button 
@@ -609,8 +639,8 @@ function ExamTab({ userId, semester, onRefresh }) {
                 )}
             </div>
 
-            {/* Exam timetable */}
-            {exams.length === 0 ? (
+            {/* Exam timetable + exam tasks */}
+            {exams.length === 0 && tasks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center mb-3">
                         <CalendarCheck className="w-7 h-7 text-violet-400" />
@@ -621,6 +651,7 @@ function ExamTab({ userId, semester, onRefresh }) {
             ) : (
                 <div className="space-y-3">
                     <p className="text-[10px] uppercase tracking-widest font-black text-slate-400">Exam Schedule</p>
+                    {/* Display exam sessions */}
                     {[...(exams || [])].sort((a, b) => (a.exam_date || "").localeCompare(b.exam_date || "")).map(exam => {
                         const diff = getDueDiff(exam.exam_date);
                         const isPast = diff !== null && diff < 0;
@@ -671,6 +702,57 @@ function ExamTab({ userId, semester, onRefresh }) {
                             </div>
                         );
                     })}
+                    
+                    {/* Display exam-related tasks */}
+                    {tasks.length > 0 && (
+                        <>
+                            <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mt-6">Exam Tasks</p>
+                            {[...tasks].sort((a, b) => (a.due_date || "").localeCompare(b.due_date || "")).map(task => {
+                                const diff = getDueDiff(task.due_date);
+                                const isPast = diff !== null && diff < 0;
+                                const isToday = diff === 0;
+                                const isSoon = diff !== null && diff <= 3 && diff > 0;
+                                return (
+                                    <div key={task.id} className={`p-4 rounded-2xl border transition-all ${
+                                        isPast ? "bg-slate-50 border-slate-200 opacity-60" :
+                                        isToday ? "bg-amber-50 border-amber-300 shadow-md" :
+                                        isSoon ? "bg-blue-50 border-blue-200" :
+                                        "bg-white border-slate-200 shadow-sm"
+                                    }`}>
+                                        <div className="flex items-start gap-3">
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-sm ${
+                                                isPast ? "bg-slate-200 text-slate-500" :
+                                                isToday ? "bg-amber-500 text-white" :
+                                                "bg-blue-100 text-blue-700"
+                                            }`}>
+                                                {isPast ? "✓" : isToday ? "!" : "📋"}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`font-bold text-sm ${isPast ? "line-through text-slate-400" : "text-slate-800"}`}>
+                                                    {task.title}
+                                                </p>
+                                                {task.subject && (
+                                                    <p className="text-[10px] font-semibold text-slate-400">{task.subject}</p>
+                                                )}
+                                                {task.due_date && (
+                                                    <div className="flex items-center gap-2 mt-1.5">
+                                                        <span className={`text-[11px] font-semibold flex items-center gap-1 ${
+                                                            isToday ? "text-amber-600" : isSoon ? "text-blue-600" : "text-slate-500"
+                                                        }`}>
+                                                            <CalendarDays className="w-3 h-3" />
+                                                            {task.due_date}
+                                                            {isToday && " · TODAY!"}
+                                                            {isSoon && ` · In ${diff} day${diff > 1 ? "s" : ""}`}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </>
+                    )}
                 </div>
             )}
 
