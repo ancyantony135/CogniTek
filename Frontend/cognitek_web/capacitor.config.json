@@ -1,5 +1,9 @@
 {
   "appId": "com.cognitek.app",
   "appName": "CogniTek",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "url": "https://cognitek-woad.vercel.app",
+    "cleartext": false
+  }
 }

@@ -409,6 +409,21 @@ function ExamTab({ userId, semester, onRefresh }) {
     const [isAdding, setIsAdding] = useState(false);
     const [newExam, setNewExam] = useState({ type: "Series IA1", subject: "", date: "", time: "", venue: "" });
     const [saving, setSaving] = useState(false);
+    const [tipIndex, setTipIndex] = useState(0);
+
+    const prepTips = [
+        { emoji: "📅", tip: "Create a revision timetable — spread topics across days." },
+        { emoji: "🃏", tip: "Use CogniTek flashcards to drill key definitions." },
+        { emoji: "📝", tip: "Practice past KTU papers for each module." },
+        { emoji: "⏰", tip: "Study in 45-minute blocks with 10-minute breaks." },
+        { emoji: "🧘", tip: "Sleep 7-8 hours the night before." },
+        { emoji: "💧", tip: "Stay hydrated. Brain performance drops with dehydration." },
+    ];
+
+    useEffect(() => {
+        const iv = setInterval(() => setTipIndex(i => (i + 1) % prepTips.length), 3500);
+        return () => clearInterval(iv);
+    }, []);
 
     // Enrolled subjects from profile
     const enrolledSubjects = (() => {
@@ -481,14 +496,7 @@ function ExamTab({ userId, semester, onRefresh }) {
         }
     };
 
-    const prepTips = [
-        { emoji: "📅", tip: "Create a revision timetable — spread topics across days." },
-        { emoji: "🃏", tip: "Use CogniTek flashcards to drill key definitions." },
-        { emoji: "📝", tip: "Practice past KTU papers for each module." },
-        { emoji: "⏰", tip: "Study in 45-minute blocks with 10-minute breaks (Pomodoro)." },
-        { emoji: "🧘", tip: "Sleep 7-8 hours the night before — memory consolidates during sleep." },
-        { emoji: "💧", tip: "Stay hydrated. Brain performance drops with dehydration." },
-    ];
+    // Prep tips moved up
 
     if (loading) return <div className="flex items-center justify-center h-40 text-slate-400 text-sm">Loading…</div>;
 
@@ -513,6 +521,17 @@ function ExamTab({ userId, semester, onRefresh }) {
                     <p className="text-[9px] text-emerald-50/70 mt-2 text-center">This will update your semester in Academic Identity.</p>
                 </div>
             )}
+
+            {/* Exam prep tips - Flipping Card */}
+            <div className="rounded-2xl border border-violet-200 bg-violet-50 overflow-hidden relative min-h-[60px] shadow-sm mb-4 transition-all">
+                <div key={tipIndex} className="absolute inset-0 flex items-center px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <span className="text-2xl mr-3">{prepTips[tipIndex].emoji}</span>
+                    <div className="flex flex-col">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-violet-600 mb-0.5">💡 Tip of the moment</p>
+                        <p className="text-[11px] text-slate-700 leading-relaxed font-bold">{prepTips[tipIndex].tip}</p>
+                    </div>
+                </div>
+            </div>
 
             {/* Manual Entry Form */}
             <div className="p-4 rounded-3xl bg-indigo-600 shadow-xl shadow-indigo-500/20">
@@ -545,29 +564,37 @@ function ExamTab({ userId, semester, onRefresh }) {
                             <option className="text-slate-800" value="Supplementary">Supplementary Exam</option>
                             <option className="text-slate-800" value="Class Test">Class Test</option>
                         </select>
-                        <select 
-                            value={newExam.subject} 
-                            onChange={e => setNewExam({...newExam, subject: e.target.value})}
-                            className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 ring-white/30"
-                        >
-                            <option className="text-slate-800" value="">Select Subject</option>
-                            {enrolledSubjects.map(s => (
-                                <option key={s.id} className="text-slate-800" value={s.course_name}>{s.course_code}: {s.course_name}</option>
-                            ))}
-                        </select>
+                        <div>
+                            <input
+                                list="subject-options"
+                                placeholder={enrolledSubjects.length === 0 ? "No subjects enrolled yet..." : "Select or type subject..."}
+                                value={newExam.subject}
+                                onChange={e => setNewExam({...newExam, subject: e.target.value})}
+                                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 ring-white/30"
+                                disabled={enrolledSubjects.length === 0}
+                            />
+                            <datalist id="subject-options">
+                                {enrolledSubjects.map(s => (
+                                    <option key={`${s.course_code}-${s.id || s.course_name}`} value={s.course_name}>{s.course_code}: {s.course_name}</option>
+                                ))}
+                            </datalist>
+                            {enrolledSubjects.length === 0 && (
+                                <p className="text-[10px] text-amber-300 mt-1">Add subjects in your Profile first</p>
+                            )}
+                        </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <input 
+                            <input
                                 type="date" value={newExam.date} onChange={e => setNewExam({...newExam, date: e.target.value})}
                                 className="bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 ring-white/30 color-white"
                                 style={{ colorScheme: "dark" }}
                             />
-                            <input 
+                                <input 
                                 type="text" placeholder="Time (e.g. 10 AM)" value={newExam.time} onChange={e => setNewExam({...newExam, time: e.target.value})}
                                 className="bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 ring-white/30"
                             />
                         </div>
                         <input 
-                            type="text" placeholder="Venue / Hall" value={newExam.venue} onChange={e => setNewExam({...newExam, venue: e.target.value})}
+                            type="text" placeholder="Venue / Hall (Optional)" value={newExam.venue} onChange={e => setNewExam({...newExam, venue: e.target.value})}
                             className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 ring-white/30"
                         />
                         <button 
@@ -647,20 +674,7 @@ function ExamTab({ userId, semester, onRefresh }) {
                 </div>
             )}
 
-            {/* Exam prep tips */}
-            <div className="rounded-2xl border border-violet-200 bg-violet-50 overflow-hidden">
-                <div className="px-4 pt-3 pb-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-violet-600 mb-1">💡 Exam Prep Tips</p>
-                </div>
-                <div className="px-4 pb-4 space-y-2">
-                    {prepTips.map((t, i) => (
-                        <div key={i} className="flex items-start gap-2 p-2.5 rounded-xl bg-white border border-violet-100">
-                            <span className="text-base">{t.emoji}</span>
-                            <p className="text-[11px] text-slate-700 leading-relaxed">{t.tip}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            {/* Tips moved up */}
         </div>
     );
 }

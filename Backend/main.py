@@ -1,17 +1,16 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, JSON, cast
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, JSON, cast, text
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from pydantic import BaseModel
-import whisper
 import google.generativeai as genai
 import shutil
 import os
 import uuid as uuid_lib
 import json
-import torch
+import tempfile
 from datetime import datetime
 from typing import Optional
 from dotenv import load_dotenv
@@ -34,7 +33,7 @@ if not GEMINI_API_KEY:
 
 # Configure Gemini globally
 genai.configure(api_key=GEMINI_API_KEY)
-text_model = genai.GenerativeModel('gemini-1.5-flash') # Labeled as 2.5 in UI
+text_model = genai.GenerativeModel('gemini-2.5-flash') # Labeled as 2.5 in UI
 
 # ── Groq (Tier 2 — Lightweight, fast chat) ─────────────────────────────────
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
@@ -56,6 +55,8 @@ else:
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 # Fallback for safety during local testing
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./database/cognitek.db"
@@ -127,36 +128,42 @@ Base.metadata.create_all(bind=engine)
 # create_all() won't modify existing tables, so we manually add any
 # missing columns here. ADD COLUMN IF NOT EXISTS is a no-op if already present.
 def run_migrations():
-    migration_statements = [
-        "ALTER TABLE flashcards ADD COLUMN IF NOT EXISTS user_id UUID;",
-        "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS user_id UUID;",
-        "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS description TEXT;",
-        "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS time VARCHAR;",
-        # Placement milestones
-        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS user_id UUID;",
-        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS company VARCHAR;",
-        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS due_date VARCHAR;",
-        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS notes TEXT;",
-        "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS is_done BOOLEAN DEFAULT FALSE;",
-        # Exam sessions
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS subject_name VARCHAR;",
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS subject_code VARCHAR;",
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_date VARCHAR;",
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_time VARCHAR;",
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS venue VARCHAR;",
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE;",
-        "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS user_id UUID;",
-    ]
-    with engine.connect() as conn:
-        for stmt in migration_statements:
-            try:
-                conn.execute(text(stmt))
-                conn.commit()
-            except Exception as e:
-                print(f"⚠️  Migration skipped (may already exist): {e}")
+    """
+    Guarded migration block. Only runs PostgreSQL-specific 
+    syntax if connected to a Postgres database.
+    """
+    if engine.dialect.name == 'postgresql':
+        print("🚀 Detected PostgreSQL: Running production migrations...")
+        migration_statements = [
+            "ALTER TABLE flashcards ADD COLUMN IF NOT EXISTS user_id UUID;",
+            "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS user_id UUID;",
+            "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS description TEXT;",
+            "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS time VARCHAR;",
+            "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS user_id UUID;",
+            "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS company VARCHAR;",
+            "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS due_date VARCHAR;",
+            "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS notes TEXT;",
+            "ALTER TABLE placement_milestones ADD COLUMN IF NOT EXISTS is_done BOOLEAN DEFAULT FALSE;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS subject_name VARCHAR;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS subject_code VARCHAR;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_date VARCHAR;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_time VARCHAR;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS venue VARCHAR;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE;",
+            "ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS user_id UUID;",
+        ]
+        with engine.connect() as conn:
+            for stmt in migration_statements:
+                try:
+                    conn.execute(text(stmt))
+                    conn.commit()
+                except Exception as e:
+                    # Logs but doesn't crash if column already exists
+                    print(f"⚠️  Migration detail: {e}")
+    else:
+        print("ℹ️  Detected SQLite/Other: Skipping Postgres-only migrations.")
 
 try:
-    from sqlalchemy import text
     run_migrations()
     print("✅ Schema migrations applied.")
 except Exception as e:
@@ -229,32 +236,12 @@ app.add_middleware(
 
 # 4. HARDWARE VALIDATION & WHISPER LOAD
 print("------------------------------------------------")
-print("🚀 COGNITEK ARCHITECT SERVER STARTING...")
-
-FFMPEG_PATH = shutil.which("ffmpeg")
-if not FFMPEG_PATH:
-    print("❌ CRITICAL: FFmpeg is NOT installed or not in PATH.")
-else:
-    print(f"✅ FFmpeg detected at: {FFMPEG_PATH}")
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"✅ GPU Mode: {device.upper()}")
-
-try:
-    print("⏳ Loading Whisper (Perception) model...")
-    audio_model = whisper.load_model("small", device=device)
-    print("✅ Whisper Loaded. Ready for Perception.")
-except Exception as e:
-    print(f"❌ MODEL LOAD FAILURE: {str(e)}")
-    audio_model = None 
-
-print("✅ Server Ready.")
+print("🚀 COGNITEK SERVER STARTING (Cloud Mode)...")
+print("✅ Using Groq Whisper API for transcription")
+print("✅ Using Gemini for AI analysis")
 print("------------------------------------------------")
 
 # 5. API ENDPOINTS
-@app.get("/")
-def read_root():
-    return {"status": "online", "message": "Cognitek System Ready"}
 
 
 
@@ -262,19 +249,43 @@ def read_root():
 def process_audio(
     file: UploadFile = File(...),
     user_id: Optional[str] = Form(None),
-    subjects: Optional[str] = Form(None),   # JSON string: [{"code":"CST301","name":"..."},...]
+    subjects: Optional[str] = Form(None),
 ):
-    temp_filename = f"uploads/{file.filename}"
-    os.makedirs("uploads", exist_ok=True)
-    with open(temp_filename, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Use system temp dir instead of local uploads/
+    # Cloud instances don't have persistent storage
+    with tempfile.NamedTemporaryFile(
+        suffix=f"_{file.filename}", 
+        delete=False
+    ) as tmp:
+        shutil.copyfileobj(file.file, tmp)
+        temp_filename = tmp.name
     
     print(f"🎤 Processing: {file.filename} | user_id received: '{user_id}'")
     
-    # Whisper Transcription
-    result = audio_model.transcribe(temp_filename)
-    transcribed_text = result["text"]
-    print(f"📝 Transcribed: {transcribed_text[:50]}...")
+     # ── Groq Whisper Transcription (replaces local Whisper) ──
+    transcribed_text = ""
+    try:
+        if not groq_client:
+            raise Exception("Groq client not initialized. Check GROQ_API_KEY.")
+        
+        with open(temp_filename, "rb") as audio_file:
+            transcription = groq_client.audio.transcriptions.create(
+                file=(file.filename, audio_file.read()),
+                model="whisper-large-v3",
+                response_format="text",
+                language="en",
+            )
+        transcribed_text = transcription
+        print(f"📝 Transcribed: {transcribed_text[:80]}...")
+    
+    except Exception as e:
+        print(f"❌ Transcription Error: {e}")
+        return {"status": "error", "message": f"Transcription failed: {str(e)}"}
+    
+    finally:
+        # Always clean up temp file
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)
     
     # AI Analysis (Uses the global text_model)
     # Build subject constraint block if the user has enrolled subjects
@@ -318,7 +329,7 @@ For each task, extract ALL of the following fields:
 - "due_date": Specific date/deadline or KTU term (e.g., "Friday", "Series Exam 1", "Upcoming")
 - "time": Specific time of day OR estimated duration (e.g., "3:00 PM", "2 hours", "Before 5 PM"). Use null if not mentioned.
 - "priority": "High", "Medium", or "Low" — infer from urgency/importance
-- "description": 1-2 sentence plain-English summary of what the task involves. Write it as a direct instruction or action item. Do NOT mention "the audio", "the recording", or "the speaker".
+- "description": A quick tip or breakdown of what the task is and how to proceed (e.g., if the task is "Submit Tutorial assignment on mergesort", the description could be "Tutorial can be written in the tutorial book. Should include the working of mergesort with example.") Write it as actionable advice. Do NOT mention the audio.
 
 === FLASHCARD EXTRACTION (Concept-Oriented) ===
 - Extract technical definitions, laws, formulas, theorems, or module-specific concepts from the audio.
@@ -741,7 +752,7 @@ async def parse_timetable_image(file: UploadFile = File(...)):
         # Determine MIME type
         mime = file.content_type or "image/jpeg"
 
-        vision_model = genai.GenerativeModel("gemini-1.5-flash")
+        vision_model = genai.GenerativeModel("gemini-2.5-flash")
 
         prompt = """You are analyzing an image of a college class timetable.
 Extract the schedule and return it as strict JSON.

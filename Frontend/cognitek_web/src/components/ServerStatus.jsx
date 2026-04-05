@@ -8,9 +8,16 @@ const ServerStatus = () => {
     const checkPulse = async () => {
         try {
             // Pinging the root route we added to main.py
-            await axios.get(`${API_URL}/`, { timeout: 5000 });
+            const response = await axios.get(`${API_URL}/`, { timeout: 5000 });
+            console.log("✅ Backend health check passed:", response.data);
             setIsOnline(true);
         } catch (err) {
+            console.warn("⚠️ Backend health check failed:", {
+                message: err.message,
+                endpoint: `${API_URL}/`,
+                code: err.code,
+                status: err.response?.status
+            });
             setIsOnline(false);
         }
     };

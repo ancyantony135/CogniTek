@@ -116,7 +116,7 @@ export default function TaskCard({ task, onToggle, onDelete }) {
                         onClick={() => setExpanded(!expanded)}
                         className="p-1 px-2 rounded-lg bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-wider hover:bg-indigo-100 transition-all"
                     >
-                        {expanded ? "Less" : "Info"}
+                        {expanded ? "Less" : "Tip"}
                     </button>
                 )}
             </div>
@@ -127,7 +127,7 @@ export default function TaskCard({ task, onToggle, onDelete }) {
           <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
             {task.description && (
               <div className="flex flex-col gap-1">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Description</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Quick Tip 💡</p>
                 <p className="text-[11px] text-slate-600 leading-relaxed font-medium">{task.description}</p>
               </div>
             )}

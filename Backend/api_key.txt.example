@@ -7,3 +7,7 @@ Why?
 Free-tier API keys have limits (like how many requests you can make per minute). 
 If all four of us shared one key, 
 We would hit that limit four times faster, causing the app to crash for everyone.
+
+GEMINI_API_KEY=your_gemini_key
+GROQ_API_KEY=your_groq_key
+DATABASE_URL=postgresql://user:pass@host:5432/dbname

@@ -225,6 +225,7 @@ function TimetableSheet({ open, onClose, subjects }) {
     const [activeDay, setActiveDay] = useState("Monday");
     const [analyzing, setAnalyzing] = useState(false);
     const [analyzeStatus, setAnalyzeStatus] = useState("");
+    const [saveConfirm, setSaveConfirm] = useState(false);
     const fileRef = useRef(null);
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -237,6 +238,8 @@ function TimetableSheet({ open, onClose, subjects }) {
         };
         setTimetable(updated);
         saveTimetable(updated);
+        setSaveConfirm(true);
+        setTimeout(() => setSaveConfirm(false), 2000);
     };
 
     const clearSlot = (day, hour) => {
@@ -244,6 +247,8 @@ function TimetableSheet({ open, onClose, subjects }) {
         if (updated[day]) { delete updated[day][hour]; }
         setTimetable(updated);
         saveTimetable(updated);
+        setSaveConfirm(true);
+        setTimeout(() => setSaveConfirm(false), 2000);
     };
 
     const handleImageUpload = async (e) => {
@@ -282,6 +287,13 @@ function TimetableSheet({ open, onClose, subjects }) {
 
     return (
         <Sheet open={open} onClose={onClose} title="📅 Class Timetable">
+            {/* Save Confirmation Toast */}
+            {saveConfirm && (
+                <div className="mb-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <span className="text-emerald-600 font-bold text-sm">✓</span>
+                    <p className="text-xs text-emerald-700 font-medium">Schedule saved to device</p>
+                </div>
+            )}
             <div className="space-y-5">
                 {/* AI Image Upload */}
                 <div className="p-4 rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/50">
@@ -693,6 +705,7 @@ export default function Profile() {
             const updates = { full_name: draft.name, college: draft.college, student_id: draft.studentId };
             if (draft.semester?.startsWith("S")) updates.semester = parseInt(draft.semester.replace("S", ""));
             if (draft.scheme) updates.scheme = draft.scheme;
+            if (draft.birthday) updates.birthday = draft.birthday;
             const branch = Object.entries(ktuData.meta.branches).find(([, n]) => n === draft.major || n === draft.major);
             if (branch) updates.branch = branch[0];
 
@@ -719,7 +732,7 @@ export default function Profile() {
                 }
             }
 
-            try { await supabase.from("profiles").update(updates).eq("id", user.id); if (refreshProfile) await refreshProfile(); } catch {}
+            try { await supabase.from("profiles").update(updates).eq("id", user.id); if (refreshProfile) await refreshProfile(); } catch (e) { console.error("Profile save error:", e); }
         }
     };
 
@@ -1397,7 +1410,7 @@ export default function Profile() {
                     <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest mb-1 flex items-center gap-2">
                         <Shield className="w-3.5 h-3.5" /> Privacy Secure
                     </p>
-                    <p className="text-[10px] text-emerald-100/60 leading-relaxed">
+                    <p className="text-[10px] text-emerald-100 leading-relaxed">
                         Lectures are processed in volatile memory. Raw audio files are <strong>never stored</strong>. Only the intelligent data parsed from them persists.
                     </p>
                 </div>
@@ -1413,23 +1426,6 @@ export default function Profile() {
                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">Fix any discrepancies parsed by Sylens. You can also manually add upcoming exams or tasks here.</p>
                 
                 <div className="space-y-6">
-                    {/* Add Manual Record Entry */}
-                    <div 
-                        onClick={() => setSheet("edit_profile")} // Placeholder for now, or you might want a specific entry sheet
-                        className="p-4 rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-500/20 flex items-center justify-between group cursor-pointer hover:bg-indigo-500 transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                                <PlusCircle className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-black text-white">Add New Entry</p>
-                                <p className="text-[10px] text-indigo-100">Manual task or exam session</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-white/50 group-hover:translate-x-1 transition-transform" />
-                    </div>
-
                     {/* Tasks Section */}
                     <div>
                         <div className="flex items-center gap-2 mb-3">

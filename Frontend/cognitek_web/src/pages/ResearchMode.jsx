@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
-import { Send, ArrowLeft, Brain, Tag, X, Loader2, StickyNote } from "lucide-react";
+import { Send, ArrowLeft, Brain, Tag, X, Loader2, StickyNote, User as UserIcon } from "lucide-react";
+import sylensAvatar from "../assets/sylens_avatar.png";
 
 const RESEARCH_SYSTEM = `You are Sylens in Research Mode — a knowledgeable research companion. Rules:
 - You may give longer, well-structured answers when the topic warrants it.
@@ -11,6 +12,43 @@ const RESEARCH_SYSTEM = `You are Sylens in Research Mode — a knowledgeable res
 - Still avoid markdown symbols (no asterisks, no #). Use plain text with line breaks.
 - Encourage the student to explore further: end answers with one follow-up question they might want to investigate.
 - Be scholarly but accessible.`;
+
+function formatReply(text) {
+    if (!text) return text;
+    return text.replace(/\. ([A-Z])/g, ".\n\n$1").trim();
+}
+
+function Bubble({ msg, userAvatar }) {
+    const isUser = msg.role === "user";
+    return (
+        <div className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"} items-end`}>
+            <div className={`w-7 h-7 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md overflow-hidden ${
+                isUser ? "bg-blue-900/50" : ""
+            }`}>
+                {isUser
+                    ? (userAvatar ? <img src={userAvatar} alt="User" className="w-full h-full object-cover" /> : <UserIcon className="w-3.5 h-3.5 text-blue-200" />)
+                    : <img src={sylensAvatar} alt="Sylens" className="w-full h-full object-cover" />
+                }
+            </div>
+            <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                isUser
+                    ? "bg-blue-600/80 text-white rounded-br-sm"
+                    : "bg-white/10 text-white/90 border border-white/10 rounded-bl-sm"
+            }`}>
+                {msg.typing ? (
+                    <span className="flex items-center gap-1 py-0.5">
+                        {[0, 1, 2].map(i => (
+                            <span key={i} className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                                style={{ animationDelay: `${i * 0.15}s` }} />
+                        ))}
+                    </span>
+                ) : (
+                    <span className="whitespace-pre-wrap">{formatReply(msg.content)}</span>
+                )}
+            </div>
+        </div>
+    );
+}
 
 export default function ResearchMode() {
     const navigate = useNavigate();
@@ -125,21 +163,7 @@ export default function ResearchMode() {
             {/* ── CHAT PANEL ── */}
             {activePanel === "chat" && (
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-48">
-                    {messages.map(msg => (
-                        <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                            <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                                msg.role === "user"
-                                    ? "bg-blue-600/80 text-white rounded-br-sm"
-                                    : "bg-white/8 text-white/90 border border-white/10 rounded-bl-sm"
-                            }`}>
-                                {msg.typing ? (
-                                    <span className="flex gap-1">{[0,1,2].map(i =>
-                                        <span key={i} className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay:`${i*0.15}s`}}/>
-                                    )}</span>
-                                ) : msg.content}
-                            </div>
-                        </div>
-                    ))}
+                    {messages.map(msg => <Bubble key={msg.id} msg={msg} userAvatar={user?.user_metadata?.avatar_url} />)}
                     <div ref={bottomRef} />
                 </div>
             )}
@@ -160,13 +184,18 @@ export default function ResearchMode() {
             {/* ── INPUT ── */}
             <div className="fixed bottom-0 left-0 right-0 px-4 pb-24 pt-3 border-t border-blue-900/30" style={{background:"rgba(2,11,24,0.92)", backdropFilter:"blur(12px)",marginBottom:0}}>
                 <div className="flex items-center gap-2 bg-white/8 rounded-2xl px-3 py-2.5 border border-white/10">
-                    <input
+                    <textarea
                         ref={inputRef}
+                        rows={1}
                         value={input}
-                        onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => e.key === "Enter" && send()}
+                        onChange={e => {
+                            setInput(e.target.value);
+                            e.target.style.height = "auto";
+                            e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                        }}
+                        onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                         placeholder="Deep dive into any topic…"
-                        className="flex-1 bg-transparent outline-none text-sm text-white placeholder-white/30"
+                        className="flex-1 bg-transparent outline-none resize-none text-sm text-white placeholder-white/30 leading-relaxed py-0.5 max-h-28"
                     />
                     <button onClick={() => send()} disabled={!input.trim() || loading}
                         className={`p-2 rounded-xl flex-shrink-0 transition-all ${input.trim() && !loading ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:scale-105" : "text-white/20"}`}>

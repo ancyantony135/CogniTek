@@ -298,20 +298,7 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
                         <p className="text-[10px] text-slate-400 px-2 text-center leading-tight">Sylens asks you a practice Q</p>
                     </button>
 
-                    {/* Shuffle */}
-                    <button
-                        onClick={shuffled ? resetOrder : shuffleDeck}
-                        className="flex flex-col items-center gap-1.5 py-4 bg-white hover:bg-amber-50 transition-colors active:scale-95"
-                    >
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${shuffled ? "bg-amber-200" : "bg-amber-100"}`}>
-                            {shuffled
-                                ? <RotateCcw className="w-5 h-5 text-amber-700" />
-                                : <Shuffle className="w-5 h-5 text-amber-600" />
-                            }
-                        </div>
-                        <p className="text-xs font-bold text-slate-800">{shuffled ? "Reset Order" : "Shuffle"}</p>
-                        <p className="text-[10px] text-slate-400 px-2 text-center leading-tight">{shuffled ? "Back to original order" : "Randomize card order"}</p>
-                    </button>
+                    {/* Shuffle removed */}
 
                     {/* Mark Hard */}
                     <button
@@ -325,17 +312,7 @@ export default function FlashcardDeck({ onMarkHard, hardCards = [], selectedSubj
                         <p className="text-[10px] text-slate-400 px-2 text-center leading-tight">Flag for extra review</p>
                     </button>
 
-                    {/* Add to Notes */}
-                    <button
-                        onClick={handleAddToNotes}
-                        className="flex flex-col items-center gap-1.5 py-4 bg-white hover:bg-emerald-50 transition-colors active:scale-95"
-                    >
-                        <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
-                            <BookOpen className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <p className="text-xs font-bold text-slate-800">Add to Notes</p>
-                        <p className="text-[10px] text-slate-400 px-2 text-center leading-tight">Ask Sylens to summarize</p>
-                    </button>
+                    {/* Add to notes removed */}
                 </div>
             </div>
         </div>

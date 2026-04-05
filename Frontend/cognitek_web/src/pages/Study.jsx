@@ -25,6 +25,23 @@ export default function Study() {
         try { return JSON.parse(localStorage.getItem("cognitek_profile") || "{}").subjects || []; } catch { return []; }
     })();
 
+    // Timetable Sync
+    const timetable = (() => {
+        try { return JSON.parse(localStorage.getItem("cognitek_timetable") || "{}"); } catch { return {}; }
+    })();
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const todayStr = days[new Date().getDay()];
+    // Get array of subjects for today
+    const todayClasses = Object.values(timetable[todayStr] || {}).map(slot => typeof slot === 'string' ? slot : slot?.subject).filter(Boolean);
+
+    const sortedSubjects = [...enrolledSubjects].sort((a, b) => {
+        const aToday = todayClasses.some(c => c && (c.includes(a.course_code) || a.course_name.includes(c)));
+        const bToday = todayClasses.some(c => c && (c.includes(b.course_code) || b.course_name.includes(c)));
+        if (aToday && !bToday) return -1;
+        if (!aToday && bToday) return 1;
+        return 0;
+    });
+
     const [selectedSubject, setSelectedSubject] = useState("All");
 
     return (
@@ -56,32 +73,40 @@ export default function Study() {
 
             <div className="px-5">
 
-            {/* ── Subject Filter Chips ── */}
-            {enrolledSubjects.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-2">
-                    <button
-                        onClick={() => setSelectedSubject("All")}
-                        className={`px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap border ${
-                            selectedSubject === "All"
-                                ? "bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-200"
-                                : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                        }`}
-                    >
-                        All Subjects
-                    </button>
-                    {enrolledSubjects.map(sub => (
+            {/* ── Subject Filter ── */}
+            {sortedSubjects.length > 0 && (
+                <div className="mb-6 max-w-lg mx-auto">
+                    <p className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-3 px-1">Subjects Enrolled</p>
+                    <div className="flex flex-wrap gap-2">
                         <button
-                            key={sub.course_code}
-                            onClick={() => setSelectedSubject(sub.course_code)}
-                            className={`px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap border ${
-                                selectedSubject === sub.course_code
-                                    ? "bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-200"
-                                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                            onClick={() => setSelectedSubject("All")}
+                            className={`px-4 py-2.5 rounded-2xl font-bold text-xs transition-all border ${
+                                selectedSubject === "All"
+                                    ? "bg-slate-900 border-slate-900 text-white shadow-lg"
+                                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
                             }`}
                         >
-                            {sub.course_code}
+                            All Subjects (Mixed)
                         </button>
-                    ))}
+                        {sortedSubjects.map(sub => {
+                            const isToday = todayClasses.some(c => c && (c.includes(sub.course_code) || sub.course_name.includes(c)));
+                            return (
+                                <button
+                                    key={sub.course_code}
+                                    onClick={() => setSelectedSubject(sub.course_code)}
+                                    className={`px-4 py-2.5 rounded-2xl font-bold text-xs transition-all border whitespace-nowrap ${
+                                        selectedSubject === sub.course_code
+                                            ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                                            : isToday
+                                            ? "bg-violet-50 border-violet-200 text-violet-700 hover:bg-violet-100"
+                                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                                    }`}
+                                >
+                                    {isToday ? "📅 " : ""}{sub.course_code}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 
